@@ -1,0 +1,20 @@
+H VN:Z:1.0
+S 1 GTACGT
+S 2 TACGTA
+S 3 CGTACG
+S 4 ACGTAC
+S 5 GTACGA
+S 6 TACGAT
+L 1 + 2 + 5M
+L 1 + 4 + 4M
+L 2 + 4 + 5M
+L 2 + 3 + 4M
+L 3 + 1 + 5M
+L 3 + 2 + 4M
+L 3 + 5 + 5M
+L 3 + 4 + 4M
+L 4 + 1 + 4M
+L 4 + 3 + 5M
+L 4 + 5 + 4M
+L 5 + 6 + 5M
+P 7 1+,2+,4+,3+,5+,6+ 5M,5M,5M,5M,5M
