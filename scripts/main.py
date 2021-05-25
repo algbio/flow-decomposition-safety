@@ -6,7 +6,6 @@ def main():
     # print(graph)
     paths = read_paths(file)
     # print(paths)
-    # build_funnels(graph)
     all_max_safe_paths(paths)
 
 
@@ -43,32 +42,6 @@ def read_paths(filename):
             if line[0] == 'P':
                 paths.append(line.rstrip())
     return paths
-
-
-def build_funnels(vertices):
-    F = [[] for x in range(len(vertices))]
-    for u in vertices:
-        build_from(u, vertices, F)
-
-
-def build_from(u, graph, F):
-
-    max_weight = 0  # f[u]
-    max_edge = 0
-    for e in graph[u]:
-        edge = (u, e[0])
-        F[e[0]].append(edge)
-        if(e[1] > max_weight):
-            max_edge = (u, e[0])
-            max_weight = e[1]
-    print(u, 'is u and F:')
-    print(F)
-    # flows in a funnel struc
-    f = [[0] for x in range(len(F[u]))]
-    print(f)
-
-    print('***')
-
 
 def all_max_safe_paths(paths):
     max_path = ''
