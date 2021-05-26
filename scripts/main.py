@@ -16,8 +16,6 @@ def main():
     # print(paths)
     comp = flow_decomposition(graph, 0, 4)
     print(comp)
-    # dfs(graph, [0], 0, 7)
-
 
 def read_graph(filename):
     # save graph
@@ -39,7 +37,6 @@ def read_graph(filename):
                 graph.add_edge(v_from, v_to, capacity=weight)
     return graph
 
-
 def read_paths(filename):
     paths = []
     with open(filename, 'r') as f:
@@ -47,7 +44,6 @@ def read_paths(filename):
             if line[0] == 'P':
                 paths.append(line.rstrip())
     return paths
-
 
 def flow_decomposition(graph, s, t):
     stack = [s]
@@ -80,16 +76,6 @@ def flow_decomposition(graph, s, t):
             path.append((v, max_route))
             if graph.edges[v, max_route]['capacity'] < min_flow:
                 min_flow = graph.edges[v, max_route]['capacity']
-
-
-def dfs(graph, path, paths, s, t):
-    if s == t:
-        print(path)
-        return paths
-    for n in list(graph.neighbors(s)):
-        path.append(n)
-        dfs(graph, path, n, t)
-
 
 if __name__ == '__main__':
     main()
