@@ -7,6 +7,7 @@ from networkx.classes import graph
 from networkx.classes.function import neighbors
 from networkx.generators.classic import path_graph
 from networkx.generators.trees import prefix_tree
+import matplotlib.pyplot as plt
 
 
 class Graph:
@@ -27,17 +28,16 @@ class Graph:
     def safety_of_path(self, path, w):
         return self.excess_flow(path) >= w and w > 0
 
-    # not ready
     def maximal_safe_paths(self, paths):
+        max_safe_paths = []
         for p in paths:
             sub = [p[0], p[1]]
-            print(sub)
             f = self.excess_flow(sub)
             i = 1
             while True:
-                if i == len(p)-1:
+                if i == len(p)-1 and f > 0:
+                    max_safe_paths.append(sub)
                     break
-                    print(sub)
                 if f > 0:
                     i += 1
                     f_out = self.graph.nodes[p[i][0]]['flow_out']
@@ -48,18 +48,15 @@ class Graph:
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in-self.graph.edges[first]['capacity'])
+        return max_safe_paths
 
 
 def main():
-    file = 'data/dag_graph.gfa'
+    file = 'data/graph.gfa'
     graph = read_graph(file)
-    g = Graph(graph, 0, 7)
-    composed_paths = flow_decomposition(graph.copy(), 0, 7)
-    for p in composed_paths:
-        print(g.excess_flow(p))
-    #print(g.safety_of_path([(0, 1), (1, 2)], 3))
-    g.maximal_safe_paths(composed_paths)
-    #result = two_pointer_scan(composed_paths)
+    g = Graph(graph, 0, 13)
+    composed_paths = flow_decomposition(graph.copy(), 0, 13)
+    max_safe_paths = g.maximal_safe_paths(composed_paths)
 
 
 def read_graph(filename):
