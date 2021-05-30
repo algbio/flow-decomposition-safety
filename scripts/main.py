@@ -4,7 +4,7 @@ from networkx.algorithms.flow import edmonds_karp
 from networkx.algorithms.flow import shortest_augmenting_path
 from networkx.algorithms.flow.maxflow import maximum_flow
 from networkx.classes import graph
-from networkx.classes.function import neighbors, path_weight
+from networkx.classes.function import neighbors
 from networkx.generators.classic import path_graph
 from networkx.generators.trees import prefix_tree
 
@@ -15,15 +15,13 @@ class Graph:
         self.s = s
         self.t = t
 
-    # flow could be noted in the graph itself?
     def excess_flow(self, path):
         flow_sum = 0
         flow_out_sum = 0
         for e in path:
             flow_sum += self.graph.edges[e[0], e[1]]['capacity']
             if path[0][0] != e[0]:
-                for n in self.graph.successors(e[0]):
-                    flow_out_sum += self.graph.edges[e[0], n]['capacity']
+                flow_out_sum += self.graph.nodes[e[0]]['flow_out']
         return flow_sum - flow_out_sum
 
     def safety_of_path(self, path, w):
@@ -39,21 +37,16 @@ class Graph:
             while True:
                 if i == len(p)-1:
                     break
+                    print(sub)
                 if f > 0:
                     i += 1
-                    f_out = 0
-                    for e in self.graph.out_edges(p[i][0]):
-                        f_out += self.graph.edges[e[0], e[1]]['capacity']
-                    print(f_out)
+                    f_out = self.graph.nodes[p[i][0]]['flow_out']
                     f -= (f_out - self.graph.edges[p[i]]['capacity'])
-                    print(f)
                     sub.append(p[i])
                 else:
                     first = sub[0]
                     sub = [x for x in sub[1:len(sub)]]
-                    f_in = 0
-                    for e in self.graph.in_edges(first[1]):
-                        f_in += self.graph.edges[e[0], e[1]]['capacity']
+                    f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in-self.graph.edges[first]['capacity'])
 
 
@@ -62,9 +55,11 @@ def main():
     graph = read_graph(file)
     g = Graph(graph, 0, 7)
     composed_paths = flow_decomposition(graph.copy(), 0, 7)
-    print(g.safety_of_path([(0, 1), (1, 2)], 3))
+    for p in composed_paths:
+        print(g.excess_flow(p))
+    #print(g.safety_of_path([(0, 1), (1, 2)], 3))
     g.maximal_safe_paths(composed_paths)
-    result = two_pointer_scan(composed_paths)
+    #result = two_pointer_scan(composed_paths)
 
 
 def read_graph(filename):
@@ -85,7 +80,20 @@ def read_graph(filename):
                 v_to = int(read[3])
                 weight = int((read[5])[0:-1])
                 graph.add_edge(v_from, v_to, capacity=weight)
+                if 'flow_out' not in graph.nodes[v_from]:
+                    graph.nodes[v_from]['flow_out'] = 0
+                if 'flow_out' not in graph.nodes[v_to]:
+                    graph.nodes[v_to]['flow_out'] = 0
+                if 'flow_in' not in graph.nodes[v_from]:
+                    graph.nodes[v_from]['flow_in'] = 0
+                if 'flow_in' not in graph.nodes[v_to]:
+                    graph.nodes[v_to]['flow_in'] = 0
+
+                graph.nodes[v_to]['flow_in'] += weight
+                graph.nodes[v_from]['flow_out'] += weight
     return graph
+
+#not used
 
 
 def read_paths(filename):
