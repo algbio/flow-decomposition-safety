@@ -1,66 +1,61 @@
 #!/usr/bin/python3
 import networkx as nx
-from networkx.algorithms.flow import edmonds_karp
-from networkx.algorithms.flow import shortest_augmenting_path
-from networkx.algorithms.flow.maxflow import maximum_flow
-from networkx.classes import graph
-from networkx.classes.function import neighbors
-from networkx.generators.classic import path_graph
-from networkx.generators.trees import prefix_tree
-import matplotlib.pyplot as plt
 
 
 class Graph:
-    def __init__(self, graph, s, t):
+    def __init__(self, graph):
         self.graph = graph
-        self.s = s
-        self.t = t
 
     def excess_flow(self, path):
         flow_sum = 0
         flow_out_sum = 0
         for e in path:
-            flow_sum += self.graph.edges[e[0], e[1]]['capacity']
-            if path[0][0] != e[0]:
-                flow_out_sum += self.graph.nodes[e[0]]['flow_out']
-        return flow_sum - flow_out_sum
+            flow_sum += self.graph.edges[e]['capacity']
+            flow_out_sum += self.graph.nodes[e[0]]['flow_out']
+        return flow_sum - (flow_out_sum - self.graph.nodes[path[0][0]]['flow_out'])
 
     def safety_of_path(self, path, w):
         return self.excess_flow(path) >= w and w > 0
 
     def maximal_safe_paths(self, paths):
         max_safe_paths = []
-        for p in paths:
-            sub = [p[0], p[1]]
+        for path in paths:
+            sub = [path[0], path[1]]
             f = self.excess_flow(sub)
             i = 1
             while True:
-                if i == len(p)-1 and f > 0:
+                if i == len(path)-1 and f > 0:
                     max_safe_paths.append(sub)
                     break
                 if f > 0:
                     i += 1
-                    f_out = self.graph.nodes[p[i][0]]['flow_out']
-                    f -= (f_out - self.graph.edges[p[i]]['capacity'])
-                    sub.append(p[i])
+                    f_out = self.graph.nodes[path[i][0]]['flow_out']
+                    f -= (f_out - self.graph.edges[path[i]]['capacity'])
+                    sub.append(path[i])
                 else:
                     first = sub[0]
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
-                    f += (f_in-self.graph.edges[first]['capacity'])
+                    f += (f_in - self.graph.edges[first]['capacity'])
         return max_safe_paths
 
 
 def main():
     file = 'data/graph.gfa'
     graph = read_graph(file)
-    g = Graph(graph, 0, 13)
+    g = Graph(graph)
     composed_paths = flow_decomposition(graph.copy(), 0, 13)
+    print("composed paths")
+    for p in composed_paths:
+        print(p)
+    print("*****")
     max_safe_paths = g.maximal_safe_paths(composed_paths)
+    print("maximum safe paths:")
+    for p in max_safe_paths:
+        print(p)
 
 
 def read_graph(filename):
-    # save graph
     graph = nx.DiGraph()
     with open(filename, 'r') as f:
         for line in f:
@@ -107,36 +102,36 @@ def flow_decomposition(graph, s, t):
     min_flow = 9999
     path = []
     paths = []
+
     while(len(stack) > 0):
         v = stack.pop()
+
         if v == t:
             paths.append(path)
-
             for e in path:
-                graph.edges[e[0], e[1]]['capacity'] -= min_flow
+                graph.edges[e]['capacity'] -= min_flow
+
             path = []
             min_flow = 9999
             stack = [s]
+
             cap = 0
-            for p in graph.predecessors(t):
-                cap += graph.edges[p, t]['capacity']
+            for e in graph.out_edges(s):
+                cap += graph.edges[e]['capacity']
             if cap == 0:
                 return paths
         else:
             max_route = 0
             max_flow = 0
-            for n in graph.neighbors(v):
-                if graph.edges[v, n]['capacity'] > max_flow:
-                    max_flow = graph.edges[v, n]['capacity']
-                    max_route = n
+            for e in graph.out_edges(v):
+                if graph.edges[e]['capacity'] > max_flow:
+                    max_flow = graph.edges[e]['capacity']
+                    max_route = e[1]
             stack.append(max_route)
             path.append((v, max_route))
+
             if graph.edges[v, max_route]['capacity'] < min_flow:
                 min_flow = graph.edges[v, max_route]['capacity']
-
-
-def two_pointer_scan(paths):
-    pass
 
 
 if __name__ == '__main__':
