@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import networkx as nx
-import pygraphviz as pgv
 
 
 class Graph:
@@ -30,6 +29,7 @@ class Graph:
             sub = [path[0], path[1]]
             f = self.excess_flow(sub)
             i = 1
+            added = False
             while True:
                 if i == len(path)-1 and f > 0:
                     max_safe_paths.append(sub)
@@ -39,8 +39,12 @@ class Graph:
                     f_out = self.graph.nodes[path[i][0]]['flow_out']
                     f -= (f_out - self.graph.edges[path[i]]['capacity'])
                     sub.append(path[i])
+                    added = False
                 else:
                     first = sub[0]
+                    if not added:
+                        max_safe_paths.append(sub)
+                        added = True
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in - self.graph.edges[first]['capacity'])
@@ -95,9 +99,6 @@ def main():
     for g in graphs:
         print('graph')
         g.print()
-        A = nx.nx_agraph.to_agraph(g.graph)
-        A.layout()
-        A.draw(f'file{i}.png')
         print('decomposition')
         dec = g.flow_decomposition()
         for d in dec:
@@ -110,11 +111,8 @@ def main():
         print('***************')
         print('example:')
         file = 'data/graph.gfa'
-        graph=read_graph(file)
-        g = Graph(graph,0,0,13)
-        A = nx.nx_agraph.to_agraph(g.graph)
-        A.layout()
-        A.draw(f'example.png')
+        graph = read_graph(file)
+        g = Graph(graph, 0, 0, 13)
         composed_paths = g.flow_decomposition()
         print("composed paths")
         for p in composed_paths:
@@ -123,7 +121,6 @@ def main():
         print("maximum safe paths:")
         for p in max_safe_paths:
             print(p)
-    
 
 
 def read_graph(filename, n=0):
@@ -172,17 +169,7 @@ def read_graph(filename, n=0):
                     v_to = int(read[3])
                     weight = int((read[5])[0:-1])
                     graph.add_edge(v_from, v_to, capacity=weight)
-                    if 'flow_out' not in graph.nodes[v_from]:
-                        graph.nodes[v_from]['flow_out'] = 0
-                    if 'flow_out' not in graph.nodes[v_to]:
-                        graph.nodes[v_to]['flow_out'] = 0
-                    if 'flow_in' not in graph.nodes[v_from]:
-                        graph.nodes[v_from]['flow_in'] = 0
-                    if 'flow_in' not in graph.nodes[v_to]:
-                        graph.nodes[v_to]['flow_in'] = 0
-
-                    graph.nodes[v_to]['flow_in'] += weight
-                    graph.nodes[v_from]['flow_out'] += weight
+                    init_node(graph, v_from, v_to, weight)
             return graph
 
 
