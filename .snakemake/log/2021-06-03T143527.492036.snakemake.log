@@ -1,4 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 1 of /home/milla/flow-decomposition-safety/Snakefile:
-Missing input files for rule run_max_safe_paths:
-jee
