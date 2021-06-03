@@ -8,7 +8,7 @@ class Graph:
         self.n = n
         self.s = s
         self.t = t
-        if n != 0:
+        if n != 0:  #Ariel: It's strange that this case is treated in the constructor, I think it should be treated when calling the constructor not on it
             self.s = 0
             self.t = n-1
 
@@ -23,7 +23,7 @@ class Graph:
     def safety_of_path(self, path, w):
         return self.excess_flow(path) >= w and w > 0
 
-    def maximal_safe_paths(self, paths):
+    def maximal_safe_paths(self, paths):  #Ariel: We could add an initial comment to this function since it isn't trivial what it does at first sight, something like, 'it finds the maximal safe paths given a flow decomposition by the method explained at... it returns the paths as a...'
         max_safe_paths = []
         for path in paths:
             sub = [path[0], path[1]]
@@ -43,22 +43,22 @@ class Graph:
                 else:
                     first = sub[0]
                     if not added:
-                        max_safe_paths.append(sub)
+                        max_safe_paths.append(sub) #Ariel: I'm not sure about this but I think that there is a 'off-by-one error' here, this because if we are in this else, then the excess_flow of 'sub' should be <= 0, thus sub is not safe. Please check this.
                         added = True
-                    sub = [x for x in sub[1:len(sub)]]
+                    sub = [x for x in sub[1:len(sub)]]  #Ariel: Recall to use a linked list or a pair of indices to represent the paths. I personally prefer the pair of indices because you can use the decomposition to recover the paths in any format you want them
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in - self.graph.edges[first]['capacity'])
         return max_safe_paths
 
-    def flow_decomposition(self):
+    def flow_decomposition(self):  #Ariel: We could add an initial comment to this function since it isn't trivial what it does at first sight, something like, 'it finds a flow decomposition with the following method... it returns the paths as a list of sequence of edges'
         stack = [self.s]
-        min_flow = 999999
+        min_flow = 999999  #Ariel: A more elegant way to do this is float('inf')
         path = []
         paths = []
         copy_of_graph = self.graph.copy()
 
-        while(len(stack) > 0):
-            v = stack.pop()
+        while(len(stack) > 0):  #Ariel: A cool way to do this in python is just 'while stack:'
+            v = stack.pop()     #Ariel: Also, I do not think it's necessary to use a stack here, since this always contains at most one element
 
             if v == self.t:
                 paths.append(path)
@@ -66,7 +66,7 @@ class Graph:
                     copy_of_graph.edges[e]['capacity'] -= min_flow
 
                 path = []
-                min_flow = 9999
+                min_flow = 9999   #Ariel: This is different from the one above
                 stack = [self.s]
 
                 cap = 0
@@ -123,11 +123,11 @@ def main():
             print(p)
 
 
-def read_graph(filename, n=0):
+def read_graph(filename, n=0):  #Ariel: 'n' could have another name such ar number_of_graphs, also, it's strange that the default number of graphs is 0
 
     str = filename.split('.')
 
-    if str[-1] == 'graph':
+    if str[-1] == 'graph':  #Ariel: The code in this if could be a function called read_graph_format
         graphs = []
         i = 0
         g = nx.DiGraph()
@@ -151,7 +151,7 @@ def read_graph(filename, n=0):
                     init_node(g, int(read_line[0]), int(
                         read_line[1]), float(read_line[2]))
         return graphs
-    elif str[-1] == 'gfa':
+    elif str[-1] == 'gfa':  #Ariel: The code in this if could be a function called read_gfa_format
         graph = nx.DiGraph()
 
         with open(filename, 'r') as f:
@@ -168,12 +168,12 @@ def read_graph(filename, n=0):
                     v_from = int(read[1])
                     v_to = int(read[3])
                     weight = int((read[5])[0:-1])
-                    graph.add_edge(v_from, v_to, capacity=weight)
+                    graph.add_edge(v_from, v_to, capacity=weight)  #Ariel: We could use 'flow' instead of 'capacity'
                     init_node(graph, v_from, v_to, weight)
             return graph
 
 
-def init_node(graph, v_from, v_to, weight):
+def init_node(graph, v_from, v_to, weight):  #Ariel: These could be 2 functions instead, one called add_flow_in and another add_flow_out
     if 'flow_out' not in graph.nodes[v_from]:
         graph.nodes[v_from]['flow_out'] = 0
     if 'flow_out' not in graph.nodes[v_to]:
