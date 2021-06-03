@@ -1,16 +1,17 @@
 #!/usr/bin/python3
 import networkx as nx
+import argparse
 
 
 class Graph:
-    def __init__(self, graph, n=0, s=0, t=0):
+    def __init__(self, graph, s=0, t=0):
         self.graph = graph
-        self.n = n
+        #self.n = n
         self.s = s
         self.t = t
-        if n != 0:
-            self.s = 0
-            self.t = n-1
+        # if n != 0:
+        #    self.s = 0
+        #    self.t = n-1
 
     def excess_flow(self, path):
         flow_sum = 0
@@ -93,26 +94,26 @@ class Graph:
 
 
 def main():
-    file = 'data/1.graph'
-    graphs = read_graph(file, 6)
-    i = 0
-    for g in graphs:
-        print('graph')
-        g.print()
-        print('decomposition')
-        dec = g.flow_decomposition()
-        for d in dec:
-            print(d)
-        i += 1
-        print('max safe paths')
-        max_safe = g.maximal_safe_paths(dec)
-        for p in max_safe:
-            print(p)
-        print('***************')
-        print('example:')
-        file = 'data/graph.gfa'
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--graph_file", help="path to file")
+    parser.add_argument("-s", "--source", type=int,
+                        help="source of graph. optional")
+    parser.add_argument("-t", "--sink", type=int,
+                        help="sink of graph, optional")
+    parser.add_argument("--number_of_graphs", type=int,
+                        help="number of graphs to read. can be used if file contains many graphs")
+    args = parser.parse_args()
+
+    file = args.graph_file
+    graph = None
+    if args.number_of_graphs:
+        graph = read_graph(file, args.number_of_graphs)
+    else:
         graph = read_graph(file)
-        g = Graph(graph, 0, 0, 13)
+
+    g = None
+    if args.sink:
+        g = Graph(graph, args.source, args.sink)
         composed_paths = g.flow_decomposition()
         print("composed paths")
         for p in composed_paths:
@@ -121,12 +122,14 @@ def main():
         print("maximum safe paths:")
         for p in max_safe_paths:
             print(p)
+    else:
+        print('support for self computing source and sink under development')
 
 
 def read_graph(filename, n=0):
 
     str = filename.split('.')
-
+    '''
     if str[-1] == 'graph':
         graphs = []
         i = 0
@@ -151,26 +154,24 @@ def read_graph(filename, n=0):
                     init_node(g, int(read_line[0]), int(
                         read_line[1]), float(read_line[2]))
         return graphs
-    elif str[-1] == 'gfa':
-        graph = nx.DiGraph()
-
-        with open(filename, 'r') as f:
-            for line in f:
-                # read line
-                read = ''
-                if line.rstrip().count('\t') > 0:
-                    read = (line.rstrip()).split('\t')
-                else:
-                    read = (line.rstrip()).split(' ')
-
-                # add edge
-                if line[0] == 'L':
-                    v_from = int(read[1])
-                    v_to = int(read[3])
-                    weight = int((read[5])[0:-1])
-                    graph.add_edge(v_from, v_to, capacity=weight)
-                    init_node(graph, v_from, v_to, weight)
-            return graph
+    '''
+    graph = nx.DiGraph()
+    with open(filename, 'r') as f:
+        for line in f:
+            # read line
+            read = ''
+            if line.rstrip().count('\t') > 0:
+                read = (line.rstrip()).split('\t')
+            else:
+                read = (line.rstrip()).split(' ')
+            # add edge
+            if line[0] == 'L':
+                v_from = int(read[1])
+                v_to = int(read[3])
+                weight = int((read[5])[0:-1])
+                graph.add_edge(v_from, v_to, capacity=weight)
+                init_node(graph, v_from, v_to, weight)
+        return graph
 
 
 def init_node(graph, v_from, v_to, weight):
