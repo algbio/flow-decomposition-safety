@@ -96,9 +96,9 @@ class Graph:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--graph_file", help="path to file")
-    parser.add_argument("-s", "--source", type=int,
+    parser.add_argument("-s", "--source", type=int, default=-1,
                         help="source of graph. optional")
-    parser.add_argument("-t", "--sink", type=int,
+    parser.add_argument("-t", "--sink", type=int, default=-1,
                         help="sink of graph, optional")
     parser.add_argument("--number_of_graphs", type=int,
                         help="number of graphs to read. can be used if file contains many graphs")
@@ -112,7 +112,7 @@ def main():
         graph = read_graph(file)
 
     g = None
-    if args.sink:
+    if args.sink > 0 and args.source > 0:
         g = Graph(graph, args.source, args.sink)
         composed_paths = g.flow_decomposition()
         print("composed paths")
