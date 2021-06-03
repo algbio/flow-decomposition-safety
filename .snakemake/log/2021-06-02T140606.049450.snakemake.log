@@ -1,5 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 1 of /home/milla/flow-decomposition-safety/Snakefile:
-Missing input files for rule bwa_map:
-data/genome.fa
-data/samples/A.fastq
