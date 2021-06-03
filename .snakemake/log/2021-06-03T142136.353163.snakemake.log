@@ -1,0 +1,33 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	run_max_safe_paths
+	1
+Select jobs to execute...
+
+[Thu Jun  3 14:21:36 2021]
+rule run_max_safe_paths:
+    input: data/dag_graph.gfa
+    output: data/output.txt
+    jobid: 0
+
+[Thu Jun  3 14:21:36 2021]
+Error in rule run_max_safe_paths:
+    jobid: 0
+    output: data/output.txt
+
+RuleException:
+NameError in line 9 of /home/milla/flow-decomposition-safety/Snakefile:
+The name 'input' is unknown in this context. Please make sure that you defined that variable. Also note that braces not used for variable access have to be escaped by repeating them, i.e. {{print $1}}
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 2330, in run_wrapper
+  File "/home/milla/flow-decomposition-safety/Snakefile", line 9, in __rule_run_max_safe_paths
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 569, in _callback
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/concurrent/futures/thread.py", line 57, in run
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 555, in cached_or_run
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 2362, in run_wrapper
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/milla/flow-decomposition-safety/.snakemake/log/2021-06-03T142136.353163.snakemake.log

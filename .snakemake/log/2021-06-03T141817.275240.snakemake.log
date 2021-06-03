@@ -1,0 +1,2 @@
+SyntaxError in line 8 of /home/milla/flow-decomposition-safety/Snakefile:
+Multiple run or shell keywords in rule run_max_safe_paths. (Snakefile, line 8)

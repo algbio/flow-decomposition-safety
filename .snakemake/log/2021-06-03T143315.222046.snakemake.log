@@ -1,0 +1,36 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	run_max_safe_paths
+	1
+Select jobs to execute...
+
+[Thu Jun  3 14:33:15 2021]
+rule run_max_safe_paths:
+    jobid: 0
+
+[Thu Jun  3 14:33:15 2021]
+Error in rule run_max_safe_paths:
+    jobid: 0
+
+RuleException:
+URLError in line 3 of /home/milla/flow-decomposition-safety/Snakefile:
+<urlopen error [Errno 2] No such file or directory: '/home/milla/flow-decomposition-safety/scripts/main.py --graph_file data/dag_graph.gfa -s 0 -t 7'>
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 2330, in run_wrapper
+  File "/home/milla/flow-decomposition-safety/Snakefile", line 3, in __rule_run_max_safe_paths
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 222, in urlopen
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 525, in open
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 542, in _open
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 502, in _call_chain
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 1485, in file_open
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/urllib/request.py", line 1524, in open_local_file
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 569, in _callback
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/concurrent/futures/thread.py", line 57, in run
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 555, in cached_or_run
+  File "/home/milla/anaconda3/envs/safety/lib/python3.8/site-packages/snakemake/executors/__init__.py", line 2362, in run_wrapper
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /home/milla/flow-decomposition-safety/.snakemake/log/2021-06-03T143315.222046.snakemake.log

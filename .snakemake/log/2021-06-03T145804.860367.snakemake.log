@@ -1,0 +1,20 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	bwa_map
+	1
+Select jobs to execute...
+
+[Thu Jun  3 14:58:05 2021]
+rule bwa_map:
+    input: data/test.txt
+    output: data/data.txt
+    jobid: 0
+
+[Thu Jun  3 14:58:05 2021]
+Finished job 0.
+1 of 1 steps (100%) done
+Complete log: /home/milla/flow-decomposition-safety/.snakemake/log/2021-06-03T145804.860367.snakemake.log

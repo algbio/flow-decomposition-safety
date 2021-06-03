@@ -112,7 +112,7 @@ def main():
         graph = read_graph(file)
 
     g = None
-    if args.sink > 0 and args.source > 0:
+    if args.sink > -1 and args.source > -1:
         g = Graph(graph, args.source, args.sink)
         composed_paths = g.flow_decomposition()
         print("composed paths")
@@ -124,6 +124,7 @@ def main():
             print(p)
     else:
         print('support for self computing source and sink under development')
+    write_file(g.graph)
 
 
 def read_graph(filename, n=0):
@@ -196,6 +197,11 @@ def read_paths(filename):
             if line[0] == 'P':
                 paths.append(line.rstrip())
     return paths
+
+def write_file(graph):
+    f = open('data/output.txt', 'a')
+    for e in graph.edges:
+        f.write(f'{e} \n')
 
 
 if __name__ == '__main__':
