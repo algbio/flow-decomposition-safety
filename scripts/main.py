@@ -4,14 +4,10 @@ import argparse
 
 
 class Graph:
-    def __init__(self, graph, s=0, t=0):
+    def __init__(self, graph, s, t):
         self.graph = graph
-        #self.n = n
         self.s = s
         self.t = t
-        # if n != 0:
-        #    self.s = 0
-        #    self.t = n-1
 
     def excess_flow(self, path):
         flow_sum = 0
@@ -105,12 +101,11 @@ def main():
     args = parser.parse_args()
 
     file = args.graph_file
-    graph = None
-    if args.number_of_graphs:
-        graph = read_graph(file, args.number_of_graphs)
-    else:
-        graph = read_graph(file)
-
+    graphs = read_file(file)
+    for g in graphs:
+        g.print()
+        print('*****')
+    '''
     g = None
     if args.sink > -1 and args.source > -1:
         g = Graph(graph, args.source, args.sink)
@@ -125,11 +120,10 @@ def main():
     else:
         print('support for self computing source and sink under development')
     write_file(g.graph)
+    '''
 
 
-def read_graph(filename, n=0):
-
-    str = filename.split('.')
+def read_file(filename):
     '''
     if str[-1] == 'graph':
         graphs = []
@@ -156,23 +150,26 @@ def read_graph(filename, n=0):
                         read_line[1]), float(read_line[2]))
         return graphs
     '''
-    graph = nx.DiGraph()
+    graphs = []
+    graph = None
     with open(filename, 'r') as f:
-        for line in f:
+        for i, line in enumerate(f):
             # read line
-            read = ''
-            if line.rstrip().count('\t') > 0:
-                read = (line.rstrip()).split('\t')
-            else:
-                read = (line.rstrip()).split(' ')
+            read = (line.rstrip()).split('\t')
             # add edge
+            if line[0] == 'H':
+                if i != 0:
+                    graphs.append(Graph(graph))
+                graph = nx.DiGraph()
             if line[0] == 'L':
                 v_from = int(read[1])
                 v_to = int(read[3])
                 weight = int((read[5])[0:-1])
                 graph.add_edge(v_from, v_to, capacity=weight)
                 init_node(graph, v_from, v_to, weight)
-        return graph
+    if graph is not None:
+        graphs.append(Graph(graph))
+    return graphs
 
 
 def init_node(graph, v_from, v_to, weight):
@@ -197,6 +194,7 @@ def read_paths(filename):
             if line[0] == 'P':
                 paths.append(line.rstrip())
     return paths
+
 
 def write_file(graph):
     f = open('data/output.txt', 'a')
