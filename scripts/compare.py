@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 import argparse
+import os
 
 
 def main():
+    if os.path.isfile('data/comp.txt'):
+        os.remove('data/comp.txt')
     parser = argparse.ArgumentParser()
     parser.add_argument("-co", "--catfish_output", help="path to file")
     parser.add_argument("-so", "--safety_output")
@@ -17,8 +20,9 @@ def compare_files(catfish, safety, truth):
         read_2 = f.readline()
         read_3 = g.readline()
         i = 0
-        while i < 5:
-            write_file(f'comparison of {read_2}')
+        all_same = 0
+        catfish_deffers_from_truth = 0
+        while len(read_2) != 0:
             catfish_graph = []
             catfish_graph.append(e.readline())
             while(not catfish_graph[-1].startswith('#') and len(catfish_graph[-1]) > 0):
@@ -37,30 +41,61 @@ def compare_files(catfish, safety, truth):
                 truth_graph.append(g.readline())
             truth_graph.pop()
 
-            catfish_ver = []
+            catfish_ver = set()
             for p in catfish_graph:
                 p_temp = []
                 s = (p.rstrip()).split(',')
                 for d in s[2].split(' '):
                     if d != 'vertices' and d != '=' and len(d) > 0:
                         p_temp.append(d)
-                catfish_ver.append(p_temp)
-            print(catfish_ver)
+                catfish_ver.add(tuple(p_temp))
 
-            safety_ver = []
+            safety_ver = set()
             for p in safety_graph:
-                safety_ver.append((p.rstrip().split(' ')))
-            print(safety_ver)
-            truth_ver = []
+                safety_ver.add(tuple(p.rstrip().split(' ')))
+
+            truth_ver = set()
             for v in truth_graph:
                 s = (v.rstrip()).split(' ')
-                truth_ver.append([x for x in s[1:len(s)]])
-            print(truth_ver)
+                truth_ver.add(tuple([x for x in s[1:len(s)]]))
 
             # comparison of all paths here
 
-            print("*******")
+            if catfish_ver != truth_ver:
+                write_file(f'comparison of {read_2.rstrip()}')
+                print_all(catfish_ver, safety_ver, truth_ver)
+                catfish_deffers_from_truth += 1
+
+            if catfish_ver == truth_ver == safety_ver:
+                all_same += 1
+
             i += 1
+        print(f'there was {i} graphs')
+        write_file(f'there was {i} graphs')
+        print(f'which {all_same} are same ')
+        write_file(f'which {all_same} are same ')
+        print(f'times catfish differs from truth {catfish_deffers_from_truth}')
+
+
+def print_all(a, b, c):
+    print('catfish:')
+    print(a)
+    print('safety:')
+    print(b)
+    print('truth:')
+    print(c)
+    print('**********')
+    write_file('catfish:')
+    for s in a:
+        write_file(f'{s}')
+    write_file('safety:')
+    for s in b:
+        write_file(s)
+    write_file('truth:')
+    for s in c:
+        write_file(s)
+    write_file('**********')
+    write_file('')
 
 
 def write_file(str):

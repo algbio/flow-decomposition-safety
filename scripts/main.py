@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 import networkx as nx
 import argparse
+import os
 
 
 class Graph:
-    def __init__(self, graph, s, t):
+    def __init__(self, graph, s, t, debug=False):
         self.graph = graph
         self.s = s
         self.t = t
+        self.debug = debug
 
     def excess_flow(self, path):
         flow_sum = 0
@@ -23,13 +25,25 @@ class Graph:
     def maximal_safe_paths(self, paths):
         max_safe_paths = []
         for path in paths:
+            if self.debug:
+                print('decomposition in processing')
+                print(path)
             sub = [path[0], path[1]]
             f = self.excess_flow(sub)
             i = 1
             added = False
+            if self.debug:
+                print(f'setting up subpath {sub}')
+                print(f'flow {f}')
+                print(f'i: {i}')
+                print('*********')
             while True:
                 if i == len(path)-1 and f > 0:
-                    max_safe_paths.append(sub)
+                    if len(sub) >= 2:
+                        max_safe_paths.append(sub)
+                        if self.debug:
+                            print(f'MAX SAFE PATH ADDED {sub}')
+                            print(f'and flow was {f}')
                     break
                 if f > 0:
                     i += 1
@@ -37,19 +51,37 @@ class Graph:
                     f -= (f_out - self.graph.edges[path[i]]['capacity'])
                     sub.append(path[i])
                     added = False
+                    if self.debug:
+                        print('my flow is positive')
+                        print(f'i (index in path) is now{i}')
+                        print(f'flow out is {f_out}')
+                        print(f'flow {f}')
+                        print(f'Sub is now f{sub}')
+                        print('*********')
                 else:
+                    if self.debug:
+                        print('my flow is negative')
                     first = sub[0]
                     if not added:
-                        max_safe_paths.append(sub)
+                        if len(sub) >= 2:
+                            if self.debug:
+                                print(f'MAX SAFE PATH ADDED {sub}')
+                            max_safe_paths.append(sub)
                         added = True
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in - self.graph.edges[first]['capacity'])
+                    if self.debug:
+                        print(f'i (index in path) is now{i}')
+                        print(f'flow in is {f_in}')
+                        print(f'flow {f}')
+                        print(f'Sub is now f{sub}')
+                        print('*********')
         return max_safe_paths
 
     def flow_decomposition(self):
         stack = [self.s]
-        min_flow = 999999
+        min_flow = float('inf')
         path = []
         paths = []
         copy_of_graph = self.graph.copy()
@@ -63,7 +95,7 @@ class Graph:
                     copy_of_graph.edges[e]['capacity'] -= min_flow
 
                 path = []
-                min_flow = 9999
+                min_flow = float('inf')
                 stack = [self.s]
 
                 cap = 0
@@ -92,6 +124,8 @@ class Graph:
 
 
 def main():
+    if os.path.isfile('data/output.txt'):
+        os.remove('data/output.txt')
     parser = argparse.ArgumentParser()
     parser.add_argument("--graph_file", help="path to file")
     parser.add_argument("-s", "--source", type=int, default=-1,
@@ -106,13 +140,19 @@ def main():
     graphs = read_file(file)
     i = 0
     for g in graphs:
+        # g.print()
         dec = g.flow_decomposition()
+        for d in dec:
+            print(d)
+        print('********')
         max = g.maximal_safe_paths(dec)
         write_file(f'# graph {i}')
         for m in max:
+            if len(m) <= 1:
+                print('I ADDED LENGTH 1 PATH:')
             write_file(path_to_string(m))
             print(m)
-        print('*****')
+        # print('*****')
         i += 1
 
 

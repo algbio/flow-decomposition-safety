@@ -1,16 +1,20 @@
 #!/usr/bin/python3
 import argparse
+import os
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", help="path to file")
     args = parser.parse_args()
+    if os.path.isfile(f'{args.file}.gfa'):
+        os.remove(f'{args.file}.gfa')
     read_file(args.file)
 
 
 def read_file(filename):
     with open(filename, 'r') as f:
+        print('asdfdsaf')
         for line in f:
             if line[0] == '#':
                 write_file(filename, 'H', line)
