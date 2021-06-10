@@ -1,18 +1,23 @@
-import os
+import os, shutil
 
 if os.path.isfile('data/catfish-output.txt'):
         os.remove('data/catfish-output.txt')
 
+#shutil.copyfile('data/1.graph', 'data/1.sgr')
+
+FILE = ""
+if "file" in config:
+    FILE = config['file']
+
+PATH = f'data/{FILE}'
+
 rule all:
     input:
-        "data/catfish-output.txt",
-        "data/1.sgr.gfa",
-        "data/output.txt",
         "data/comp.txt"
 
 rule run_catfish:
     input:
-        "data/1.sgr"
+        PATH
     output:
         "data/catfish-output.txt"
     shell:
@@ -21,16 +26,16 @@ rule run_catfish:
 
 rule convert_to_gfa:
     input:
-        "data/1.sgr"
+        PATH
     output:
-        "data/1.sgr.gfa"
+        f"{PATH}.gfa"
     shell:
         "python scripts/parser.py --file {input}"
 
 
 rule run_algorithm:
     input:
-        "data/1.sgr.gfa"
+        f"{PATH}.gfa"
     output:
         "data/output.txt"
     shell:
