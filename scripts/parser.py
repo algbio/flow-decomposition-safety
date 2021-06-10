@@ -4,6 +4,7 @@ import os
 
 
 def main():
+    print('hello')
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", help="path to file")
     args = parser.parse_args()
