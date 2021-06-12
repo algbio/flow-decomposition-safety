@@ -10,11 +10,12 @@ def main():
     parser.add_argument("-co", "--catfish_output", help="path to file")
     parser.add_argument("-so", "--safety_output")
     parser.add_argument("-gt", "--ground_truth")
+    parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    compare_files(args.catfish_output, args.safety_output, args.ground_truth)
+    compare_files(args.catfish_output, args.safety_output, args.ground_truth, args.output_file)
 
 
-def compare_files(catfish, safety, truth):
+def compare_files(catfish, safety, truth, output):
     with open(catfish, 'r') as e, open(safety, 'r') as f, open(truth, 'r') as g:
         read_1 = e.readline()
         read_2 = f.readline()
@@ -62,8 +63,8 @@ def compare_files(catfish, safety, truth):
             # comparison of all paths here
 
             if catfish_ver != truth_ver:
-                write_file(f'comparison of {read_2.rstrip()}')
-                print_all(catfish_ver, safety_ver, truth_ver)
+                write_file(f'comparison of {read_2.rstrip()}', output)
+                print_all(catfish_ver, safety_ver, truth_ver, output)
                 catfish_deffers_from_truth += 1
 
             if catfish_ver == truth_ver == safety_ver:
@@ -71,13 +72,13 @@ def compare_files(catfish, safety, truth):
 
             i += 1
         print(f'there was {i} graphs')
-        write_file(f'there was {i} graphs')
+        write_file(f'there was {i} graphs', output)
         print(f'which {all_same} are same ')
-        write_file(f'which {all_same} are same ')
+        write_file(f'which {all_same} are same ', output)
         print(f'times catfish differs from truth {catfish_deffers_from_truth}')
 
 
-def print_all(a, b, c):
+def print_all(a, b, c, output):
     print('catfish:')
     print(a)
     print('safety:')
@@ -85,21 +86,21 @@ def print_all(a, b, c):
     print('truth:')
     print(c)
     print('**********')
-    write_file('catfish:')
+    write_file('catfish:', output)
     for s in a:
-        write_file(f'{s}')
-    write_file('safety:')
+        write_file(f'{s}', output)
+    write_file('safety:', output)
     for s in b:
-        write_file(s)
-    write_file('truth:')
+        write_file(s, output)
+    write_file('truth:', output)
     for s in c:
-        write_file(s)
-    write_file('**********')
-    write_file('')
+        write_file(s, output)
+    write_file('**********', output)
+    write_file('', output)
 
 
-def write_file(str):
-    f = open('data/comp.txt', 'a')
+def write_file(str, output):
+    f = open(output, 'a')
     f.write(f'{str} \n')
 
 

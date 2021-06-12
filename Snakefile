@@ -1,52 +1,48 @@
-import os, shutil
-
-if os.path.isfile('data/catfish-output.txt'):
-        os.remove('data/catfish-output.txt')
-
-#shutil.copyfile('data/1.graph', 'data/1.sgr')
-
-FILE = ""
-if "file" in config:
-    FILE = config['file']
-
-PATH = f'data/{FILE}'
+filename = "data/{path}.truth"
+paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        "data/comp.txt"
+        expand("result/comparisons/{p}.res", p=paths)
 
-rule run_catfish:
+rule convert_to_sgr:
     input:
-        PATH
+        "data/{p}.graph"
     output:
-        "data/catfish-output.txt"
+        "data/{p}.sgr"
     shell:
-        "./../catfish/bin/catfish -i {input} -o {output} -a greedy"
-
+        "mv {input} {output}"
 
 rule convert_to_gfa:
     input:
-        PATH
+        "data/{p}.sgr"
     output:
-        f"{PATH}.gfa"
+        "data/{p}.sgr.gfa"
     shell:
-        "python scripts/parser.py --file {input}"
+        "python scripts/converter.py -i {input}"
 
-
-rule run_algorithm:
+rule run_catfish:
     input:
-        f"{PATH}.gfa"
+        "data/{p}.sgr"
     output:
-        "data/output.txt"
+        "result/catfish/{p}.res"
     shell:
-        "python scripts/main.py --graph_file {input}"
+        "./../catfish/bin/catfish -i {input} -o {output} -a greedy"
+
+rule run_safety:
+    input:
+        "data/{p}.sgr.gfa"
+    output:
+        "result/safety/{p}.res"
+    shell:
+        "python scripts/main.py -i {input} -o {output}"
         
 rule compare:
     input:
-        "data/catfish-output.txt",
-        "data/output.txt",
-        "data/1.truth"
+        "result/catfish/{p}.res",
+        "result/safety/{p}.res",
+        "data/{p}.truth"
     output:
-        "data/comp.txt"
+        "result/comparisons/{p}.res"
     shell:
-        "python scripts/compare.py -co {input[0]} -so {input[1]} -gt {input[2]}"
+        "python scripts/compare.py -co {input[0]} -so {input[1]} -gt {input[2]} -o {output}"

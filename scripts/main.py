@@ -127,7 +127,8 @@ def main():
     if os.path.isfile('data/output.txt'):
         os.remove('data/output.txt')
     parser = argparse.ArgumentParser()
-    parser.add_argument("--graph_file", help="path to file")
+    parser.add_argument("-i","--graph_file", help="path to file")
+    parser.add_argument("-o","--output_file", help="path to file")
     parser.add_argument("-s", "--source", type=int, default=-1,
                         help="source of graph. optional")
     parser.add_argument("-t", "--sink", type=int, default=-1,
@@ -140,19 +141,14 @@ def main():
     graphs = read_file(file)
     i = 0
     for g in graphs:
-        # g.print()
         dec = g.flow_decomposition()
-        for d in dec:
-            print(d)
-        print('********')
         max = g.maximal_safe_paths(dec)
-        write_file(f'# graph {i}')
+        write_file(f'# graph {i}', args.output_file)
         for m in max:
             if len(m) <= 1:
                 print('I ADDED LENGTH 1 PATH:')
-            write_file(path_to_string(m))
-            print(m)
-        # print('*****')
+            write_file(path_to_string(m), args.output_file)
+        print('*****')
         i += 1
 
 
@@ -238,8 +234,8 @@ def read_paths(filename):
 '''
 
 
-def write_file(str):
-    f = open('data/output.txt', 'a')
+def write_file(str, output):
+    f = open(output, 'a')
     f.write(f'{str} \n')
 
 
