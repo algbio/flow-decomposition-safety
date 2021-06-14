@@ -2,6 +2,8 @@
 import networkx as nx
 import argparse
 import os
+import profile
+import re
 
 
 class Graph:
@@ -80,29 +82,38 @@ class Graph:
         return max_safe_paths
 
     def flow_decomposition(self):
-        stack = [self.s]
+        v = self.s
         min_flow = float('inf')
         path = []
         paths = []
         copy_of_graph = self.graph.copy()
+        cap = copy_of_graph.nodes[self.s]['flow_out']
+        #print(cap)
 
-        while(len(stack) > 0):
-            v = stack.pop()
+        while(True):
+            # v = stack.pop()
 
             if v == self.t:
                 paths.append(path)
+                rmv = []
                 for e in path:
                     copy_of_graph.edges[e]['capacity'] -= min_flow
-
+                    if copy_of_graph.edges[e]['capacity'] == 0:
+                        rmv.append(e)
+                copy_of_graph.remove_edges_from(rmv)
+                # print('current')
+                # for e in copy_of_graph.edges.data():
+                #    print(f'{e}')
+                #for n in copy_of_graph.nodes.data():
+                #    print(f'{n}')
                 path = []
+                cap -= min_flow
                 min_flow = float('inf')
-                stack = [self.s]
-
-                cap = 0
-                for e in copy_of_graph.out_edges(self.s):
-                    cap += copy_of_graph.edges[e]['capacity']
+                v = self.s
+                
+                # print(f'what {cap}')
                 if cap == 0:
-                    return paths
+                    break
             else:
                 max_route = 0
                 max_flow = 0
@@ -110,11 +121,13 @@ class Graph:
                     if copy_of_graph.edges[e]['capacity'] > max_flow:
                         max_flow = copy_of_graph.edges[e]['capacity']
                         max_route = e[1]
-                stack.append(max_route)
-                path.append((v, max_route))
 
                 if copy_of_graph.edges[v, max_route]['capacity'] < min_flow:
                     min_flow = copy_of_graph.edges[v, max_route]['capacity']
+                path.append((v, max_route))
+                v = max_route
+
+        return paths
 
     def print(self):
         print(f'my source is {self.s}')
@@ -127,8 +140,8 @@ def main():
     if os.path.isfile('data/output.txt'):
         os.remove('data/output.txt')
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i","--graph_file", help="path to file")
-    parser.add_argument("-o","--output_file", help="path to file")
+    parser.add_argument("-i", "--graph_file", help="path to file")
+    parser.add_argument("-o", "--output_file", help="path to file")
     parser.add_argument("-s", "--source", type=int, default=-1,
                         help="source of graph. optional")
     parser.add_argument("-t", "--sink", type=int, default=-1,
@@ -142,15 +155,14 @@ def main():
     i = 0
     for g in graphs:
         dec = g.flow_decomposition()
+        #print(dec)
         max = g.maximal_safe_paths(dec)
         write_file(f'# graph {i}', args.output_file)
         for m in max:
             if len(m) <= 1:
                 print('I ADDED LENGTH 1 PATH:')
             write_file(path_to_string(m), args.output_file)
-        print('*****')
         i += 1
-
 
 def read_file(filename):
     graphs = []
@@ -162,8 +174,7 @@ def read_file(filename):
             # add edge
             if line[0] == 'H':
                 if i != 0:
-                    graphs.append(Graph(graph, calc_source(
-                        graph.nodes), calc_sink(graph.nodes)))
+                    graphs.append(Graph(graph, 0, len(graph.nodes)-1))
                 graph = nx.DiGraph()
             if line[0] == 'L':
                 v_from = int(read[1])
@@ -172,8 +183,7 @@ def read_file(filename):
                 graph.add_edge(v_from, v_to, capacity=weight)
                 init_node(graph.nodes, v_from, v_to, weight)
     if graph is not None:
-        graphs.append(Graph(graph, calc_source(
-            graph.nodes), calc_sink(graph.nodes)))
+        graphs.append(Graph(graph, 0, len(graph.nodes)-1))
     return graphs
 
 
@@ -240,4 +250,4 @@ def write_file(str, output):
 
 
 if __name__ == '__main__':
-    main()
+    profile.run('main()')
