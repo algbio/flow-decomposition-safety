@@ -2,8 +2,8 @@
 import networkx as nx
 import argparse
 import os
-import profile
-import re
+import io_helper
+from timeit import default_timer as timer
 
 
 class Graph:
@@ -12,6 +12,8 @@ class Graph:
         self.s = s
         self.t = t
         self.debug = debug
+        self.flow_decomposition_paths = []
+        self.max_safe_paths = []
 
     def excess_flow(self, path):
         flow_sum = 0
@@ -24,9 +26,9 @@ class Graph:
     def safety_of_path(self, path, w):
         return self.excess_flow(path) >= w and w > 0
 
-    def maximal_safe_paths(self, paths):
-        max_safe_paths = []
-        for path in paths:
+    def maximal_safe_paths(self):
+        self.flow_decomposition()
+        for path in self.flow_decomposition_paths:
             if self.debug:
                 print('decomposition in processing')
                 print(path)
@@ -42,7 +44,7 @@ class Graph:
             while True:
                 if i == len(path)-1 and f > 0:
                     if len(sub) >= 2:
-                        max_safe_paths.append(sub)
+                        self.max_safe_paths.append(sub)
                         if self.debug:
                             print(f'MAX SAFE PATH ADDED {sub}')
                             print(f'and flow was {f}')
@@ -68,7 +70,7 @@ class Graph:
                         if len(sub) >= 2:
                             if self.debug:
                                 print(f'MAX SAFE PATH ADDED {sub}')
-                            max_safe_paths.append(sub)
+                            self.max_safe_paths.append(sub)
                         added = True
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
@@ -79,61 +81,48 @@ class Graph:
                         print(f'flow {f}')
                         print(f'Sub is now f{sub}')
                         print('*********')
-        return max_safe_paths
+        return self.max_safe_paths
 
     def flow_decomposition(self):
         v = self.s
         min_flow = float('inf')
         path = []
-        paths = []
         copy_of_graph = self.graph.copy()
+
         cap = copy_of_graph.nodes[self.s]['flow_out']
-        #print(cap)
 
         while(True):
-            # v = stack.pop()
-
             if v == self.t:
-                paths.append(path)
+                self.flow_decomposition_paths.append(path)
                 rmv = []
                 for e in path:
                     copy_of_graph.edges[e]['capacity'] -= min_flow
                     if copy_of_graph.edges[e]['capacity'] == 0:
                         rmv.append(e)
                 copy_of_graph.remove_edges_from(rmv)
-                # print('current')
-                # for e in copy_of_graph.edges.data():
-                #    print(f'{e}')
-                #for n in copy_of_graph.nodes.data():
-                #    print(f'{n}')
                 path = []
                 cap -= min_flow
                 min_flow = float('inf')
                 v = self.s
-                
-                # print(f'what {cap}')
                 if cap == 0:
                     break
             else:
-                max_route = 0
-                max_flow = 0
-                for e in copy_of_graph.out_edges(v):
-                    if copy_of_graph.edges[e]['capacity'] > max_flow:
-                        max_flow = copy_of_graph.edges[e]['capacity']
-                        max_route = e[1]
-
-                if copy_of_graph.edges[v, max_route]['capacity'] < min_flow:
-                    min_flow = copy_of_graph.edges[v, max_route]['capacity']
-                path.append((v, max_route))
-                v = max_route
-
-        return paths
+                next = list(copy_of_graph.successors(v))[0]
+                if copy_of_graph.edges[v, next]['capacity'] < min_flow:
+                    min_flow = copy_of_graph.edges[v, next]['capacity']
+                path.append((v, next))
+                v = next
+        return self.flow_decomposition_paths
 
     def print(self):
-        print(f'my source is {self.s}')
-        print(f'my sink is {self.t}')
-        for e in self.graph.edges:
-            print(e, ' capacity: ', self.graph.edges[e]['capacity'])
+        print(self)
+
+    def __str__(self):
+        return (f'source: {self.s}\n'
+                f'sink: {self.t}\n'
+                f'graph: {list(self.graph.edges)}\n'
+                f'flow decomposition: {self.flow_decomposition_paths}\n'
+                f'maximum safe paths: {self.max_safe_paths}\n')
 
 
 def main():
@@ -154,15 +143,14 @@ def main():
     graphs = read_file(file)
     i = 0
     for g in graphs:
-        dec = g.flow_decomposition()
-        #print(dec)
-        max = g.maximal_safe_paths(dec)
-        write_file(f'# graph {i}', args.output_file)
+        g.print()
+        max = g.maximal_safe_paths()
+        g.print()
+        io_helper.write_file(f'# graph {i}', args.output_file)
         for m in max:
-            if len(m) <= 1:
-                print('I ADDED LENGTH 1 PATH:')
-            write_file(path_to_string(m), args.output_file)
+            io_helper.write_file(path_to_string(m), args.output_file)
         i += 1
+
 
 def read_file(filename):
     graphs = []
@@ -233,21 +221,5 @@ def path_to_string(path):
     return str
 
 
-'''
-def read_paths(filename):
-    paths = []
-    with open(filename, 'r') as f:
-        for line in f:
-            if line[0] == 'P':
-                paths.append(line.rstrip())
-    return paths
-'''
-
-
-def write_file(str, output):
-    f = open(output, 'a')
-    f.write(f'{str} \n')
-
-
 if __name__ == '__main__':
-    profile.run('main()')
+    main()
