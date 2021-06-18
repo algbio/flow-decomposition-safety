@@ -1,9 +1,11 @@
 from graph import Graph
 import networkx as nx
 
+
 def write_file(str, output):
     f = open(output, 'a')
     f.write(f'{str} \n')
+
 
 def read_gfa_file(filename):
     graphs = []
@@ -26,6 +28,33 @@ def read_gfa_file(filename):
     if graph is not None:
         graphs.append(Graph(graph, 0, len(graph.nodes)-1))
     return graphs
+
+def read_file(filename):
+    filename_parts = filename.split('/')
+
+    graphs = []
+    graph = []
+    with open(filename, 'r') as f:
+        for line in f:
+            parts = line.rstrip().split(' ')
+            if parts[0] == '#':
+                if len(graph) > 0:
+                    graphs.append(graph)
+                    graph = []
+            else:
+                if filename_parts[1] == 'safety':
+                    path = tuple([int(x) for x in parts[0:(len(parts))]])
+                elif filename_parts[1] == 'catfish':
+                    path = tuple([int(x) for x in parts[7:(len(parts))]])
+                elif filename_parts[0] == 'data':
+                    path = tuple([int(x) for x in parts[1:(len(parts))]])
+                else:
+                    print('invalid filetype')
+                    break
+                graph.append(path)
+    graphs.append(graph)
+    return graphs
+
 
 def init_node(nodes, v_from, v_to, weight):
     if 'flow_out' not in nodes[v_from]:

@@ -1,19 +1,40 @@
 #!/usr/bin/python3
 import argparse
 import os
+import io_helper
 
 
 def main():
     if os.path.isfile('data/comp.txt'):
         os.remove('data/comp.txt')
     parser = argparse.ArgumentParser()
-    parser.add_argument("-co", "--catfish_output", help="path to file")
-    parser.add_argument("-so", "--safety_output")
-    parser.add_argument("-gt", "--ground_truth")
+    parser.add_argument("-i1", "--first_input")
+    parser.add_argument("-i2", "--second_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    compare_files(args.catfish_output, args.safety_output,
-                  args.ground_truth, args.output_file)
+    compare_files2(args.first_input, args.second_input, args.output_file)
+
+
+def compare_files2(file_1, file_2, output):
+    graphs_1 = io_helper.read_file(file_1)
+    graphs_2 = io_helper.read_file(file_2)
+    n = 0
+    if len(graphs_1) == len(graphs_2):
+        n = len(graphs_1)
+    total = 0
+    number_of_paths = 0
+    for i in range(0, n):
+        for path_1 in graphs_1[i]:
+            longest_overlap = 0
+            for path_2 in graphs_2[i]:
+                if len(set(path_1) & set(path_2)) > longest_overlap:
+                    longest_overlap = len(set(path_1) & set(path_2))
+            acc = longest_overlap/len(path_1)
+            total += acc
+            number_of_paths += 1
+
+    print(len(graphs_1) == len(graphs_2))
+    print(total/number_of_paths)
 
 
 def compare_files(catfish, safety, truth, output):
@@ -62,7 +83,7 @@ def compare_files(catfish, safety, truth, output):
                 truth_ver.add(tuple([x for x in s[1:len(s)]]))
 
             # comparison of all paths here
-            
+
             total = 1
             for t in truth_ver:
                 longest_overlap = 0
@@ -76,7 +97,6 @@ def compare_files(catfish, safety, truth, output):
                 total *= acc
             write_file(f'graph {i}', output)
             write_file(f'total accuracy {total}', output)
-                
 
             i += 1
 

@@ -17,9 +17,7 @@ def main():
     graphs = io_helper.read_gfa_file(file)
     i = 0
     for g in graphs:
-        g.print()
         max = g.maximal_safe_paths()
-        g.print()
         io_helper.write_file(f'# graph {i}', args.output_file)
         for m in max:
             io_helper.write_file(path_to_string(m), args.output_file)
