@@ -38,11 +38,8 @@ class Graph:
                 else:
                     first = sub[0]
                     if not added:
-                        if len(sub) >= 2:
-                            if f == 0:
-                                self.max_safe_paths.append(sub[0:-1])
-                            else:
-                                self.max_safe_paths.append(sub)
+                        if len(sub[0:-1]) >= 2:
+                            self.max_safe_paths.append(sub[0:-1])
                         added = True
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
