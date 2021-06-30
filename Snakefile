@@ -3,7 +3,7 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("result/catfish/{p}.res", p=paths)
+        expand("result/safety/{p}.res", p=paths)
 
 rule convert_to_sgr:
     input:
@@ -36,6 +36,15 @@ rule run_safety:
         "result/safety/{p}.res"
     shell:
         "python scripts/main.py -i {input} -o {output}"
+
+rule test_safety_to_truth:
+    input:
+        "result/safety/{p}.res",
+        "data/{p}.truth"
+    output:
+        "result/test/{p}.tres"
+    shell:
+        "python scripts/test.py -safety {input[0]} -truth {input[1]} -o {output}"
         
 rule compare:
     input:
