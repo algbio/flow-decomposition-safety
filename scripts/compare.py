@@ -13,7 +13,7 @@ def main():
     parser.add_argument("-t", "--truth_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    graphs_1 = io_helper.read_file(args.first_input)
+    graphs_1 = io_helper.read_file(args.first_input, 'safety')
     graphs_2 = io_helper.read_file(args.truth_input)
     precision(graphs_1, graphs_2, args.output_file)
     max_cov_rel(graphs_1, graphs_2, args.output_file)
@@ -56,8 +56,10 @@ def max_cov_rel(graphs, truth_graphs, output):
                 val = longest_overlap(path, truth_path)
                 if val > max:
                     max = val
-            total += max/len(path)
-            print(f'{max}\{len(path)}={total}')
+            total += max/len(truth_path)
+            print(f'{max}\{len(truth_path)}={total}')
+            if max > len(truth_path):
+                print('sos')
             number_of_paths += 1
 
     print(total/number_of_paths)
