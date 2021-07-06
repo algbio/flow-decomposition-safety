@@ -29,7 +29,8 @@ def read_gfa_file(filename):
         graphs.append(Graph(graph, 0, len(graph.nodes)-1))
     return graphs
 
-def read_file(filename):
+
+def read_file(filename, type):
     filename_parts = filename.split('/')
 
     graphs = []
@@ -42,15 +43,27 @@ def read_file(filename):
                     graphs.append(graph)
                     graph = []
             else:
-                if filename_parts[1] == 'safety':
-                    path = tuple([int(x) for x in parts[0:(len(parts))]])
-                elif filename_parts[1] == 'catfish':
-                    path = tuple([int(x) for x in parts[7:(len(parts))]])
-                elif filename_parts[0] == 'data':
-                    path = tuple([int(x) for x in parts[1:(len(parts))]])
+                if len(filename_parts)>=2:
+                    
+                    if filename_parts[1] == 'safety':
+                        path = tuple([int(x) for x in parts[0:(len(parts))]])
+                    elif filename_parts[1] == 'catfish':
+                        path = tuple([int(x) for x in parts[7:(len(parts))]])
+                    elif filename_parts[0] == 'data':
+                        path = tuple([int(x) for x in parts[1:(len(parts))]])
+                    else:
+                        print('invalid filetype')
+                        break
                 else:
-                    print('invalid filetype')
-                    break
+                    if type == 'safety':
+                        path = tuple([int(x) for x in parts[0:(len(parts))]])
+                    elif type == 'catfish':
+                        path = tuple([int(x) for x in parts[7:(len(parts))]])
+                    elif type == 'truth':
+                        path = tuple([int(x) for x in parts[1:(len(parts))]])
+                    else:
+                        print('invalid filetype')
+                        break
                 graph.append(path)
     graphs.append(graph)
     return graphs
