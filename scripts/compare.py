@@ -13,10 +13,10 @@ def main():
     parser.add_argument("-t", "--truth_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    graphs_1 = io_helper.read_file(args.first_input, 'catfish')
-    graphs_2 = io_helper.read_file(args.truth_input, 'truth')
+    graphs_1 = io_helper.read_file(args.first_input)
+    graphs_2 = io_helper.read_file(args.truth_input)
     precision(graphs_1, graphs_2, args.output_file)
-    max_cov_rel(graphs_1, graphs_2)
+    max_cov_rel(graphs_1, graphs_2, args.output_file)
 
 
 def precision(graphs, truth_graphs, output):
@@ -32,14 +32,17 @@ def precision(graphs, truth_graphs, output):
                 if correct(path, true_path):
                     included += 1
                     break
+
     print(f'{included}/{all_paths} = {included/all_paths}')
+    write_file('precision', output)
+    write_file(f'{included/all_paths}', output)
 
 
 def correct(path, truth_path):
     return str(path)[1:-1] in str(truth_path)
 
-
-def max_cov_rel(graphs, truth_graphs):
+# safety results are too good?
+def max_cov_rel(graphs, truth_graphs, output):
     n = 0
     if len(graphs) == len(truth_graphs):
         n = len(graphs)
@@ -47,16 +50,19 @@ def max_cov_rel(graphs, truth_graphs):
     number_of_paths = 0
 
     for i in range(0, n):
-        for path in graphs[i]:
+        for truth_path in truth_graphs[i]:
             max = 0
-            for truth_path in truth_graphs[i]:
+            for path in graphs[i]:
                 val = longest_overlap(path, truth_path)
                 if val > max:
                     max = val
             total += max/len(path)
+            print(f'{max}\{len(path)}={total}')
             number_of_paths += 1
 
     print(total/number_of_paths)
+    write_file('max_cov_rel', output)
+    write_file(f'{total/number_of_paths}', output)
 
 
 def longest_overlap(path, truth_path):

@@ -30,7 +30,7 @@ def read_gfa_file(filename):
     return graphs
 
 
-def read_file(filename, type):
+def read_file(filename, type=None):
     filename_parts = filename.split('/')
 
     graphs = []

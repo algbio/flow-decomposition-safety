@@ -3,7 +3,8 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("result/test/{p}.tres", p=paths)
+        expand("result/comparisons/safety/{p}.res", p=paths),
+        expand("result/comparisons/catfish/{p}.res", p=paths)
 
 rule convert_to_sgr:
     input:
@@ -46,12 +47,20 @@ rule test_safety_to_truth:
     shell:
         "python scripts/test.py -safety {input[0]} -truth {input[1]} -o {output}"
         
-rule compare:
+rule cafish_truth_compare:
     input:
         "result/catfish/{p}.res",
+        "data/{p}.truth"
+    output:
+        "result/comparisons/catfish/{p}.res"
+    shell:
+        "python scripts/compare.py -i {input[0]} -t {input[1]} -o {output}"
+
+rule safety_truth_compare:
+    input:
         "result/safety/{p}.res",
         "data/{p}.truth"
     output:
-        "result/comparisons/{p}.res"
+        "result/comparisons/safety/{p}.res"
     shell:
-        "python scripts/compare.py -co {input[0]} -so {input[1]} -gt {input[2]} -o {output}"
+        "python scripts/compare.py -i {input[0]} -t {input[1]} -o {output}"
