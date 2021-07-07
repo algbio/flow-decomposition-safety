@@ -12,7 +12,7 @@ def main():
     parser.add_argument("-t", "--truth_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    graphs = io_helper.read_file(args.first_input, 'safety')
+    graphs = io_helper.read_file(args.first_input)
     truth_graphs = io_helper.read_file(args.truth_input)
     n = 0
     if len(graphs) == len(truth_graphs):
