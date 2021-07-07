@@ -5,8 +5,8 @@ import io_helper
 
 
 def main():
-    if os.path.isfile('data/comp.txt'):
-        os.remove('data/comp.txt')
+    # if os.path.isfile('data/comp.txt'):
+    #    os.remove('data/comp.txt')
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--first_input")
     parser.add_argument("-t", "--truth_input")
@@ -25,7 +25,7 @@ def main():
         max_cov_rel_value = max_cov_rel(graphs[i], truth_graphs[i])
         write_file(f'graph {i}', args.output_file)
         write_file(
-            f'number of paths in truth graph {len(truth_graphs[i])}', args.output_file)
+            f'number_of_paths_in_truth_graph {len(truth_graphs[i])}', args.output_file)
         write_file(f'precision {precision_value}', args.output_file)
         write_file(f'max_cov_rel {max_cov_rel_value}', args.output_file)
 
