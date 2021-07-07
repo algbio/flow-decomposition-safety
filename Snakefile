@@ -3,8 +3,9 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("result/comparisons/safety/{p}.res", p=paths),
-        expand("result/comparisons/catfish/{p}.res", p=paths)
+        expand("result/safety/{p}.res", p=paths),
+        expand("result/catfish/{p}.res", p=paths),
+
 
 rule convert_to_sgr:
     input:

@@ -41,7 +41,6 @@ def precision(graphs, truth_graphs, output):
 def correct(path, truth_path):
     return str(path)[1:-1] in str(truth_path)
 
-# safety results are too good?
 def max_cov_rel(graphs, truth_graphs, output):
     n = 0
     if len(graphs) == len(truth_graphs):
