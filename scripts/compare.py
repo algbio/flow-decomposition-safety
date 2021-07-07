@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import argparse
-from operator import le
 import os
 import io_helper
 
@@ -13,57 +12,55 @@ def main():
     parser.add_argument("-t", "--truth_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
-    graphs_1 = io_helper.read_file(args.first_input, 'safety')
-    graphs_2 = io_helper.read_file(args.truth_input)
-    precision(graphs_1, graphs_2, args.output_file)
-    max_cov_rel(graphs_1, graphs_2, args.output_file)
-
-
-def precision(graphs, truth_graphs, output):
+    graphs = io_helper.read_file(args.first_input, 'safety')
+    truth_graphs = io_helper.read_file(args.truth_input)
     n = 0
     if len(graphs) == len(truth_graphs):
         n = len(graphs)
-    included = 0
-    all_paths = 0
+    else:
+        print('graphs don\'t match. comparison can\'t be done')
+        return
     for i in range(0, n):
-        all_paths += len(graphs[i])
-        for path in graphs[i]:
-            for true_path in truth_graphs[i]:
-                if correct(path, true_path):
-                    included += 1
-                    break
+        precision_value = precision(graphs[i], truth_graphs[i])
+        max_cov_rel_value = max_cov_rel(graphs[i], truth_graphs[i])
+        write_file(f'graph {i}', args.output_file)
+        write_file(
+            f'number of paths in truth graph {len(truth_graphs[i])}', args.output_file)
+        write_file(f'precision {precision_value}', args.output_file)
+        write_file(f'max_cov_rel {max_cov_rel_value}', args.output_file)
 
-    print(f'{included}/{all_paths} = {included/all_paths}')
-    write_file('precision', output)
-    write_file(f'{included/all_paths}', output)
+
+def precision(graph, truth_graph):
+    included = 0
+    number_of_paths = len(graph)
+    for path in graph:
+        for true_path in truth_graph:
+            if correct(path, true_path):
+                included += 1
+                break
+
+    print(f'{included}/{number_of_paths} = {included/number_of_paths}')
+    return included/number_of_paths
 
 
 def correct(path, truth_path):
     return str(path)[1:-1] in str(truth_path)
 
-def max_cov_rel(graphs, truth_graphs, output):
-    n = 0
-    if len(graphs) == len(truth_graphs):
-        n = len(graphs)
-    total = 0
-    number_of_paths = 0
 
-    for i in range(0, n):
-        for truth_path in truth_graphs[i]:
-            max = 0
-            for path in graphs[i]:
-                val = longest_overlap(path, truth_path)
-                if val > max:
-                    max = val
-            total += max/len(truth_path)
-            print(f'{max}\{len(truth_path)}={total}')
-            if max > len(truth_path):
-                print('sos')
-            number_of_paths += 1
+def max_cov_rel(graph, truth_graph):
+    total = 0
+    number_of_paths = len(truth_graph)
+
+    for truth_path in truth_graph:
+        best_overlap_for_truth_path = 0
+        for path in graph:
+            paths_longest_overlap = longest_overlap(path, truth_path)
+            if paths_longest_overlap > best_overlap_for_truth_path:
+                best_overlap_for_truth_path = paths_longest_overlap
+        total += best_overlap_for_truth_path/len(truth_path)
 
     print(total/number_of_paths)
-    write_file('max_cov_rel', output)
-    write_file(f'{total/number_of_paths}', output)
+    return total/number_of_paths
 
 
 def longest_overlap(path, truth_path):
