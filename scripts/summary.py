@@ -5,18 +5,20 @@ import io_helper
 
 
 def main():
-    # if os.path.isfile('data/comp.txt'):
-    #    os.remove('data/comp.txt')
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_folder")
     parser.add_argument("-o", "--output_file")
     args = parser.parse_args()
+    # summary is collection {k: {'n':(int), 'max':(float), 'pre':(float)}}
+    # where k is integer number representing number of paths in truth graph
+    # 'n' notes how many times graph with k paths is occured
+    # 'max' is a sum of maximum coverage values of all size k graphs
+    # 'pre' is a sum of all precision values of size k graphs
     summary = {}
-    for root, dirs, files in os.walk(args.input_folder):
-       
-        for f in files:
-            filename = f'{root}/{f}'
-            print(filename)
+
+    for root, dirs, files in os.walk(args.input_folder):   
+        for file in files:
+            filename = f'{root}/{file}'
             with open(filename, 'r') as f:
                 number_of_paths = 0
                 for line in f:

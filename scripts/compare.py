@@ -5,13 +5,12 @@ import io_helper
 
 
 def main():
-    # if os.path.isfile('data/comp.txt'):
-    #    os.remove('data/comp.txt')
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--first_input")
     parser.add_argument("-t", "--truth_input")
     parser.add_argument("-o", "--output_file",)
     args = parser.parse_args()
+
     graphs = io_helper.read_file(args.first_input)
     truth_graphs = io_helper.read_file(args.truth_input)
     n = 0
@@ -29,7 +28,8 @@ def main():
         write_file(f'precision {precision_value}', args.output_file)
         write_file(f'max_cov_rel {max_cov_rel_value}', args.output_file)
 
-
+# returns how many graph paths were included in truth graph paths
+# path is included if it is contained as a whole in (some) truth path
 def precision(graph, truth_graph):
     included = 0
     number_of_paths = len(graph)
@@ -38,15 +38,15 @@ def precision(graph, truth_graph):
             if correct(path, true_path):
                 included += 1
                 break
-
-    # print(f'{included}/{number_of_paths} = {included/number_of_paths}')
     return included/number_of_paths
-
 
 def correct(path, truth_path):
     return str(path)[1:-1] in str(truth_path)
 
-
+# for each path in truth graph best overlap of graph path is calculated
+# overlapping fractions for each truth path are added together in variable total
+# total is then divided by number of paths in truth graph and returned
+# returns average of best graph path overlaps of truth graph paths
 def max_cov_rel(graph, truth_graph):
     total = 0
     number_of_paths = len(truth_graph)
@@ -59,7 +59,6 @@ def max_cov_rel(graph, truth_graph):
                 best_overlap_for_truth_path = paths_longest_overlap
         total += best_overlap_for_truth_path/len(truth_path)
 
-    # print(total/number_of_paths)
     return total/number_of_paths
 
 

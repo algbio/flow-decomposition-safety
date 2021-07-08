@@ -29,7 +29,7 @@ def read_gfa_file(filename):
         graphs.append(Graph(graph, 0, len(graph.nodes)-1))
     return graphs
 
-
+# fix this to not to be dependent on path of the file
 def read_file(filename, type=None):
     filename_parts = filename.split('/')
 

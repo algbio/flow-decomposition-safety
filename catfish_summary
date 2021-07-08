@@ -1,3 +1,9 @@
+***
+k = number of paths in truth graph
+n = number of truth graphs with k paths
+precision = average of precision
+max coverage = average of average maximum coverage
+***
 k: 1 
 n: 8732537 
 precision: 1.0 
