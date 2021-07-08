@@ -39,7 +39,7 @@ def precision(graph, truth_graph):
                 included += 1
                 break
 
-    print(f'{included}/{number_of_paths} = {included/number_of_paths}')
+    # print(f'{included}/{number_of_paths} = {included/number_of_paths}')
     return included/number_of_paths
 
 
@@ -59,7 +59,7 @@ def max_cov_rel(graph, truth_graph):
                 best_overlap_for_truth_path = paths_longest_overlap
         total += best_overlap_for_truth_path/len(truth_path)
 
-    print(total/number_of_paths)
+    # print(total/number_of_paths)
     return total/number_of_paths
 
 

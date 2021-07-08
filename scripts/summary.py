@@ -13,8 +13,9 @@ def main():
     args = parser.parse_args()
     summary = {}
     for root, dirs, files in os.walk(args.input_folder):
+       
         for f in files:
-            filename = f'{root}{f}'
+            filename = f'{root}/{f}'
             print(filename)
             with open(filename, 'r') as f:
                 number_of_paths = 0
@@ -31,6 +32,7 @@ def main():
                         summary[number_of_paths]['pre'] += float(parts[1])
                     elif parts[0] == "max_cov_rel":
                         summary[number_of_paths]['max'] += float(parts[1])
+    
 
     print(summary)
     print('averages')
@@ -39,6 +41,10 @@ def main():
         print(f'n: {summary[i]["n"]}')
         print(f'precision: {summary[i]["pre"] / summary[i]["n"]}')
         print(f'max coverage: {summary[i]["max"] / summary[i]["n"]}')
+        write_file(f'k: {i}', args.output_file)
+        write_file(f'n: {summary[i]["n"]}', args.output_file)
+        write_file(f'precision: {summary[i]["pre"] / summary[i]["n"]}', args.output_file)
+        write_file(f'max coverage: {summary[i]["max"] / summary[i]["n"]}', args.output_file)
 
 
 def write_file(str, output):
