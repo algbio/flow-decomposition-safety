@@ -3,8 +3,8 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("summary/comparisons/catfish/{p}.res", p=paths),
-        expand("summary/comparisons/safety/{p}.res", p=paths),
+        expand("summary/paths/catfish/{p}.res", p=paths),
+        expand("summary/paths/safety/{p}.res", p=paths),
 
 
 rule convert_to_sgr:
@@ -65,3 +65,21 @@ rule safety_truth_compare:
         "summary/comparisons/safety/{p}.res"
     shell:
         "python scripts/compare.py -i {input[0]} -t {input[1]} -o {output}"
+
+rule safety_paths:
+    input:
+        "result/safety/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/paths/safety/{p}.res"
+    shell:
+        "python scripts/avg_length_path_length.py -i {input[0]} -t {input[1]} -o {output}"
+
+rule cafish_paths:
+    input:
+        "result/catfish/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/paths/catfish/{p}.res"
+    shell:
+        "python scripts/avg_length_path_length.py -i {input[0]} -t {input[1]} -o {output}"

@@ -3,7 +3,7 @@ import argparse
 import os
 import io_helper
 
-
+# change this to data frame
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--first_input")
@@ -22,14 +22,25 @@ def main():
     for i in range(0, n):
         precision_value = precision(graphs[i], truth_graphs[i])
         max_cov_rel_value = max_cov_rel(graphs[i], truth_graphs[i])
+        n_paths = len(graphs[i])
+        sum = 0
+        for p in graphs[i]:
+            sum += len(p)
         write_file(f'graph {i}', args.output_file)
         write_file(
             f'number_of_paths_in_truth_graph {len(truth_graphs[i])}', args.output_file)
         write_file(f'precision {precision_value}', args.output_file)
         write_file(f'max_cov_rel {max_cov_rel_value}', args.output_file)
-
+        write_file(f'n_paths {n_paths}', args.output_file)
+        write_file(f'avg_path_length {average_path_length(graphs[i])}', args.output_file)
+        write_file(
+            f'number_of_paths_in_truth_graph {len(truth_graphs[i])}', args.output_file)
+        write_file(f'n_paths {n_paths}', args.output_file)
+        write_file(f'sum_of_path_lengths {sum}', args.output_file)
 # returns how many graph paths were included in truth graph paths
 # path is included if it is contained as a whole in (some) truth path
+
+
 def precision(graph, truth_graph):
     included = 0
     number_of_paths = len(graph)
@@ -40,6 +51,7 @@ def precision(graph, truth_graph):
                 break
     return included/number_of_paths
 
+
 def correct(path, truth_path):
     return str(path)[1:-1] in str(truth_path)
 
@@ -47,6 +59,8 @@ def correct(path, truth_path):
 # overlapping fractions for each truth path are added together in variable total
 # total is then divided by number of paths in truth graph and returned
 # returns average of best graph path overlaps of truth graph paths
+
+
 def max_cov_rel(graph, truth_graph):
     total = 0
     number_of_paths = len(truth_graph)
@@ -80,6 +94,14 @@ def longest_overlap(path, truth_path):
             else:
                 sub_lengths[j] = 0
     return max
+
+
+def average_path_length(graph):
+    n = len(graph)
+    total = 0
+    for path in graph:
+        total += len(path)
+    return total/n
 
 
 def write_file(str, output):
