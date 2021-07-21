@@ -1,3 +1,11 @@
+'''
+Class structure for graphs
+'''
+
+from os import times
+from timeit import default_timer as timer
+
+
 class Graph:
     def __init__(self, graph, s, t):
         self.graph = graph
@@ -5,6 +13,7 @@ class Graph:
         self.t = t
         self.flow_decomposition_paths = []
         self.max_safe_paths = []
+        self.times = {'decomposition': 0, 'safety': 0}
 
     def excess_flow(self, path):
         flow_sum = 0
@@ -19,6 +28,7 @@ class Graph:
 
     def maximal_safe_paths(self):
         self.flow_decomposition()
+        start = timer()
         for path in self.flow_decomposition_paths:
             sub = [path[0], path[1]]
             f = self.excess_flow(sub)
@@ -44,9 +54,12 @@ class Graph:
                     sub = [x for x in sub[1:len(sub)]]
                     f_in = self.graph.nodes[sub[0][0]]['flow_in']
                     f += (f_in - self.graph.edges[first]['capacity'])
+        end = timer()
+        self.times['safety'] = end-start
         return self.max_safe_paths
 
     def flow_decomposition(self):
+        start = timer()
         v = self.s
         min_flow = float('inf')
         path = []
@@ -74,7 +87,15 @@ class Graph:
                     min_flow = copy_of_graph.edges[v, next]['capacity']
                 path.append((v, next))
                 v = next
+        end = timer()
+        self.times['decomposition'] = end-start
         return self.flow_decomposition_paths
+    
+    def get_decomposition_time(self):
+        return self.times['decomposition']
+
+    def get_safety_time(self):
+        return self.times['safety']
 
     def print(self):
         print(self)

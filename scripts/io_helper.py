@@ -4,7 +4,7 @@ import networkx as nx
 
 def write_file(str, output):
     f = open(output, 'a')
-    f.write(f'{str} \n')
+    f.write(f'{str}')
 
 
 def read_gfa_file(filename):
