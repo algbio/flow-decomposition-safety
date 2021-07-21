@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import os
-import io_helper
-# change ths to use dataframes
+from src.scripts import io_helper
+# change ths to use dataframes?
 
 def main():
     parser = argparse.ArgumentParser()

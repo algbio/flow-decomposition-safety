@@ -4,7 +4,7 @@ Converts sgr/graph file to gfa file.
 
 #!/usr/bin/python3
 import argparse
-import io_helper
+from src.scripts import io_helper
 from timeit import default_timer as timer
 
 

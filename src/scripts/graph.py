@@ -2,7 +2,6 @@
 Class structure for graphs
 '''
 
-from os import times
 from timeit import default_timer as timer
 
 

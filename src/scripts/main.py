@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import os
-import io_helper
+from src.scripts import io_helper
 from timeit import default_timer as timer
-import matplotlib.pyplot as plt
-import networkx as nx
 
 
 def main():

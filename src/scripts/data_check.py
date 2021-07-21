@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 import pandas as pd
 import os
-import io_helper
-from graph import Graph
-import networkx as nx
+from src.scripts.graph import Graph
 
 
 def main():

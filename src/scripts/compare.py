@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import argparse
-import os
-import io_helper
+from src.scripts import io_helper
 
 # change this to data frame
 def main():

@@ -1,4 +1,4 @@
-from graph import Graph
+from src.scripts.graph import Graph
 import networkx as nx
 
 
