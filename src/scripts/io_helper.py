@@ -1,24 +1,35 @@
+'''
+io_helper reads and graphs to files
+'''
 from src.scripts.graph import Graph
 import networkx as nx
 
 
 def write_file(str, output):
+    '''
+    write_file(str, output)
+    Writes given string end of the given output file.
+    '''
     f = open(output, 'a')
     f.write(f'{str}')
 
 
 def read_gfa_file(filename):
+    '''
+    read_gfa_file(filename) -> list of Graph
+    Reads given file and return graphs described in .gfa file as a list of Graph objects.
+    '''
     graphs = []
     graph = None
     with open(filename, 'r') as f:
         for i, line in enumerate(f):
-            # read line
-            read = (line.rstrip()).split('\t')
-            # add edge
+            read = (line.rstrip()).split()
+            # Title line in gfa file, begins a new graph
             if line[0] == 'H':
                 if i != 0:
                     graphs.append(Graph(graph, 0, len(graph.nodes)-1))
                 graph = nx.DiGraph()
+            # Edge line in gfa file
             if line[0] == 'L':
                 v_from = int(read[1])
                 v_to = int(read[3])
@@ -31,6 +42,7 @@ def read_gfa_file(filename):
 
 # fix this to not to be dependent on path of the file
 def read_file(filename, type=None):
+    
     filename_parts = filename.split('/')
 
     graphs = []
@@ -70,12 +82,12 @@ def read_file(filename, type=None):
 
 
 def init_node(nodes, v_from, v_to, weight):
+    '''
+    init_nodes(nodes, v_from, v_to, weight)
+    Initializes flow of the node.
+    '''
     if 'flow_out' not in nodes[v_from]:
         nodes[v_from]['flow_out'] = 0
-    if 'flow_out' not in nodes[v_to]:
-        nodes[v_to]['flow_out'] = 0
-    if 'flow_in' not in nodes[v_from]:
-        nodes[v_from]['flow_in'] = 0
     if 'flow_in' not in nodes[v_to]:
         nodes[v_to]['flow_in'] = 0
     nodes[v_to]['flow_in'] += weight
