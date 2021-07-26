@@ -2,7 +2,6 @@
 import argparse
 import os
 from src.scripts import io_helper
-# change ths to use dataframes?
 
 def main():
     parser = argparse.ArgumentParser()

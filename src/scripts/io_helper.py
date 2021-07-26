@@ -1,7 +1,6 @@
 '''
 io_helper reads and graphs to files
 '''
-from src.scripts.graph import Graph
 import networkx as nx
 
 
@@ -16,29 +15,50 @@ def write_file(str, output):
 
 def read_gfa_file(filename):
     '''
-    read_gfa_file(filename) -> list of Graph
-    Reads given file and return graphs described in .gfa file as a list of Graph objects.
+    read_gfa_file(filename) -> list of nx.graph
+    Reads given file and return graphs described in .gfa file as a list of nx directede graphs.
     '''
     graphs = []
-    graph = None
     with open(filename, 'r') as f:
+        edges_to_add = []
+        nodes_to_add = {}
         for i, line in enumerate(f):
             read = (line.rstrip()).split()
             # Title line in gfa file, begins a new graph
             if line[0] == 'H':
                 if i != 0:
-                    graphs.append(Graph(graph, 0, len(graph.nodes)-1))
-                graph = nx.DiGraph()
+                    graphs.append(new_nx_graph([(x,nodes_to_add[x]) for x in nodes_to_add],
+                     edges_to_add))
+                edges_to_add = []
+                nodes_to_add = {}
             # Edge line in gfa file
             if line[0] == 'L':
                 v_from = int(read[1])
                 v_to = int(read[3])
                 weight = int((read[5])[0:-1])
-                graph.add_edge(v_from, v_to, capacity=weight)
-                init_node(graph.nodes, v_from, v_to, weight)
-    if graph is not None:
-        graphs.append(Graph(graph, 0, len(graph.nodes)-1))
+                edges_to_add.append((v_from, v_to, {'weight':weight}))
+                if v_from not in nodes_to_add:
+                    nodes_to_add[v_from] = {'flow_in':0, 'flow_out':0}
+                if v_to not in nodes_to_add:
+                    nodes_to_add[v_to] = {'flow_in':0, 'flow_out':0}
+                nodes_to_add[v_from]['flow_out'] += weight
+                nodes_to_add[v_to]['flow_in'] += weight
+    if edges_to_add:
+        graphs.append(new_nx_graph([(x,nodes_to_add[x]) for x in nodes_to_add],
+                     edges_to_add))
     return graphs
+
+def new_nx_graph(nodes, edges):
+    '''
+    new_nx_graph(nodes, edges) -> nx.DiGraph
+    
+    Creates new graph from given node and edge list and returns it.
+    Assumes that souce of the graph is 0 and sink of the graph is number of nodes -1.
+    TODO: Maybe change source/sink calculation if needed? In the catfish usecase this is not necessary.
+    '''
+    graph = nx.DiGraph(edges, source=0, sink=len(nodes)-1)
+    graph.update(nodes = nodes)
+    return graph
 
 # fix this to not to be dependent on path of the file
 def read_file(filename, type=None):
@@ -79,16 +99,3 @@ def read_file(filename, type=None):
                 graph.append(path)
     graphs.append(graph)
     return graphs
-
-
-def init_node(nodes, v_from, v_to, weight):
-    '''
-    init_nodes(nodes, v_from, v_to, weight)
-    Initializes flow of the node.
-    '''
-    if 'flow_out' not in nodes[v_from]:
-        nodes[v_from]['flow_out'] = 0
-    if 'flow_in' not in nodes[v_to]:
-        nodes[v_to]['flow_in'] = 0
-    nodes[v_to]['flow_in'] += weight
-    nodes[v_from]['flow_out'] += weight
