@@ -5,7 +5,7 @@ rule all:
     input:
         expand("data/{p}.sgr.gfa", p=paths)
 
-
+# sgr conversion is needed for catfish
 rule convert_to_sgr:
     input:
         "data/{p}.graph"
@@ -20,7 +20,7 @@ rule convert_to_gfa:
     output:
         "data/{p}.sgr.gfa"
     shell:
-        "python scripts/converter.py -i {input}"
+        "python -m scripts.converter -i {input}"
 
 rule run_catfish:
     input:
@@ -36,7 +36,7 @@ rule run_safety:
     output:
         "result/safety/{p}.res"
     shell:
-        "python scripts/main.py -i {input} -o {output}"
+        "python -m scripts.main -i {input} -o {output}"
 
 rule test_safety_to_truth:
     input:
@@ -45,7 +45,7 @@ rule test_safety_to_truth:
     output:
         "result/test/{p}.tres"
     shell:
-        "python scripts/test.py -safety {input[0]} -truth {input[1]} -o {output}"
+        "python -m scripts.test -safety {input[0]} -truth {input[1]} -o {output}"
         
 rule cafish_truth_compare:
     input:
@@ -54,7 +54,7 @@ rule cafish_truth_compare:
     output:
         "summary/comparisons/catfish/{p}.res"
     shell:
-        "python scripts/compare.py -i {input[0]} -t {input[1]} -o {output}"
+        "python -m scripts.compare -i {input[0]} -t {input[1]} -o {output}"
 
 rule safety_truth_compare:
     input:
@@ -63,22 +63,4 @@ rule safety_truth_compare:
     output:
         "summary/comparisons/safety/{p}.res"
     shell:
-        "python scripts/compare.py -i {input[0]} -t {input[1]} -o {output}"
-
-rule safety_paths:
-    input:
-        "result/safety/{p}.res",
-        "data/{p}.truth"
-    output:
-        "summary/paths/safety/{p}.res"
-    shell:
-        "python scripts/avg_length_path_length.py -i {input[0]} -t {input[1]} -o {output}"
-
-rule cafish_paths:
-    input:
-        "result/catfish/{p}.res",
-        "data/{p}.truth"
-    output:
-        "summary/paths/catfish/{p}.res"
-    shell:
-        "python scripts/avg_length_path_length.py -i {input[0]} -t {input[1]} -o {output}"
+        "python -m scripts.compare -i {input[0]} -t {input[1]} -o {output}"

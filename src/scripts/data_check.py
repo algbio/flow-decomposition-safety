@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import pandas as pd
 import os
-from src.scripts.graph import Graph
 
 
 def main():

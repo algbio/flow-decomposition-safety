@@ -1,5 +1,5 @@
 '''
-Main class for using safety algorithm
+Main class for safety algorithm
 '''
 #!/usr/bin/python3
 import argparse
