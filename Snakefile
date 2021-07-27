@@ -5,7 +5,7 @@ rule all:
     input:
         expand("data/{p}.sgr.gfa", p=paths)
 
-# sgr conversion is needed for catfish
+# sgr conversion is needed for catfish because catfish doesn't accept .graph files
 rule convert_to_sgr:
     input:
         "data/{p}.graph"

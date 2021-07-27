@@ -1,25 +1,32 @@
+'''
+Comparing safety or catfish result to truth file
+'''
 #!/usr/bin/python3
 import argparse
 from src.scripts import io_helper
 
-# change this to data frame
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--first_input")
-    parser.add_argument("-t", "--truth_input")
-    parser.add_argument("-o", "--output_file",)
-    args = parser.parse_args()
+def main(truth, output, catfish=None, safety=None):
+    '''
+    Main method for comparing graphs files. Outputs a file where
+    each comparison result of graph pair is reported.
+    Get paths to truth and output files as a parameter.
+    Also either path to cafish or safety graph is given as a parameter.
+    '''
 
-    graphs = io_helper.read_file(args.first_input)
-    truth_graphs = io_helper.read_file(args.truth_input)
+    graphs1 = io_helper.read_file(catfish, 'catfish') if catfish else io_helper.read_file(safety, 'safety')
+
+    graphs2 = io_helper.read_file(truth, 'truth')
+
     n = 0
-    if len(graphs) == len(truth_graphs):
-        n = len(graphs)
+    if len(graphs1) == len(graphs2):
+        n = len(graphs1)
     else:
         print('graphs don\'t match. comparison can\'t be done')
         return
+    io_helper.write_file(
+        ',graph number,dataset,type,numer of paths,path flows\n', f'{output}.csv')
     for i in range(0, n):
-        precision_value = precision(graphs[i], truth_graphs[i])
+        precision_value = precision(graphs1[i], graphs2[i])
         max_cov_rel_value = max_cov_rel(graphs[i], truth_graphs[i])
         n_paths = len(graphs[i])
         sum = 0
@@ -109,4 +116,10 @@ def write_file(str, output):
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--catfish_input", default=None)
+    parser.add_argument("-s", "--safety_input", default=None)
+    parser.add_argument("-t", "--truth_input", default=None)
+    parser.add_argument("-o", "--output_file")
+    args = parser.parse_args()
+    main(args.truth_input, args.output_file, args.catfish_input, args.safety_input)

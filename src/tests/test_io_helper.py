@@ -33,5 +33,9 @@ class ConverterTest(unittest.TestCase):
         self.assertEqual(16, graphs[0].graph['sink'])
         graphs = read_gfa_file('src/tests/multiple_graphs.gfa')
         self.assertEqual(5, len(graphs))
+    
+    def read_path(self):
+        # TODO: make tests
+        pass
 if __name__ == '__main__':
     unittest.main()

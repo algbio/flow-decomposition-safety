@@ -1,5 +1,5 @@
 '''
-io_helper reads and graphs to files
+io_helper reads and writes graphs to files
 '''
 import networkx as nx
 
@@ -60,42 +60,41 @@ def new_nx_graph(nodes, edges):
     graph.update(nodes = nodes)
     return graph
 
-# fix this to not to be dependent on path of the file
-def read_file(filename, type=None):
+def read_file(filename, type):
+    '''
+    read_file(filename, type) -> list of graphs
+    Reads given file and returns list of graphs as a list of paths.
+    TODO: Make path a class?
+    '''
     
-    filename_parts = filename.split('/')
-
     graphs = []
     graph = []
     with open(filename, 'r') as f:
         for line in f:
-            parts = line.rstrip().split(' ')
-            if parts[0] == '#':
+            # Hashtag(#) begins a graph defenition in file
+            if line[0] == '#':
                 if len(graph) > 0:
                     graphs.append(graph)
                     graph = []
+            # File line is a path
             else:
-                if len(filename_parts)>=2:
-                    
-                    if filename_parts[1] == 'safety':
-                        path = tuple([int(x) for x in parts[0:(len(parts))]])
-                    elif filename_parts[1] == 'catfish':
-                        path = tuple([int(x) for x in parts[7:(len(parts))]])
-                    elif filename_parts[0] == 'data':
-                        path = tuple([int(x) for x in parts[1:(len(parts))]])
-                    else:
-                        print('invalid filetype')
-                        break
-                else:
-                    if type == 'safety':
-                        path = tuple([int(x) for x in parts[0:(len(parts))]])
-                    elif type == 'catfish':
-                        path = tuple([int(x) for x in parts[7:(len(parts))]])
-                    elif type == 'truth':
-                        path = tuple([int(x) for x in parts[1:(len(parts))]])
-                    else:
-                        print('invalid filetype')
-                        break
+                path = read_path(type, line)
                 graph.append(path)
     graphs.append(graph)
     return graphs
+
+def read_path(type, line):
+    '''
+    read_path(type, line) -> path as a tuple
+    Reads path from given line. Path is constructed according to type 
+    of the graph which determines how the paths are reported in file.
+    Returns read path as a integer tuple where integers represent 
+    vertices of the graph.
+    '''
+    parts = line.rstrip().split()
+    if type == 'safety':
+        return tuple([int(x) for x in parts[0:(len(parts))]])
+    if type == 'catfish':
+        return tuple([int(x) for x in parts[7:(len(parts))]])
+    if type == 'truth':
+        return tuple([int(x) for x in parts[1:(len(parts))]])
