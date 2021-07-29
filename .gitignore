@@ -2,6 +2,7 @@
 result/
 data/
 summary/
+summary2/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

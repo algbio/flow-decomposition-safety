@@ -1,4 +1,4 @@
-from src.scripts.io_helper import new_nx_graph, read_gfa_file
+from src.scripts.io_helper import new_nx_graph, read_gfa_file, read_path
 import unittest
 
 
@@ -25,17 +25,21 @@ class ConverterTest(unittest.TestCase):
         self.assertDictEqual({'flow_in':1}, graph.nodes[3])
         
     def test_read_gfa_file(self):
-        graphs = read_gfa_file('src/tests/one_graph.gfa')
+        graphs = read_gfa_file('src/tests/files/one_graph.gfa')
         self.assertEqual(1, len(graphs))
         self.assertEqual(17, len(graphs[0].edges))
         self.assertEqual(17, len(graphs[0].nodes))
         self.assertEqual(0, graphs[0].graph['source'])
         self.assertEqual(16, graphs[0].graph['sink'])
-        graphs = read_gfa_file('src/tests/multiple_graphs.gfa')
+        graphs = read_gfa_file('src/tests/files/multiple_graphs.gfa')
         self.assertEqual(5, len(graphs))
     
-    def read_path(self):
-        # TODO: make tests
-        pass
+    def test_read_path(self):
+        catfish_path = read_path('catfish', 'path 1, weight = 5, vertices = 0 1 3 4 5 6 7 8 14 ')
+        self.assertTupleEqual((0, 1, 3, 4, 5, 6, 7, 8, 14), catfish_path)
+        safety_path = read_path('safety', '3 4 5 9 10 11 12 13 14 ')
+        self.assertTupleEqual(safety_path, (3, 4, 5, 9, 10, 11, 12, 13, 14))
+        truth_path = read_path('truth', '5 0 1 3 4 5 6 7 8 14 ')
+        self.assertTupleEqual(truth_path, (0, 1, 3, 4, 5, 6, 7, 8, 14))
 if __name__ == '__main__':
     unittest.main()

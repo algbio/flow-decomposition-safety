@@ -1,3 +1,8 @@
+'''
+Script to draw a summary of the dataset used in program.
+TODO: Will be probably removed.
+'''
+
 #!/usr/bin/python3
 import pandas as pd
 import os
@@ -6,7 +11,7 @@ import os
 def main():
 
     write_file(
-        ',graph number,dataset,type,numer of paths,path flows\n', 'output.csv')
+        ',graph number,dataset,type,numer of paths,path flows\n', f'output.csv')
     for root, dirs, files in os.walk('data'):
         for f in files:
             if f.split('.')[-1] == 'truth':

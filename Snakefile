@@ -3,9 +3,10 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("data/{p}.sgr.gfa", p=paths)
+        expand("summary/comparisons/safety/{p}.csv", p=paths),
+        expand("summary/comparisons/catfish/{p}.csv", p=paths)
 
-# sgr conversion is needed for catfish because catfish doesn't accept .graph files
+# sgr conversion is needed for catfish. catfish doesn't accept .graph files
 rule convert_to_sgr:
     input:
         "data/{p}.graph"
@@ -20,7 +21,7 @@ rule convert_to_gfa:
     output:
         "data/{p}.sgr.gfa"
     shell:
-        "python -m scripts.converter -i {input}"
+        "python -m src.scripts.converter -i {input}"
 
 rule run_catfish:
     input:
@@ -36,31 +37,22 @@ rule run_safety:
     output:
         "result/safety/{p}.res"
     shell:
-        "python -m scripts.main -i {input} -o {output}"
-
-rule test_safety_to_truth:
-    input:
-        "result/safety/{p}.res",
-        "data/{p}.truth"
-    output:
-        "result/test/{p}.tres"
-    shell:
-        "python -m scripts.test -safety {input[0]} -truth {input[1]} -o {output}"
+        "python -m src.scripts.main -i {input} -o {output}"
         
 rule cafish_truth_compare:
     input:
         "result/catfish/{p}.res",
         "data/{p}.truth"
     output:
-        "summary/comparisons/catfish/{p}.res"
+        "summary/comparisons/catfish/{p}.csv"
     shell:
-        "python -m scripts.compare -i {input[0]} -t {input[1]} -o {output}"
+        "python -m src.scripts.compare -c {input[0]} -t {input[1]} -o {output}"
 
 rule safety_truth_compare:
     input:
         "result/safety/{p}.res",
         "data/{p}.truth"
     output:
-        "summary/comparisons/safety/{p}.res"
+        "summary/comparisons/safety/{p}.csv"
     shell:
-        "python -m scripts.compare -i {input[0]} -t {input[1]} -o {output}"
+        "python -m src.scripts.compare -s {input[0]} -t {input[1]} -o {output}"

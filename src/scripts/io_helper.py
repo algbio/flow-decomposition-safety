@@ -15,8 +15,8 @@ def write_file(str, output):
 
 def read_gfa_file(filename):
     '''
-    read_gfa_file(filename) -> list of nx.graph
-    Reads given file and return graphs described in .gfa file as a list of nx directede graphs.
+    read_gfa_file(filename) -> nx.graph list
+    Reads given file and return graphs described in .gfa file as a list of nx directed graphs.
     '''
     graphs = []
     with open(filename, 'r') as f:
@@ -90,6 +90,7 @@ def read_path(type, line):
     of the graph which determines how the paths are reported in file.
     Returns read path as a integer tuple where integers represent 
     vertices of the graph.
+    TODO: change to use numpy vector?
     '''
     parts = line.rstrip().split()
     if type == 'safety':
