@@ -43,7 +43,7 @@ def main(truth, output, catfish=None, safety=None):
 
 def precision(graph, truth_graph):
     '''
-    recision(graph, truth_graph) -> float
+    precision(graph, truth_graph) -> float
     Returns how many paths in graph were included in truth graph paths
     Path is included if it is contained as a whole in (some) truth path.
     '''
