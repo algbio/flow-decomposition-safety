@@ -5,7 +5,6 @@ Converts sgr/graph file to gfa file.
 #!/usr/bin/python3
 import argparse
 from src.scripts import io_helper
-from timeit import default_timer as timer
 
 
 def main(filename):
@@ -37,13 +36,5 @@ def edge_to_gfa(line):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--file", help="path to file")
-    parser.add_argument("-t", "--timer", help="Boolean: timer is used, default False", default=False)
     args = parser.parse_args()
-    if args.timer:
-        main_start = timer()
-        main(args.file)
-        main_end = timer()
-        print('executing the whole code')
-        print(f'{main_end-main_start}s')
-    else:
-        main(args.file)
+    main(args.file)

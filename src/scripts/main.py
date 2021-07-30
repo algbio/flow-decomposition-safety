@@ -1,30 +1,20 @@
 '''
 Main class for safety algorithm
-TODO: remove timer/do something else to measure the execution <time
 '''
 #!/usr/bin/python3
 import argparse
 from src.scripts import io_helper
-from timeit import default_timer as timer
 
 
-def main(input_file, output_file, timers = False):
+def main(input_file, output_file):
     graphs = io_helper.read_gfa_file(input_file)
     i = 0
     algotime = 0
     for g in graphs:
         io_helper.write_file(f'# graph {i}\n', output_file)
-        if timers:
-            start = timer()
         result = maximal_safety(g)
-        if timers:
-            end = timer()
-            algotime += (end-start)
         io_helper.write_file(safe_paths_to_string(result), output_file)
         i += 1
-    if timers:
-        print('time used to algorithm')
-        print(algotime)
 
 def excess_flow(graph, path):
     '''
@@ -61,8 +51,6 @@ def maximal_safety_indices(graph, in_flow_decomposition=None, timers=False):
     else:
         flow_decomposition_paths = in_flow_decomposition
     list_safety_indices = []
-    if timers:
-        start = timer()
     for path in flow_decomposition_paths:
         safety_indices = []
         start = 0
@@ -90,14 +78,9 @@ def maximal_safety_indices(graph, in_flow_decomposition=None, timers=False):
                 f_in = graph.nodes[path[start][0]]['flow_in']
                 f += (f_in - graph.edges[(path[start-1])]['weight'])
         list_safety_indices.append(safety_indices)
-
-    if timers:
-        end = timer()
-        print('safety time')
-        print(end-start)
     return list_safety_indices
 
-def maximal_safety(graph, in_flow_decomposition=None, timers=False):
+def maximal_safety(graph, in_flow_decomposition=None):
     '''
     maximal_safety(self, flow_decomposition) -> list of paths
     Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of paths.
@@ -112,8 +95,6 @@ def maximal_safety(graph, in_flow_decomposition=None, timers=False):
     else:
         flow_decomposition_paths = in_flow_decomposition
 
-    if timers:
-        start = timer()
     for path in flow_decomposition_paths:
         sub = [path[0], path[1]]
         f = excess_flow(graph, sub)
@@ -139,20 +120,14 @@ def maximal_safety(graph, in_flow_decomposition=None, timers=False):
                 sub = [x for x in sub[1:len(sub)]]
                 f_in = graph.nodes[sub[0][0]]['flow_in']
                 f += (f_in - graph.edges[first]['weight'])
-    if timers:
-        end = timer()
-        print('safety time')
-        print(end-start)
     return safe_paths
 
-def flow_decomposition(graph, timers=False):
+def flow_decomposition(graph):
     '''
     flow_decomposition(self)->list of paths
     Calculates a flow decomposition for the graph.
     Returns list of paths as list of edges (tuples).
     '''
-    if timers:
-        start = timer()
     paths = []
     v = graph.graph['source']
     min_flow = float('inf')
@@ -180,9 +155,6 @@ def flow_decomposition(graph, timers=False):
                 min_flow = copy_of_graph.edges[v, next]['weight']
             path.append((v, next))
             v = next
-    if timers:
-        end = timer()
-        print(f'flow decomposition {end-start}')
     return paths
 
 def safe_paths_to_string(paths):
@@ -201,15 +173,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--graph_file", help="path to input file")
     parser.add_argument("-o", "--output_file", help="path to output file")
-    parser.add_argument("-t", "--timer", help="measure how long the execution takes, default: False", default=False)
     args = parser.parse_args()
 
     file = args.graph_file
-    if args.timer:
-        main_start = timer()
-        main(args.graph_file, args.output_file, timers=True)
-        main_end = timer()
-        print('executing the whole code')
-        print(f'{main_end-main_start}s')
-    else:
-        main(args.graph_file, args.output_file)
+    main(args.graph_file, args.output_file)
