@@ -1,4 +1,4 @@
-from src.scripts.main import flow_decomposition, maximal_safety
+from src.scripts.main import flow_decomposition, maximal_safety, maximal_safety_indices
 import unittest
 import networkx as nx
 
@@ -89,6 +89,18 @@ class MainTest(unittest.TestCase):
                 if r == c:
                     check_list[i] = True
         self.assertEqual([True,True,True,True],check_list)
+    
+    def test_graph1_maximal_safetyindices_with_different_flow_decomposition(self):
+        flow_dec = [[(1,2),(2,3),
+                    (3,4),(4,5),
+                    (5,10),(10,7),
+                    (7,8),(8,11)],
+                    [(1,2),(2,3),
+                    (3,9),(9,5),
+                    (5,6),(6,7),
+                    (7,8),(8,11)]]
+        result = maximal_safety_indices(self.nx_graph1, flow_dec)
+        print(result)
 
 if __name__ == '__main__':
     

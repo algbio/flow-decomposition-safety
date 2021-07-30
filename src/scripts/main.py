@@ -1,5 +1,6 @@
 '''
 Main class for safety algorithm
+TODO: remove timer/do something else to measure the execution <time
 '''
 #!/usr/bin/python3
 import argparse
@@ -45,14 +46,62 @@ def safety_of_path(graph, path, w):
     '''
     return excess_flow(graph, path) >= w and w > 0
 
+def maximal_safety_indices(graph, in_flow_decomposition=None, timers=False):
+    '''
+    maximal_safety(self, flow_decomposition) -> dict {flow decomposition: list of indices}
+    Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of indices for given flow decomposition.
+    in_flow_decomposition parameter is used for testing.
+    timer parameter is used measuring the execution of algorithm
+    '''
+    flow_decomposition_paths = []
+    if not in_flow_decomposition:
+        flow_decomposition_paths = flow_decomposition(graph)
+    else:
+        flow_decomposition_paths = in_flow_decomposition
+    list_safety_indices = []
+    if timers:
+        start = timer()
+    for path in flow_decomposition_paths:
+        safety_indices = []
+        start = 0
+        end = 1
+        f = excess_flow(graph, [path[0], path[1]])
+        
+        added = False
+        while True:
+            if end == len(path)-1 and f > 0:
+                if end-start >= 2:
+                    safety_indices.append((start, end))
+                break
+            if f > 0:
+                end += 1
+                f_out = graph.nodes[path[end][0]]['flow_out']
+                f -= (f_out - graph.edges[path[end]]['weight'])
+                added = False
+            else:
+                if not added:
+                    if end-start >= 2:
+                        safety_indices.append((start, end))
+                    added = True
+                
+                start += 1
+                f_in = graph.nodes[path[start][0]]['flow_in']
+                f += (f_in - graph.edges[(path[start-1])]['weight'])
+        list_safety_indices.append(safety_indices)
+
+    if timers:
+        end = timer()
+        print('safety time')
+        print(end-start)
+    return list_safety_indices
+
 def maximal_safety(graph, in_flow_decomposition=None, timers=False):
     '''
     maximal_safety(self, flow_decomposition) -> list of paths
     Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of paths.
     Paths are represented as list of edges.
-    flow_decomposition parameter is used for testing.
+    in_flow_decomposition parameter is used for testing.
     timer parameter is used measuring the execution of algorithm
-    TODO: refactor such that uses only indices to handele the maximum safe part of the paths
     '''
     safe_paths = []
     flow_decomposition_paths = []
@@ -98,7 +147,7 @@ def flow_decomposition(graph, timers=False):
     '''
     flow_decomposition(self)->list of paths
     Calculates a flow decomposition for the graph.
-    Returns list of paths as list of edges.
+    Returns list of paths as list of edges (tuples).
     '''
     if timers:
         start = timer()
