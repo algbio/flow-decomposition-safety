@@ -48,10 +48,12 @@ def safety_of_path(graph, path, w):
 
 def maximal_safety_indices(graph, in_flow_decomposition=None, timers=False):
     '''
-    maximal_safety(self, flow_decomposition) -> dict {flow decomposition: list of indices}
+    maximal_safety(self, flow_decomposition) -> list of indices (one to one relation to flow decomposition)
     Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of indices for given flow decomposition.
     in_flow_decomposition parameter is used for testing.
     timer parameter is used measuring the execution of algorithm
+    TODO: returning list could be dictionary (key flow decomposition, value indices)
+    TODO: paths could be represented a vertice list
     '''
     flow_decomposition_paths = []
     if not in_flow_decomposition:
