@@ -13,7 +13,7 @@ def main(input_folder, output):
     Gets input folder and output file as a parameter.
     Outputs a csv-file containing summary of the data.
     TODO: at to moment output file doesn't really make sense.
-    Will be fixed/this will be removed before plotting the results next time.
+    Will be fixed/removed before plotting the results next time.
     '''
    
     l = []
