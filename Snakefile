@@ -3,8 +3,7 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("summary/comparisons/safety/{p}.csv", p=paths),
-        expand("summary/comparisons/catfish/{p}.csv", p=paths)
+        expand("result/safety/{p}.res", p=paths)
 
 # sgr conversion is needed for catfish. catfish doesn't accept .graph files
 rule convert_to_sgr:
