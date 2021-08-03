@@ -17,6 +17,7 @@ class MainTest(unittest.TestCase):
         self.nx_simple_graph.add_edge(3, 4, weight=19, weight_copy=19)
         self.nx_simple_graph.nodes[3]['flow_out'] = 19
         self.nx_simple_graph.nodes[4]['flow_in'] = 19
+        self.nx_simple_graph.nodes[4]['flow_out'] = 0
         self.nx_simple_graph.add_edge(0, 1, weight=19, weight_copy=19)
         self.nx_simple_graph.nodes[0]['flow_out'] = 19
         self.nx_simple_graph.nodes[0]['flow_in'] = 0

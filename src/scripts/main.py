@@ -44,7 +44,6 @@ def maximal_safety_indices(graph, in_flow_decomposition=None, timers=False):
     Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of indices for given flow decomposition.
     in_flow_decomposition parameter is used for testing.
     timer parameter is used measuring the execution of algorithm
-    TODO: returning list could be dictionary (key flow decomposition, value indices)
     TODO: paths could be represented a vertice list
     '''
     flow_decomposition_paths = []
@@ -150,7 +149,7 @@ def flow_decomposition(graph):
             (v1,v2,dic) = [(i,j,k) for i,j,k in graph.out_edges(v, data=True) if k['weight_copy'] > 0][0]
             if dic['weight_copy'] < min_flow:
                 min_flow = dic['weight_copy']
-            path.append(v2)
+            path.append(v)
             v = v2
     return paths
 
