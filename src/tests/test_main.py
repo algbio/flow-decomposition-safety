@@ -100,7 +100,13 @@ class MainTest(unittest.TestCase):
                     (5,6),(6,7),
                     (7,8),(8,11)]]
         result = maximal_safety_indices(self.nx_graph1, flow_dec)
-        self.assertListEqual([[(0, 4), (4, 7)], [(0, 4), (4, 7)]], result)
+        self.assertDictEqual({((1,2),(2,3),
+                    (3,4),(4,5),
+                    (5,10),(10,7),
+                    (7,8),(8,11)):[(0, 4), (4, 7)], ((1,2),(2,3),
+                    (3,9),(9,5),
+                    (5,6),(6,7),
+                    (7,8),(8,11)):[(0, 4), (4, 7)]}, result)
 
 if __name__ == '__main__':
     
