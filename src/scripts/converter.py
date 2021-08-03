@@ -22,6 +22,8 @@ def convert_file(filename):
                 io_helper.write_file(f'H {line}', output)
             elif len(line.split(' ')) > 1:
                io_helper.write_file(edge_to_gfa(line), output)
+            # I do not think this is a good idea, write_file opens the file every time it is called, but it could be opened
+            # once here and call write instead.
 
 
 def edge_to_gfa(line):

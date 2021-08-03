@@ -15,12 +15,14 @@ def main(truth, output, catfish=None, safety=None):
     Gets paths to cafish or safety, truth and output files as a parameter.
     '''
 
+    # The next two variables are called graphs, but they are a list of list of paths, we should change the variable name
+    # to be more precise
     graphs = io_helper.read_file(
         catfish, 'catfish') if catfish else io_helper.read_file(safety, 'safety')
 
     truth_graphs = io_helper.read_file(truth, 'truth')
 
-    n = 0
+    n = 0  # You could remove this line
     if len(graphs) == len(truth_graphs):
         n = len(graphs)
     else:
@@ -37,11 +39,15 @@ def main(truth, output, catfish=None, safety=None):
                'number_of_paths_truth': [len(truth_graphs[i])],
                'sum_of_path_length': [np.sum([len(path) for path in graphs[i]])]
                }
+        # I do not think this is a good idea, write_file opens the file every time it is called, but it could be opened
+        # once here and call write instead.
         io_helper.write_file(pd.DataFrame(row).to_csv(header=False), f'{output}')
 
 
-
+# It seems that graph_paths and truth_graph_paths could be better names for these variables
 def precision(graph, truth_graph):
+    # I would be more specific in the description ... are included as a subpath of some path of ....
+    # Also the function does not return the number of included paths, but the precision defined as ...
     '''
     precision(graph, truth_graph) -> float
     Returns how many paths in graph were included in truth graph paths
@@ -56,15 +62,21 @@ def precision(graph, truth_graph):
                 break
     return included/number_of_paths
 
-
+# Maybe call this is_subpath instead of correct, now we consider a path correct when is completely included but we could
+# change this definition in the future
 def correct(path, truth_path):
     '''
     correct(path, truth_path) -> Boolean
     Return True if path is included in truth path as a whole, if not returns False.
     '''
-    return str(path)[1:-1] in str(truth_path)
+    return str(path)[1:-1] in str(truth_path)  # Clever :)
 
+# It seems that graph_paths and truth_graph_paths could be better names for these variables
 def max_cov_rel(graph, truth_graph):
+    # The code is correct, but the description is not. We compute the average over all max_cov_rel for each truth_path,
+    # that is, per each path in truth_path we compute its longest_overlap, then divide it by the length of the truth_path,
+    # and then average those values. From the description it seems that we are averaging the absolute values, not the
+    # relative ones
     '''
     max_cov_rel(graph, truth_graph) -> float
     For each path in truth graph longest overlap with graph path is calculated
@@ -72,6 +84,7 @@ def max_cov_rel(graph, truth_graph):
     Total is then divided by number of paths in truth graph and returned
     as a average overlap.
     '''
+
     total = 0
     number_of_paths = len(truth_graph)
 
@@ -91,6 +104,8 @@ def longest_overlap(path, truth_path):
     longest_overlap(path, truth_path) -> integer
     Computes longest overlap of two paths using two pointer method.
     '''
+    # Clever solution :)
+
     n = len(truth_path)
     m = len(path)
     max = 0
@@ -99,6 +114,7 @@ def longest_overlap(path, truth_path):
         for j in range(m-1, -1, -1):
             if truth_path[i] == path[j]:
                 if j > 0:
+                    # What about sub_lengths[j] = sub_lengths[j-1] + 1?
                     sub_lengths[j] = sub_lengths[j-1]
                     sub_lengths[j] += 1
                 else:

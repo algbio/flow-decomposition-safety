@@ -23,6 +23,7 @@ rule convert_to_gfa:
     shell:
         "python -m src.scripts.converter -i {input}"
 
+# "greedy" could be a variable from params: in this rule, see https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#non-file-parameters-for-rules for example
 rule run_catfish:
     input:
         "data/{p}.sgr"
@@ -38,7 +39,8 @@ rule run_safety:
         "result/safety/{p}.res"
     shell:
         "python -m src.scripts.main -i {input} -o {output}"
-        
+#For this and the next rule. If there is more than one input it is a good practice to give names to each instead of using
+# input[i]
 rule cafish_truth_compare:
     input:
         "result/catfish/{p}.res",

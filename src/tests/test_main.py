@@ -8,6 +8,12 @@ class MainTest(unittest.TestCase):
     def setUp(self):
         self.nx_simple_graph = nx.DiGraph(source=0, sink=4)
 
+        # What about:
+        # for i in range(4):
+        #     self.nx_simple_graph.add_edge(i, i+1, weight=19)
+        #     self.nx_simple_graph.nodes[i]['flow_out'] = 19
+        #     self.nx_simple_graph.nodes[i+1]['flow_in'] = 19
+
         self.nx_simple_graph.add_edge(1, 2, weight=19)
         self.nx_simple_graph.nodes[1]['flow_out'] = 19
         self.nx_simple_graph.nodes[2]['flow_in'] = 19
@@ -21,6 +27,9 @@ class MainTest(unittest.TestCase):
         self.nx_simple_graph.nodes[0]['flow_out'] = 19
         self.nx_simple_graph.nodes[1]['flow_in'] = 19
 
+
+        # We could implement a function called add_flow_edge(G, u, v, f), that creates an edge from u to v in G with flow f
+        # Also I think it is better to use flow instead of weight in the edge attribute
         self.nx_graph1 = nx.DiGraph(source=1, sink=11)
         self.nx_graph1.add_edge(1,2, weight=2)
         self.nx_graph1.nodes[1]['flow_out'] = 2
@@ -61,9 +70,19 @@ class MainTest(unittest.TestCase):
 
     def test_flow_decomposition(self):
         self.assertEqual([[(0, 1), (1, 2), (2, 3), (3, 4)]], flow_decomposition(self.nx_simple_graph))
-    
+
+    # maximal. maximum means largest, maximal means that it cannot be extended
     def test_maximum_safe_path(self):
         self.assertEqual([[(0, 1), (1, 2), (2, 3), (3, 4)]], maximal_safety(self.nx_simple_graph))
+
+    # This an the next test are repetitions of the previous two tests, one simple idea is to make a generic test that calls
+    # to a function that makes the real test with the different inputs... like this
+    # def flow_decomposition_io(self, G, expoected_decomposition):
+    #     self.assertEqual(expoected_decomposition, flow_decomposition(G))
+    #
+    # def test_flow_decomposition(self):
+    #     self.flow_decomposition_io(self.nx_simple_graph, [[(0, 1), (1, 2), (2, 3), (3, 4)]])
+    #     self.flow_decomposition_io(self.nx_graph1, [[(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5), (5, 10), (10, 7), (7, 8), (8, 11)]])
 
     def test_graph1_decomposition(self):
         self.assertEqual([[(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5), (5, 10), (10, 7), (7, 8), (8, 11)]]
@@ -83,6 +102,7 @@ class MainTest(unittest.TestCase):
                     (7,8),(8,11)]]
         result = maximal_safety(self.nx_graph1, flow_dec)
         correct = [[(1, 2), (2, 3), (3, 4), (4, 5)], [(5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5)], [(5, 10), (10, 7), (7, 8), (8, 11)]]
+        # Why this cannot be an assertListEqual as the next test?
         check_list = [False, False, False, False]
         for (i,r) in enumerate(result):
             for c in correct:

@@ -5,6 +5,7 @@ import unittest
 class ConverterTest(unittest.TestCase):
 
     def setUp(self):
+        # Should these two variables be used in some test?
         sgr_graph = '''
         # graph number = 4 name = ENSG00000187608
         5

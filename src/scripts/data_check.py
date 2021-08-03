@@ -32,6 +32,8 @@ def main():
                                 df = pd.DataFrame(row)
                                 write_file(df.to_csv(
                                     header=False), "output.csv")
+                                # I do not think this is a good idea, write_file opens the file every time it is called, but it could be opened
+                                # once here and call write instead.
                                 row = {}
                             row['graph_number'] = int(read[4])
                             row['dataset'] = filename.split('/')[-2]
@@ -46,6 +48,8 @@ def main():
                         path_flows = []
                         write_file(pd.DataFrame(row).to_csv(
                             header=False), "output.csv")
+                        # I do not think this is a good idea, write_file opens the file every time it is called, but it could be opened
+                        # once here and call write instead.
 
 
 def write_file(str, output):

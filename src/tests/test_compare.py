@@ -16,6 +16,9 @@ class CompareTest(unittest.TestCase):
         self.assertEqual(3, longest_overlap(path1, path4))
         self.assertEqual(0, longest_overlap(path1, path5))
 
+        # What about a test longest_overlap(path1, [0,1,2,8,9,3,4,5,6,7]), it should return 3, the idea of this test is
+        # that has two segments that coincide and it should report the longest
+
 
 if __name__ == '__main__':
     unittest.main()

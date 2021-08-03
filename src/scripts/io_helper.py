@@ -35,8 +35,12 @@ def read_gfa_file(filename):
             if line[0] == 'L':
                 v_from = int(read[1])
                 v_to = int(read[3])
+
+                # weight could be called flow, since it represents a flow in the corresponding edge,
+                # also, all this code could be called add_flow_edge(G, v_from, v_to, flow_value)
                 weight = int((read[5])[0:-1])
                 edges_to_add.append((v_from, v_to, {'weight':weight}))
+
                 if v_from not in nodes_to_add:
                     nodes_to_add[v_from] = {'flow_in':0, 'flow_out':0}
                 if v_to not in nodes_to_add:
@@ -60,6 +64,7 @@ def new_nx_graph(nodes, edges):
     graph.update(nodes = nodes)
     return graph
 
+# The name of this function is not very informative, it should be more specific
 def read_file(filename, type):
     '''
     read_file(filename, type) -> list of graphs
