@@ -24,10 +24,10 @@ def excess_flow(graph, path):
     '''
     flow_sum = 0
     flow_out_sum = 0
-    for e in path:
-        flow_sum += graph.edges[e]['weight']
-        flow_out_sum += graph.nodes[e[0]]['flow_out']
-    return flow_sum - (flow_out_sum - graph.nodes[path[0][0]]['flow_out'])
+    for i in range(1,len(path)):
+        flow_sum += graph.edges[path[i-1],path[i]]['weight']
+        flow_out_sum += graph.nodes[path[i-1]]['flow_out']
+    return flow_sum - (flow_out_sum - graph.nodes[path[0]]['flow_out'])
 
 
 def safety_of_path(graph, path, w):
@@ -89,7 +89,6 @@ def maximal_safety(graph, in_flow_decomposition=None):
     Uses maximal safety algorithm (by Shahbaz, Tomescu) to compute a list of paths.
     Paths are represented as list of edges.
     in_flow_decomposition parameter is used for testing.
-    timer parameter is used measuring the execution of algorithm
     '''
     safe_paths = []
     flow_decomposition_paths = []
@@ -99,30 +98,33 @@ def maximal_safety(graph, in_flow_decomposition=None):
         flow_decomposition_paths = in_flow_decomposition
 
     for path in flow_decomposition_paths:
-        sub = [path[0], path[1]]
+        sub = path[0:4]
         f = excess_flow(graph, sub)
         i = 1
         added = False
         while True:
             if i == len(path)-1 and f > 0:
-                if len(sub) >= 2:
+                if len(sub) >= 3:
                     safe_paths.append(sub)
                 break
             if f > 0:
                 i += 1
-                f_out = graph.nodes[path[i][0]]['flow_out']
-                f -= (f_out - graph.edges[path[i]]['weight'])
+                f_out = graph.nodes[path[i]]['flow_out']
+                f -= (f_out - graph.edges[path[i-1],path[i]]['weight'])
                 sub.append(path[i])
                 added = False
             else:
                 first = sub[0]
                 if not added:
-                    if len(sub[0:-1]) >= 2:
+                    if len(sub[0:-1]) >= 3:
                         safe_paths.append(sub[0:-1])
                     added = True
-                sub = [x for x in sub[1:len(sub)]]
-                f_in = graph.nodes[sub[0][0]]['flow_in']
-                f += (f_in - graph.edges[first]['weight'])
+                sub = sub[1:len(sub)]
+                f_in = graph.nodes[sub[0]]['flow_in']
+                print(f'sub {sub}')
+                print(f'flow d {path}')
+                print(f'first {first}, sub[0] {sub[0]} edges {graph.edges()}')
+                f += (f_in - graph.edges[first,sub[0]]['weight'])
     return safe_paths
 
 
@@ -143,10 +145,10 @@ def flow_decomposition(graph):
             path.append(v)
             paths.append(path)
             rmv = []
-            for e in path:
-                copy_of_graph.edges[e]['weight'] -= min_flow
-                if copy_of_graph.edges[e]['weight'] == 0:
-                    rmv.append(e)
+            for i in range(1,len(path)):
+                copy_of_graph.edges[path[i-1],path[i]]['weight'] -= min_flow
+                if copy_of_graph.edges[path[i-1],path[i]]['weight'] == 0:
+                    rmv.append((path[i-1],path[i]))
             copy_of_graph.remove_edges_from(rmv)
             path = []
             cap -= min_flow
