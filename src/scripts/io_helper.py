@@ -36,7 +36,7 @@ def read_gfa_file(filename):
                 v_from = int(read[1])
                 v_to = int(read[3])
                 weight = int((read[5])[0:-1])
-                edges_to_add.append((v_from, v_to, {'weight':weight}))
+                edges_to_add.append((v_from, v_to, {'weight':weight, 'weight_copy':weight}))
                 if v_from not in nodes_to_add:
                     nodes_to_add[v_from] = {'flow_in':0, 'flow_out':0}
                 if v_to not in nodes_to_add:
