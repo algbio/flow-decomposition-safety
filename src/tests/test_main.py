@@ -17,12 +17,15 @@ class MainTest(unittest.TestCase):
         self.nx_simple_graph.add_edge(3, 4, weight=19)
         self.nx_simple_graph.nodes[3]['flow_out'] = 19
         self.nx_simple_graph.nodes[4]['flow_in'] = 19
+        self.nx_simple_graph.nodes[4]['flow_out'] = 0
         self.nx_simple_graph.add_edge(0, 1, weight=19)
         self.nx_simple_graph.nodes[0]['flow_out'] = 19
+        self.nx_simple_graph.nodes[0]['flow_in'] = 0
         self.nx_simple_graph.nodes[1]['flow_in'] = 19
 
         self.nx_graph1 = nx.DiGraph(source=1, sink=11)
         self.nx_graph1.add_edge(1,2, weight=2)
+        self.nx_graph1.nodes[1]['flow_in'] = 0
         self.nx_graph1.nodes[1]['flow_out'] = 2
         self.nx_graph1.nodes[2]['flow_in'] = 2
         self.nx_graph1.add_edge(2,3, weight=2)
@@ -58,6 +61,7 @@ class MainTest(unittest.TestCase):
         self.nx_graph1.add_edge(8,11, weight=2)
         self.nx_graph1.nodes[8]['flow_out'] = 2
         self.nx_graph1.nodes[11]['flow_in'] = 2
+        self.nx_graph1.nodes[11]['flow_out'] = 0
 
     def test_flow_decomposition(self):
         self.assertEqual([[0, 1, 2, 3, 4]], flow_decomposition(self.nx_simple_graph))
@@ -66,7 +70,7 @@ class MainTest(unittest.TestCase):
         self.assertEqual([[0, 1, 2, 3, 4]], maximal_safety(self.nx_simple_graph))
 
     def test_graph1_decomposition(self):
-        self.assertEqual([[1, 2, 3, 4, 5, 6 , 7, 8, 11], [1, 2, 3, 9, 5, 10, 7, 8, 11]]
+        self.assertEqual([[1, 2, 3, 4, 5, 6, 7, 8, 11], [1, 2, 3, 9, 5, 10, 7, 8, 11]]
                         , flow_decomposition(self.nx_graph1))
 
     def test_graph1_maximal_safetypath(self):
@@ -83,19 +87,13 @@ class MainTest(unittest.TestCase):
                 if r == c:
                     check_list[i] = True
         self.assertEqual([True,True,True,True],check_list)
-    '''
+    
     def test_graph1_maximal_safetyindices_with_different_flow_decomposition(self):
-        flow_dec = [[(1,2),(2,3),
-                    (3,4),(4,5),
-                    (5,10),(10,7),
-                    (7,8),(8,11)],
-                    [(1,2),(2,3),
-                    (3,9),(9,5),
-                    (5,6),(6,7),
-                    (7,8),(8,11)]]
+        flow_dec = [[1,2,3,4,5,10,7,8,11],
+                    [1,2,3,9,5,6,7,8,11]]
         result = maximal_safety_indices(self.nx_graph1, flow_dec)
         self.assertListEqual([[(0, 4), (4, 7)], [(0, 4), (4, 7)]], result)
-    '''
+    
 if __name__ == '__main__':
     
     unittest.main()
