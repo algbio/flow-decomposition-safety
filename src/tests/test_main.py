@@ -60,29 +60,23 @@ class MainTest(unittest.TestCase):
         self.nx_graph1.nodes[11]['flow_in'] = 2
 
     def test_flow_decomposition(self):
-        self.assertEqual([[(0, 1), (1, 2), (2, 3), (3, 4)]], flow_decomposition(self.nx_simple_graph))
+        self.assertEqual([[0, 1, 2, 3, 4]], flow_decomposition(self.nx_simple_graph))
     
     def test_maximum_safe_path(self):
         self.assertEqual([[(0, 1), (1, 2), (2, 3), (3, 4)]], maximal_safety(self.nx_simple_graph))
 
     def test_graph1_decomposition(self):
-        self.assertEqual([[(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5), (5, 10), (10, 7), (7, 8), (8, 11)]]
+        self.assertEqual([[1, 2, 3, 4, 5, 6 , 7, 8, 11], [1, 2, 3, 9, 5, 10, 7, 8, 11]]
                         , flow_decomposition(self.nx_graph1))
 
     def test_graph1_maximal_safetypath(self):
         self.assertEqual([[(1, 2), (2, 3), (3, 4), (4, 5)], [(5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5)], [(5, 10), (10, 7), (7, 8), (8, 11)]], maximal_safety(self.nx_graph1))
 
     def test_graph1_maximal_safetypaths_with_different_flow_decomposition(self):
-        flow_dec = [[(1,2),(2,3),
-                    (3,4),(4,5),
-                    (5,10),(10,7),
-                    (7,8),(8,11)],
-                    [(1,2),(2,3),
-                    (3,9),(9,5),
-                    (5,6),(6,7),
-                    (7,8),(8,11)]]
+        flow_dec = [[1, 2, 3, 4, 5, 10, 7, 8, 11],
+                    [1, 2, 3, 9, 5, 6, 7, 8, 11]]
         result = maximal_safety(self.nx_graph1, flow_dec)
-        correct = [[(1, 2), (2, 3), (3, 4), (4, 5)], [(5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5)], [(5, 10), (10, 7), (7, 8), (8, 11)]]
+        correct = [[1, 2, 3, 4, 5], [5, 6, 7, 8, 11], [1, 2, 3, 9, 5], [5, 10), (10, 7), (7, 8), (8, 11)]]
         check_list = [False, False, False, False]
         for (i,r) in enumerate(result):
             for c in correct:

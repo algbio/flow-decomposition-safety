@@ -140,6 +140,7 @@ def flow_decomposition(graph):
     cap = copy_of_graph.nodes[graph.graph['source']]['flow_out']
     while(True):
         if v == graph.graph['sink']:
+            path.append(v)
             paths.append(path)
             rmv = []
             for e in path:
@@ -157,7 +158,7 @@ def flow_decomposition(graph):
             next = list(copy_of_graph.successors(v))[0]
             if copy_of_graph.edges[v, next]['weight'] < min_flow:
                 min_flow = copy_of_graph.edges[v, next]['weight']
-            path.append((v, next))
+            path.append(v)
             v = next
     return paths
 
