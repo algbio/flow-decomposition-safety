@@ -89,6 +89,9 @@ class MainTest(unittest.TestCase):
                 if r == c:
                     check_list[i] = True
         self.assertEqual([True,True,True,True],check_list)
+    def test_maximum_safe_path_indices(self):
+        self.assertDictEqual({ ((0, 1), (1, 2), (2, 3), (3, 4)):[(0,3)]}, maximal_safety_indices(self.nx_simple_graph))
+
     
     def test_graph1_maximal_safetyindices_with_different_flow_decomposition(self):
         flow_dec = [[(1,2),(2,3),
@@ -103,10 +106,12 @@ class MainTest(unittest.TestCase):
         self.assertDictEqual({((1,2),(2,3),
                     (3,4),(4,5),
                     (5,10),(10,7),
-                    (7,8),(8,11)):[(0, 4), (4, 7)], ((1,2),(2,3),
+                    (7,8),(8,11)):[(0, 4), (4, 7)], 
+                    ((1,2),(2,3),
                     (3,9),(9,5),
                     (5,6),(6,7),
                     (7,8),(8,11)):[(0, 4), (4, 7)]}, result)
+                    
 
 if __name__ == '__main__':
     
