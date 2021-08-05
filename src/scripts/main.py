@@ -4,6 +4,7 @@ Main class for safety algorithm
 #!/usr/bin/python3
 import argparse
 
+from networkx.algorithms.tree.operations import join
 from src.scripts import io_helper
 
 
@@ -54,30 +55,30 @@ def maximal_safety_indices(graph, in_flow_decomposition=None):
     list_safety_indices = {}
     for path in flow_decomposition_paths:
         safety_indices = []
-        start_index = 0
-        end_index = 1
+        start = 0
+        end = 1
         f = excess_flow(graph, [path[0], path[1]])
 
         added = False
         while True:
-            if end_index == len(path)-1 and f > 0:
-                if end_index-start_index >= 1:
-                    safety_indices.append_index((start_index, end_index))
+            if end == len(path)-1 and f > 0:
+                if end-start >= 2:
+                    safety_indices.append((start, end))
                 break
             if f > 0:
-                end_index += 1
-                f_out = graph.nodes[path[end_index][0]]['flow_out']
-                f -= (f_out - graph.edges[path[end_index]]['weight'])
+                end += 1
+                f_out = graph.nodes[path[end][0]]['flow_out']
+                f -= (f_out - graph.edges[path[end]]['weight'])
                 added = False
             else:
                 if not added:
-                    if end_index-start_index >= 1:
-                        safety_indices.append_index((start_index, end_index))
+                    if end-start >= 2:
+                        safety_indices.append((start, end))
                     added = True
 
-                start_index += 1
-                f_in = graph.nodes[path[start_index][0]]['flow_in']
-                f += (f_in - graph.edges[(path[start_index-1])]['weight'])
+                start += 1
+                f_in = graph.nodes[path[start][0]]['flow_in']
+                f += (f_in - graph.edges[(path[start-1])]['weight'])
         list_safety_indices[tuple(path)] = safety_indices
     return list_safety_indices
 
@@ -100,19 +101,19 @@ def maximal_safety(graph, in_flow_decomposition=None):
         while True:
             if i == len(path)-1 and f > 0:
                 if len(sub) >= 2:
-                    safe_paths.append_index(sub)
+                    safe_paths.append(sub)
                 break
             if f > 0:
                 i += 1
                 f_out = graph.nodes[path[i][0]]['flow_out']
                 f -= (f_out - graph.edges[path[i]]['weight'])
-                sub.append_index(path[i])
+                sub.append(path[i])
                 added = False
             else:
                 first = sub[0]
                 if not added:
                     if len(sub[0:-1]) >= 2:
-                        safe_paths.append_index(sub[0:-1])
+                        safe_paths.append(sub[0:-1])
                     added = True
                 sub = sub[1:len(sub)]
                 f_in = graph.nodes[sub[0][0]]['flow_in']
@@ -133,7 +134,7 @@ def flow_decomposition(graph):
     cap = graph.nodes[graph.graph['source']]['flow_out']
     while(True):
         if v == graph.graph['sink']:
-            paths.append_index(path)
+            paths.append(path)
             for e in path:
                 graph.edges[e]['weight_copy'] -= min_flow
             path = []
@@ -146,13 +147,13 @@ def flow_decomposition(graph):
             (v1,v2,dic) = [(i,j,k) for i,j,k in graph.out_edges(v, data=True) if k['weight_copy'] > 0][0]
             if dic['weight_copy'] < min_flow:
                 min_flow = dic['weight_copy']
-            path.append_index((v, v2))
+            path.append((v, v2))
             v = v2
     return paths
 
 def to_vertex_list(path):
     verteces = [e[0] for e in path] 
-    verteces.append_index(path[-1][-1])
+    verteces.append(path[-1][-1])
     return verteces
 
 def path_to_string(path):
