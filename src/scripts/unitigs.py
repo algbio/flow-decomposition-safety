@@ -12,14 +12,13 @@ def main(input_file, mode):
     i = 0
     for g in graphs:
         print(f'# graph {i}')
-        result_paths = maximal_safety(
-            g) if not mode else maximal_safety_indices(g)
-        for path in result_paths:
-            if mode:
-                print(path_to_string(path))
-                print(safety_indices_to_string(result_paths[path]))
-            else:
-                print(path_to_string(path))
+        decomposition_paths = flow_decomposition(g)
+        unitgs_set = set()
+        for path in decomposition_paths:
+            list = get_unitigs(path, g)
+            for x in list:
+                unitgs_set.add(x)
+        print(unitgs_set)
         i += 1
 
 
@@ -38,13 +37,13 @@ def get_unitigs(path, graph):
                 # add last constructed unitig
                 if unitig:
                     unitig.append(vertex_path[last_added+1])
-                    unitigs.append(unitig)
+                    unitigs.append(tuple(unitig))
                 # begin new unitig
                 unitig = [vertex_path[i-1], v]
             last_added = i
     if unitig:
         unitig.append(vertex_path[last_added+1])
-        unitigs.append(unitig) 
+        unitigs.append(tuple(unitig)) 
     return unitigs
 
 
