@@ -27,7 +27,7 @@ def main(truth, output, catfish=None, safety=None):
         print('graphs don\'t match. comparison can\'t be done')
         return
 
-    io_helper.write_file(
+    print(
         'graph,precision,max_cov_rel,number_of_paths,number_of_paths_truth,paths_length_sum\n', f'{output}')
     for i in range(0, n):
         row = {'graph': i,
@@ -37,7 +37,7 @@ def main(truth, output, catfish=None, safety=None):
                'number_of_paths_truth': [len(truth_graphs[i])],
                'sum_of_path_length': [np.sum([len(path) for path in graphs[i]])]
                }
-        io_helper.write_file(pd.DataFrame(row).to_csv(header=False), f'{output}')
+        print(pd.DataFrame(row).to_csv(header=False))
 
 
 
@@ -114,8 +114,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--catfish_input", default=None)
     parser.add_argument("-s", "--safety_input", default=None)
-    parser.add_argument("-t", "--truth_input", default=None)
-    parser.add_argument("-o", "--output_file")
+    parser.add_argument("-t", "--truth_input")
     args = parser.parse_args()
-    main(args.truth_input, args.output_file,
+    main(args.truth_input,
          args.catfish_input, args.safety_input)

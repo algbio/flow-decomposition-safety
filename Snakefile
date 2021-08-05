@@ -3,10 +3,10 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("summary/comparisons/safety/{p}.csv", p=paths),
-        expand("summary/comparisons/catfish/{p}.csv", p=paths)
+        expand("result/safety/{p}.res", p=paths)
 
-# sgr conversion is needed for catfish. catfish doesn't accept .graph files
+# sgr conversion is needed for catfish. 
+# catfish doesn't take .graph files as an input
 rule convert_to_sgr:
     input:
         "data/{p}.graph"
@@ -21,7 +21,7 @@ rule convert_to_gfa:
     output:
         "data/{p}.sgr.gfa"
     shell:
-        "python -m src.scripts.converter -i {input}"
+        "python -m src.scripts.converter -i {input} >> data/{wildcards.p}.sgr.gfa"
 
 rule run_catfish:
     input:
@@ -37,7 +37,7 @@ rule run_safety:
     output:
         "result/safety/{p}.res"
     shell:
-        "python -m src.scripts.main -i {input} -o {output}"
+        "python -m src.scripts.main -i {input} >> result/safety/{wildcards.p}.res"
         
 rule cafish_truth_compare:
     input:

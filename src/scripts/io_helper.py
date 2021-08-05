@@ -3,16 +3,6 @@ io_helper reads and writes graphs to files
 '''
 import networkx as nx
 
-
-def write_file(str, output):
-    '''
-    write_file(str, output)
-    Writes given string end of the given output file.
-    '''
-    f = open(output, 'a')
-    f.write(f'{str}')
-
-
 def read_gfa_file(filename):
     '''
     read_gfa_file(filename) -> nx.graph list

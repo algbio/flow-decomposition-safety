@@ -1,3 +1,4 @@
+from unittest import result
 from src.scripts.main import flow_decomposition, maximal_safety, maximal_safety_indices
 import unittest
 import networkx as nx
@@ -114,6 +115,20 @@ class MainTest(unittest.TestCase):
                     (3,9),(9,5),
                     (5,6),(6,7),
                     (7,8),(8,11)):[(0, 4), (4, 7)]}, result)
+    
+    def test_indices_version_with_small_graph(self):
+        nx_small_graph = nx.DiGraph(source=0, sink=2)
+        nx_small_graph.add_edge(0, 1, weight=3, weight_copy=3)
+        nx_small_graph.add_edge(1, 2, weight=3, weight_copy=3)
+        nx_small_graph.nodes[0]['flow_out'] = 3
+        nx_small_graph.nodes[0]['flow_in'] = 0
+        nx_small_graph.nodes[1]['flow_in'] = 3
+        nx_small_graph.nodes[1]['flow_out'] = 3
+        nx_small_graph.nodes[2]['flow_in'] = 3
+        nx_small_graph.nodes[2]['flow_out'] = 0
+        result = maximal_safety_indices(nx_small_graph)
+        self.assertDictEqual({((0,1),(1,2)) : [(0,1)]}, result)
+
                     
 
 if __name__ == '__main__':
