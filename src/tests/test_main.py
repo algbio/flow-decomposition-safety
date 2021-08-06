@@ -70,7 +70,8 @@ class MainTest(unittest.TestCase):
         self.assertEqual([[(0, 1), (1, 2), (2, 3), (3, 4)]], maximal_safety(self.nx_simple_graph))
 
     def test_graph1_decomposition(self):
-        self.assertEqual([[(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 11)], [(1, 2), (2, 3), (3, 9), (9, 5), (5, 10), (10, 7), (7, 8), (8, 11)]]
+        self.assertEqual([[(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 11)],
+         [(1, 2), (2, 3), (3, 9), (9, 5), (5, 10), (10, 7), (7, 8), (8, 11)]]
                         , flow_decomposition(self.nx_graph1))
 
     def test_graph1_maximal_safetypath(self):
