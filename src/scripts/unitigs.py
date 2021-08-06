@@ -14,7 +14,7 @@ def main(input_file, mode):
     for g in graphs:
         print(f'# graph {i}')
         decomposition_paths = flow_decomposition(g)
-        # unitigs are saved to set because it's no
+        # unitigs are saved to set because it eliminates duplicate paths
         unitgs_set = set()
         for path in decomposition_paths:
             vertex_path = to_vertex_list(path)
