@@ -53,6 +53,7 @@ def new_nx_graph(nodes, edges):
 def read_file(filename, type):
     '''
     read_file(filename, type) -> list of graphs
+    
     Reads given file and returns list of graphs as a list of paths.
     TODO: Make path a class?
     '''

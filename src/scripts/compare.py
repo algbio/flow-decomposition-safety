@@ -10,7 +10,7 @@ from src.scripts import io_helper
 
 def main(truth, output, catfish=None, safety=None):
     '''
-    Main method for comparing graphs files. Outputs a file where
+    Main method for comparing graphs files. Outputs 
     each comparison result for compared graphs is reported.
     Gets paths to cafish or safety, truth and output files as a parameter.
     '''
@@ -35,7 +35,9 @@ def main(truth, output, catfish=None, safety=None):
                'max_cov_rel': [max_cov_rel(graphs[i], truth_graphs[i])],
                'number_of_paths': [len(graphs[i])],
                'number_of_paths_truth': [len(truth_graphs[i])],
-               'sum_of_path_length': [np.sum([len(path) for path in graphs[i]])]
+               'sum_of_path_length': [np.sum([len(path) for path in graphs[i]])],
+               'number_of_vertices' : number_of_vertices(graphs[i]),
+               'vertex_coverage_path':0
                }
         print(pd.DataFrame(row).to_csv(header=False))
 
@@ -44,6 +46,7 @@ def main(truth, output, catfish=None, safety=None):
 def precision(graph, truth_graph):
     '''
     precision(graph, truth_graph) -> float
+
     Returns how many paths in graph were included in truth graph paths
     Path is included if it is contained as a whole in (some) truth path.
     '''
@@ -60,6 +63,7 @@ def precision(graph, truth_graph):
 def correct(path, truth_path):
     '''
     correct(path, truth_path) -> Boolean
+
     Return True if path is included in truth path as a whole, if not returns False.
     '''
     return str(path)[1:-1] in str(truth_path)
@@ -67,6 +71,7 @@ def correct(path, truth_path):
 def max_cov_rel(graph, truth_graph):
     '''
     max_cov_rel(graph, truth_graph) -> float
+
     For each path in truth graph longest overlap with graph path is calculated
     Overlap value for each truth path per graph are added together in variable total
     Total is then divided by number of paths in truth graph and returned
@@ -89,6 +94,7 @@ def max_cov_rel(graph, truth_graph):
 def longest_overlap(path, truth_path):
     '''
     longest_overlap(path, truth_path) -> integer
+
     Computes longest overlap of two paths using two pointer method.
     '''
     n = len(truth_path)
@@ -99,8 +105,7 @@ def longest_overlap(path, truth_path):
         for j in range(m-1, -1, -1):
             if truth_path[i] == path[j]:
                 if j > 0:
-                    sub_lengths[j] = sub_lengths[j-1]
-                    sub_lengths[j] += 1
+                    sub_lengths[j] = sub_lengths[j-1] + 1
                 else:
                     sub_lengths[j] = 1
                 if sub_lengths[j] > max:
@@ -108,6 +113,20 @@ def longest_overlap(path, truth_path):
             else:
                 sub_lengths[j] = 0
     return max
+
+def number_of_vertices(graph):
+    vertices = set()
+    vertices.update(*graph)
+    return len(vertices)
+
+def vertex_coverage(graph):
+    dic = {}
+    for path in graph:
+        for v in path:
+            if v not in dic:
+                dic[v] = 0
+            dic[v] += 1
+    return dic
 
 
 if __name__ == '__main__':
