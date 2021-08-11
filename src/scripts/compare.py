@@ -4,45 +4,38 @@ Comparing safety or catfish result to truth file
 #!/usr/bin/python3
 import argparse
 import numpy as np
-import pandas as pd
 from src.scripts import io_helper
+import csv
+from sys import stdout
 
-
-def main(truth, output, catfish=None, safety=None):
+def main(truth, catfish=None, safety=None):
     '''
     Main method for comparing graphs files. Outputs 
     each comparison result for compared graphs is reported.
     Gets paths to cafish or safety, truth and output files as a parameter.
     '''
-
     graphs = io_helper.read_file(
         catfish, 'catfish') if catfish else io_helper.read_file(safety, 'safety')
 
     truth_graphs = io_helper.read_file(truth, 'truth')
-
     n = 0
     if len(graphs) == len(truth_graphs):
         n = len(graphs)
     else:
         print('graphs don\'t match. comparison can\'t be done')
         return
-
-    print(
-        'graph,precision,max_cov_rel,number_of_paths,number_of_paths_truth,paths_length_sum\n', f'{output}')
+    writer = csv.writer(stdout)
+    writer.writerow(['graph','precision','max_cov_rel','number_of_paths','number_of_paths_truth','paths_length_sum','vertex_coverage_path'])
     for i in range(0, n):
-        row = {'graph': i,
-               'precision': [precision(graphs[i], truth_graphs[i])],
-               'max_cov_rel': [max_cov_rel(graphs[i], truth_graphs[i])],
-               'number_of_paths': [len(graphs[i])],
-               'number_of_paths_truth': [len(truth_graphs[i])],
-               'sum_of_path_length': [np.sum([len(path) for path in graphs[i]])],
-               'number_of_vertices' : number_of_vertices(graphs[i]),
-               'vertex_coverage_path':0
-               }
-        print(pd.DataFrame(row).to_csv(header=False))
-
-
-
+        writer.writerow([i,
+               precision(graphs[i], truth_graphs[i]),
+               max_cov_rel(graphs[i], truth_graphs[i]),
+               len(graphs[i]),
+               len(truth_graphs[i]),
+               np.sum([len(path) for path in graphs[i]]),
+               repr(vertex_coverage(graphs[i]))
+        ])
+    
 def precision(graph, truth_graph):
     '''
     precision(graph, truth_graph) -> float
@@ -113,11 +106,6 @@ def longest_overlap(path, truth_path):
             else:
                 sub_lengths[j] = 0
     return max
-
-def number_of_vertices(graph):
-    vertices = set()
-    vertices.update(*graph)
-    return len(vertices)
 
 def vertex_coverage(graph):
     dic = {}

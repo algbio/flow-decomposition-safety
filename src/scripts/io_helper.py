@@ -57,7 +57,6 @@ def read_file(filename, type):
     Reads given file and returns list of graphs as a list of paths.
     TODO: Make path a class?
     '''
-    
     graphs = []
     graph = []
     with open(filename, 'r') as f:

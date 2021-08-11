@@ -24,6 +24,10 @@ class CompareTest(unittest.TestCase):
         graph = [(1, 2, 3, 4, 5), (9, 1, 2, 3, 4, 8, 6), (3, 4, 5)]
         self.assertDictEqual({1: 2, 2:2, 3:3, 4: 3, 5:2,
          9:1, 8:1, 6: 1}, vertex_coverage(graph))
+    
+    def test_coverage_vertices_simple(self):
+        graph = [(1, 2, 3)]
+        self.assertDictEqual({1:1, 2:1, 3:1}, vertex_coverage(graph))
 
 
 if __name__ == '__main__':

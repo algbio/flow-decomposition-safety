@@ -14,23 +14,21 @@ def main(input_file, mode):
     for g in graphs:
         print(f'# graph {i}')
         decomposition_paths = flow_decomposition(g)
-        # unitigs are saved to set because it eliminates duplicate paths
-        unitgs_set = set()
+        un_set = set()
         for path in decomposition_paths:
             vertex_path = to_vertex_list(path)
             if not mode:
                 enum = enumerate(vertex_path[1:-1], start=1)
                 pre = lambda out_degree, in_degree: out_degree == 1 and in_degree == 1
-                list = get_unitigs(vertex_path, g, enum, pre, offset)
+                un_set.update(get_unitigs(vertex_path, g, enum, pre, offset))
             else: 
                 enum = enumerate(vertex_path[1:-1], start=1)
                 pre = lambda out_degree, in_degree: out_degree == 1
                 r_enum = reverse_enumerator(vertex_path[1:-1], start=1)
                 r_pre = lambda out_degree, in_degree: in_degree == 1
-                list = get_unitigs(vertex_path, g, enum, pre, offset) + get_unitigs(vertex_path, g, r_enum, r_pre, -offset)
-            for x in list:
-                unitgs_set.add(tuple(x))
-        print(unitgs_set)
+                un_set.update(get_unitigs(vertex_path, g, enum, pre, offset) + get_unitigs(vertex_path, g, r_enum, r_pre, -offset))
+        for x in un_set:
+            print(''.join(str(y)+" " for y in x))
         i += 1
 
 
@@ -50,7 +48,7 @@ def get_unitigs(vertex_path, graph, enumerator, predicate, offset):
                     unitig.append(vertex_path[last_added+offset])
                     if offset<0:
                         unitig.reverse()
-                    unitigs.append(unitig)
+                    unitigs.append(tuple(unitig))
                 # begin new unitig
                 unitig = [vertex_path[i-offset], v]
             last_added = i
@@ -58,7 +56,7 @@ def get_unitigs(vertex_path, graph, enumerator, predicate, offset):
         unitig.append(vertex_path[last_added+offset])
         if offset<0:
             unitig.reverse()
-        unitigs.append(unitig)
+        unitigs.append(tuple(unitig))
     return unitigs
 
 def reverse_enumerator(l, start=0):
