@@ -3,8 +3,10 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("summary/comparisons/safety/{p}.csv", p=paths),
-        expand("summary/comparisons/catfish/{p}.csv", p=paths)
+        "summary/modified_unitigs_summary.csv",
+        "summary/unitigs_summary.csv",
+        "summary/safety_summary.csv",
+        "summary/catfish_summary.csv"
 
 # sgr conversion is needed for catfish. 
 # catfish doesn't take .graph files as an input
@@ -72,4 +74,54 @@ rule safety_truth_compare:
     output:
         "summary/comparisons/safety/{p}.csv"
     shell:
-        "python -m src.scripts.compare -s {input[0]} -t {input[1]} >> summary/comparisons/safety/{wildcards.p}.csv"
+        "python -m src.scripts.compare -i {input[0]} -t {input[1]} >> summary/comparisons/safety/{wildcards.p}.csv"
+
+rule unitigs_truth_compare:
+    input:
+        "result/unitigs/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/comparisons/unitigs/{p}.csv"
+    shell:
+        "python -m src.scripts.compare -i {input[0]} -t {input[1]} >> summary/comparisons/unitigs/{wildcards.p}.csv"
+
+rule modified_unitigs_truth_compare:
+    input:
+        "result/modified_unitigs/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/comparisons/modified_unitigs/{p}.csv"
+    shell:
+        "python -m src.scripts.compare -i {input[0]} -t {input[1]} >> summary/comparisons/modified_unitigs/{wildcards.p}.csv"
+
+rule summary_safety:
+    input: 
+        "summary/comparisons/safety/"
+    output:
+        "summary/safety_summary.csv"
+    shell:
+        "python -m src.scripst.summary -i {input} >> summary/safety_summary.csv"
+
+rule summary_catfish:
+    input: 
+        "summary/comparisons/catfish/"
+    output:
+        "summary/catfish_summary.csv"
+    shell:
+        "python -m src.scripst.summary -i {input} >> summary/catfish_summary.csv"
+
+rule summary_unitigs:
+    input: 
+        "summary/comparisons/unitigs/"
+    output:
+        "summary/unitigs_summary.csv"
+    shell:
+        "python -m src.scripst.summary -i {input} >> summary/unitigs_summary.csv"
+
+rule summary_modifies_unitigs:
+    input: 
+        "summary/comparisons/modified_unitigs/"
+    output:
+        "summary/modified_unitigs_summary.csv"
+    shell:
+        "python -m src.scripst.summary -i {input} >> summary/modified_unitigs_summary.csv"

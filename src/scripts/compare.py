@@ -8,14 +8,13 @@ from src.scripts import io_helper
 import csv
 from sys import stdout
 
-def main(truth, catfish=None, safety=None):
+def main(truth, catfish=None, comp=None):
     '''
     Main method for comparing graphs files. Outputs 
     each comparison result for compared graphs is reported.
-    Gets paths to cafish or safety, truth and output files as a parameter.
     '''
     graphs = io_helper.read_file(
-        catfish, 'catfish') if catfish else io_helper.read_file(safety, 'safety')
+        catfish, 'catfish') if catfish else io_helper.read_file(comp)
 
     truth_graphs = io_helper.read_file(truth, 'truth')
     n = 0
@@ -25,7 +24,7 @@ def main(truth, catfish=None, safety=None):
         print('graphs don\'t match. comparison can\'t be done')
         return
     writer = csv.writer(stdout)
-    writer.writerow(['graph','precision','max_cov_rel','number_of_paths','number_of_paths_truth','paths_length_sum','vertex_coverage_path'])
+    writer.writerow(['graph','precision','max_cov_rel','number_of_paths','k','path_length_sum','sum_of_paths_through_vertices','number_of_vertices'])
     for i in range(0, n):
         writer.writerow([i,
                precision(graphs[i], truth_graphs[i]),
@@ -33,7 +32,8 @@ def main(truth, catfish=None, safety=None):
                len(graphs[i]),
                len(truth_graphs[i]),
                np.sum([len(path) for path in graphs[i]]),
-               repr(vertex_coverage(graphs[i]))
+               np.sum([x for x in vertex_coverage(graphs[i]).values()]),
+               len(vertex_coverage(graphs[i]))
         ])
     
 def precision(graph, truth_graph):
@@ -120,8 +120,8 @@ def vertex_coverage(graph):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--catfish_input", default=None)
-    parser.add_argument("-s", "--safety_input", default=None)
+    parser.add_argument("-i", "--input", default=None)
     parser.add_argument("-t", "--truth_input")
     args = parser.parse_args()
     main(args.truth_input,
-         args.catfish_input, args.safety_input)
+         args.catfish_input, args.input)
