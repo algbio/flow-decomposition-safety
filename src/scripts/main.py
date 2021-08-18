@@ -3,8 +3,7 @@ Main class for safety algorithm
 '''
 #!/usr/bin/python3
 import argparse
-
-from networkx.algorithms.tree.operations import join
+from suffix_tree import Tree
 from src.scripts import io_helper
 
 
@@ -14,14 +13,28 @@ def main(input_file, mode):
     for g in graphs:
         print(f'# graph {i}')
         result_paths = maximal_safety(g) if not mode else maximal_safety_indices(g)
-        for path in result_paths:
+        tree = Tree()
+        for j, path in enumerate(sorted(result_paths, key=lambda x: len(x), reverse=True)):
             if mode:
-                print(path_to_string(path))
-                print(safety_indices_to_string(result_paths[path]))
+                if result_paths[path] != []:
+                    print(path_to_string(path))
+                    print(safety_indices_to_string(result_paths[path]))
             else:
-                print(path_to_string(path))
+                if check_unique(path, [x for x in result_paths if x != path]):
+                    print(path_to_string(path))
         i += 1
 
+def check_unique_tree(path,i , tree):
+    if tree.find(path):
+        return False
+    tree.add(i, path)
+    return True
+
+def check_unique(path, paths):
+    for p in paths:
+        if path_to_string(path) in path_to_string(p):
+            return False
+    return True
 
 def excess_flow(graph, path):
     '''
@@ -62,7 +75,7 @@ def maximal_safety_indices(graph, in_flow_decomposition=None):
         added = False
         while True:
             if end == len(path)-1 and f > 0:
-                if end-start >= 2:
+                if end-start >= 1 and (start,end) not in safety_indices:
                     safety_indices.append((start, end))
                 break
             if f > 0:
@@ -72,7 +85,7 @@ def maximal_safety_indices(graph, in_flow_decomposition=None):
                 added = False
             else:
                 if not added:
-                    if end-start >= 2:
+                    if end-start >= 2 and (start,end) not in safety_indices:
                         safety_indices.append((start, end))
                     added = True
 
@@ -100,7 +113,7 @@ def maximal_safety(graph, in_flow_decomposition=None):
         added = False
         while True:
             if i == len(path)-1 and f > 0:
-                if len(sub) >= 2:
+                if len(sub) >= 2 and sub not in safe_paths:
                     safe_paths.append(sub)
                 break
             if f > 0:
@@ -112,7 +125,7 @@ def maximal_safety(graph, in_flow_decomposition=None):
             else:
                 first = sub[0]
                 if not added:
-                    if len(sub[0:-1]) >= 2:
+                    if len(sub[0:-1]) >= 2 and sub[0:-1] not in safe_paths:
                         safe_paths.append(sub[0:-1])
                     added = True
                 sub = sub[1:len(sub)]

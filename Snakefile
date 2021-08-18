@@ -3,10 +3,7 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        "summary/modified_unitigs_summary.csv",
-        "summary/unitigs_summary.csv",
-        "summary/safety_summary.csv",
-        "summary/catfish_summary.csv"
+        expand("result/safety_with_indices/{p}.res", p = paths)
 
 # sgr conversion is needed for catfish. 
 # catfish doesn't take .graph files as an input
@@ -41,6 +38,14 @@ rule run_safety:
         "result/safety/{p}.res"
     shell:
         "python -m src.scripts.main -i {input} >> result/safety/{wildcards.p}.res"
+
+rule run_safety_with_indices:
+    input:
+        "data/{p}.sgr.gfa"
+    output:
+        "result/safety_with_indices/{p}.res"
+    shell:
+        "python -m src.scripts.main -i {input} -m True >> result/safety_with_indices/{wildcards.p}.res"
 
 rule run_unitigs:
     input:
