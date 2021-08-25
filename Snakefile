@@ -3,7 +3,7 @@ paths = glob_wildcards(filename).path
 
 rule all:
     input:
-        expand("result/safety_with_indices/{p}.res", p = paths)
+        "summary/safety_summary.csv"
 
 # sgr conversion is needed for catfish. 
 # catfish doesn't take .graph files as an input
@@ -103,30 +103,30 @@ rule summary_safety:
     input: 
         "summary/comparisons/safety/"
     output:
-        "summary/safety_summary.csv"
+        "summary/safety.csv"
     shell:
-        "python -m src.scripst.summary -i {input} >> summary/safety_summary.csv"
+        "python -m src.scripts.summary -i {input} >> summary/safety_summary.csv"
 
 rule summary_catfish:
     input: 
         "summary/comparisons/catfish/"
     output:
-        "summary/catfish_summary.csv"
+        "summary/catfish.csv"
     shell:
-        "python -m src.scripst.summary -i {input} >> summary/catfish_summary.csv"
+        "python -m src.scripts.summary -i {input} >> summary/catfish_summary.csv"
 
 rule summary_unitigs:
     input: 
         "summary/comparisons/unitigs/"
     output:
-        "summary/unitigs_summary.csv"
+        "summary/unitigs.csv"
     shell:
-        "python -m src.scripst.summary -i {input} >> summary/unitigs_summary.csv"
+        "python -m src.scripts.summary -i {input} >> summary/unitigs_summary.csv"
 
 rule summary_modifies_unitigs:
     input: 
         "summary/comparisons/modified_unitigs/"
     output:
-        "summary/modified_unitigs_summary.csv"
+        "summary/modified_unitigs.csv"
     shell:
-        "python -m src.scripst.summary -i {input} >> summary/modified_unitigs_summary.csv"
+        "python -m src.scripts.summary -i {input} >> summary/modified_unitigs_summary.csv"

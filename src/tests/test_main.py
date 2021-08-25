@@ -93,7 +93,8 @@ class MainTest(unittest.TestCase):
             for c in correct:
                 if r == c:
                     check_list[i] = True
-        self.assertEqual([True,True,True,True],check_list)
+        self.assertEqual([True,True,True,True], check_list)
+
     def test_maximum_safe_path_indices(self):
         self.assertDictEqual({ ((0, 1), (1, 2), (2, 3), (3, 4)):[(0,3)]}, maximal_safety_indices(self.nx_simple_graph))
 
@@ -129,6 +130,7 @@ class MainTest(unittest.TestCase):
         nx_small_graph.nodes[2]['flow_out'] = 0
         result = maximal_safety_indices(nx_small_graph)
         self.assertDictEqual({((0,1),(1,2)) : [(0,1)]}, result)
+
 
                     
 
