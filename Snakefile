@@ -1,10 +1,28 @@
 filename = "data/{path}.truth"
 paths = glob_wildcards(filename).path
+collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
+types = ['zebrafish', 'salmon', 'human', 'mouse']
 
 rule all:
     input:
-        "summary/safety_summary.csv"
+        expand("summary/comparisons/safety/{p}.csv", p = paths)
 
+
+rule summaries2:
+    input: 
+        "summary/comparisons/{c}/"
+    output:
+        "summary/{c}/summary.csv"
+    shell:
+        "python -m src.scripts.summary -i {input} >> summary/{wildcards.c}/summary.csv"
+
+rule summaries:
+    input: 
+        "summary/comparisons/{c}/rnaseq/{t}/"
+    output:
+        "summary/{c}/{t}summary.csv"
+    shell:
+        "python -m src.scripts.summary -i {input} >> summary/{wildcards.c}/{wildcards.t}summary.csv"
 # sgr conversion is needed for catfish. 
 # catfish doesn't take .graph files as an input
 rule convert_to_sgr:
@@ -98,35 +116,3 @@ rule modified_unitigs_truth_compare:
         "summary/comparisons/modified_unitigs/{p}.csv"
     shell:
         "python -m src.scripts.compare -i {input[0]} -t {input[1]} >> summary/comparisons/modified_unitigs/{wildcards.p}.csv"
-
-rule summary_safety:
-    input: 
-        "summary/comparisons/safety/"
-    output:
-        "summary/safety.csv"
-    shell:
-        "python -m src.scripts.summary -i {input} >> summary/safety_summary.csv"
-
-rule summary_catfish:
-    input: 
-        "summary/comparisons/catfish/"
-    output:
-        "summary/catfish.csv"
-    shell:
-        "python -m src.scripts.summary -i {input} >> summary/catfish_summary.csv"
-
-rule summary_unitigs:
-    input: 
-        "summary/comparisons/unitigs/"
-    output:
-        "summary/unitigs.csv"
-    shell:
-        "python -m src.scripts.summary -i {input} >> summary/unitigs_summary.csv"
-
-rule summary_modifies_unitigs:
-    input: 
-        "summary/comparisons/modified_unitigs/"
-    output:
-        "summary/modified_unitigs.csv"
-    shell:
-        "python -m src.scripts.summary -i {input} >> summary/modified_unitigs_summary.csv"

@@ -1,11 +1,9 @@
 '''
 Draws a summary from datafolder given as a parameter.
-TODO: probably redundant, will be included to plotting file?
 '''
 #!/usr/bin/python3
 import argparse
 import os
-from src.scripts import io_helper
 import pandas as pd
 
 def main(input_folder):
@@ -13,16 +11,21 @@ def main(input_folder):
     Gets input folder as a parameter.
     Outputs a csv-file containing summary of the data.
     '''
-    l = []
+    l=[]
     for root, dirs, files in os.walk(input_folder):
+        type = root.split('/')[-1]
         for file in files:
             filename = f'{root}/{file}'
-            l.append(pd.read_csv(filename))
+            df = pd.read_csv(filename)
+            l.append(df)
     df = pd.concat(l)
+
     groups = df.groupby('k')
     sdf = groups.mean()[['precision', 'max_cov_rel']]
     sdf['avg_path_length'] = groups.sum()['path_length_sum'] / groups.sum()['number_of_paths']
     sdf['graphs_per_k'] = groups.count()['graph']
+    sdf['path_sum'] = groups.sum()['number_of_paths']
+    sdf['paths_length_sum'] = groups.sum()['path_length_sum']
     print(sdf.to_csv())
     
 

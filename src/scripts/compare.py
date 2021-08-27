@@ -24,13 +24,14 @@ def main(truth, catfish=None, comp=None):
         print('graphs don\'t match. comparison can\'t be done')
         return
     writer = csv.writer(stdout)
-    writer.writerow(['graph','precision','max_cov_rel','number_of_paths','k','path_length_sum','sum_of_paths_through_vertices','number_of_vertices'])
+    writer.writerow(['graph','precision','max_cov_rel','number_of_paths','k','truth_path_len_sum','path_length_sum','sum_of_paths_through_vertices','number_of_vertices'])
     for i in range(0, n):
         writer.writerow([i,
                precision(graphs[i], truth_graphs[i]),
                max_cov_rel(graphs[i], truth_graphs[i]),
                len(graphs[i]),
                len(truth_graphs[i]),
+               np.sum([len(path) for path in truth_graphs[i]]),
                np.sum([len(path) for path in graphs[i]]),
                np.sum([x for x in vertex_coverage(graphs[i]).values()]),
                len(vertex_coverage(graphs[i]))
