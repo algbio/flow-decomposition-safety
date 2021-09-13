@@ -13,13 +13,22 @@ def main(input_file, mode):
         print(f'# graph {i}')
         result_paths = maximal_safety(g) if not mode else maximal_safety_indices(g)
         for j, path in enumerate(sorted(result_paths, key=lambda x: len(x), reverse=True)):
-            if mode:
+            if mode == '1':
                 if result_paths[path] != []:
                     print(path_to_string(path))
                     print(safety_indices_to_string(result_paths[path]))
+            elif mode == '2':
+                if check_unique(path, [x for x in result_paths if x != path]):
+                    print(path_to_string(path))
             else:
                 print(path_to_string(path))
         i += 1
+
+def check_unique(path, paths):
+    for p in paths:
+        if path_to_string(path) in path_to_string(p):
+            return False
+    return True
 
 def excess_flow(graph, path):
     '''

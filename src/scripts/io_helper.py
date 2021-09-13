@@ -2,6 +2,7 @@
 io_helper reads and writes graphs to files
 '''
 import networkx as nx
+import re
 
 
 def read_gfa_file(filename):
@@ -47,7 +48,6 @@ def new_nx_graph(nodes, edges):
 
     Creates new graph from given node and edge list and returns it.
     Assumes that souce of the graph is 0 and sink of the graph is number of nodes -1.
-    TODO: Maybe change source/sink calculation if needed? In the catfish usecase this is not necessary.
     '''
     graph = nx.DiGraph(edges, source=0, sink=len(nodes)-1)
     graph.update(nodes=nodes)
@@ -59,7 +59,6 @@ def read_file(filename, type=None):
     read_file(filename, type) -> list of graphs
 
     Reads given file and returns list of graphs as a list of paths.
-    TODO: Make path a class?
     '''
     graphs = []
     graph = []
@@ -77,6 +76,33 @@ def read_file(filename, type=None):
     graphs.append(graph)
     return graphs
 
+def read_index_file(filename):
+    indices = []
+    flow_decompositions = []
+    flow_dec = []
+    temp = []
+    with open(filename, 'r') as f:
+        for line in f:
+            # Hashtag(#) begins a graph defenition in file
+            if line[0] == '#':
+                if len(flow_dec) > 0:
+                    flow_decompositions.append(flow_dec)
+                    flow_dec = []
+                    indices.append(temp)
+                    temp = []
+            # File line is a path
+            else:
+                if line[0] == '(':
+                    res=re.findall(r'\((\d+,\d+)\)', line)
+                    temp.append([(int(x.split(',')[0]),int(x.split(',')[1])) for x in res])
+                else:
+                    path = read_special_path(line)
+                    flow_dec.append(path)
+                
+    flow_decompositions.append(flow_dec)
+    indices.append(temp)
+    return flow_decompositions, indices
+
 
 def read_path(line, type=None):
     '''
@@ -93,3 +119,7 @@ def read_path(line, type=None):
     if type == 'truth':
         return tuple([int(x) for x in parts[1:(len(parts))]])
     return tuple([int(x) for x in parts[0:(len(parts))]])
+
+def read_special_path(line):
+    parts = line.rstrip().split()
+    return tuple([int(x) for x in parts[0:(len(parts)-1)]])
