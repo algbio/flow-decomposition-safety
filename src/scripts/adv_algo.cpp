@@ -73,12 +73,14 @@ void revReachTopOrder(Graph &G,long root,vector<int> &vis){
 
 void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	list<pld> :: iterator it;
-	
+ 	printf("Build Funnel %ld\n",root);	
 	vector<pdl> outN;
 	pld max = pld(-1,0);
 	for(it=G.adj[root].begin();it!=G.adj[root].end();it++){
 		f[(*it).first].addEdge(root,(*it).first,(*it).second);
-	
+
+		printf("outN Add F%ld (%ld,%ld)\n", 
+				(*it).first,root,(*it).first);	
 		outN.push_back(pdl((*it).second,(*it).first));
 
 		if(max.second <= (*it).second){
@@ -91,18 +93,28 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	vector<long> safeF = vector<long>(G.adj.size(),0);
 	vector<int> vis = vector<int>(G.adj.size(),0);
 	revReachTopOrder(f[root].fg,root,vis);
-	
+
 	safeF[root] = max.second; // Use max weight even if duplicate
 	list<long> :: iterator itx;
-	for(itx=f[root].fg.topOrder.begin();itx!=f[root].fg.topOrder.end();itx++){
+	itx=f[root].fg.topOrder.end(); itx--;
+	//do{
+	while(itx!=f[root].fg.topOrder.begin()){
+
+	//for(itx=f[root].fg.topOrder.egin();itx!=f[root].fg.topOrder.end();itx++){
 		for(it=f[root].fg.rAdj[*itx].begin();it!=f[root].fg.rAdj[*itx].end();it++){
 			if(safeF[(*it).first]< safeF[*itx] - G.fIn[*itx] + (*it).second)
 				safeF[(*it).first] = safeF[*itx] - G.fIn[*itx] + (*it).second;
 			if((max.first!=-2) && (safeF[*itx] - G.fIn[*itx] + (*it).second > 0) &&
-					!existEdge(f[max.first].fg,*itx,(*it).first)) 
-				f[max.first].addEdge(*itx,(*it).first,(*it).second);
+					!existEdge(f[max.first].fg,(*it).first,*itx)){ 
+				f[max.first].addEdge((*it).first,*itx,(*it).second);
+	
+				printf("maxV Add F%ld (%ld,%ld)\n", 
+					max.first,(*it).first,*itx);	
+			
+			}
 		}
-	}
+	      itx--;
+	}	
 
 	// Make funnel of rest of the neighbours
 	list<pld> Ns, Np;
@@ -112,12 +124,11 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 		if(outN[i].second== max.first) break;
 		Ns.push_back(pld(outN[i].second,outN[i].first));
 		Np.push_back(pld(outN[i].second,outN[i].first));
-		Np.push_back(outN[i].second);
 	}	
 
 	long x,y=root;
-	list<long> path;
-	path.push_back(root);
+	list<pld> path;
+	path.push_back(pld(root,0));
 
 	while(!Np.empty()){
 	//for(itx=Np.begin(); itx!= Np.end();itx++){
@@ -130,16 +141,42 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 		}
 
 		x= maxY.first;	
-		path.push_front(x);
+		path.push_front(maxY);
 
 		for(its=Ns.begin();its!=Ns.end();its++){
-		     if(safeF[x]-max.second+(*its).second> 0 && 
-				!existEdge(f[(*its).first].fg,x,y))
+		     if(x!=-1 && safeF[x]-max.second+(*its).second> 0 && 
+				!existEdge(f[(*its).first].fg,x,y)){
 				f[(*its).first].addEdge(x,y,maxY.second);
+		    		printf("suff Add F%ld (%ld,%ld)\n", 
+					(*its).first,x,y);			     
+		     }
 		     else its = Ns.erase(its);
 		}
 		
+		while(!Np.empty() && (x==-1 || 
+		  safeF[x]-max.second+Np.front().second<0)){
+			pld top = Np.front();
+			Np.pop_front();
+			list<pld> :: iterator iyp;  // y' in paper
+			iyp= path.begin();
+			iyp++;
+			
+			while(f[top.first].fg.adj[(*iyp).first].empty()){
+				long a=(*iyp).first,b;
+				double c=(*iyp).second;
+				iyp++;
+				b=(*(iyp)).first;
+				f[top.first].fg.adj[a].push_back(pld(b,c));
+				f[top.first].fg.rAdj[b].push_back(pld(a,c));
+                                f[top.first].fg.fIn[b]+= c; 
+				printf("pref Add F%ld (%ld,%ld)\n", 
+					top.first,a,b);			     
 	
+
+			}
+			
+		}
+	y=x;	
 	}
 }
 /*
@@ -233,7 +270,7 @@ int main(int argc, char *argv[]){
 		f.resize(n,Funnel(n));
 		list<long> :: iterator it;
 		for(it=G.topOrder.begin();it!= G.topOrder.end();it++){
-		//	build_funnel(G,f,*it);
+			build_funnel(G,f,*it);
 		}
 	
 	//	printf("Orginal paths %ld, Final paths %ld, diff %ld\n", org,fin, org-fin );
