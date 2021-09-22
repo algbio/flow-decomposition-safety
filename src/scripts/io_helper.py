@@ -4,7 +4,10 @@ io_helper reads and writes graphs to files
 import networkx as nx
 import re
 
+# ADAPTED FROM ARIEL/LUCY'S CODE
+# source: https://github.com/lgw2/create_transcript_data/blob/master/input_and_truth_from_gtf.py
 
+# ADAPTION OF ARIEL/LUCY'S CODE ENDS HERE
 def read_gfa_file(filename):
     '''
     read_gfa_file(filename) -> nx.graph list
@@ -41,6 +44,37 @@ def read_gfa_file(filename):
                                    edges_to_add))
     return graphs
 
+def read_sg_file(filename):
+    graphs = []
+    with open(filename, 'r') as f:
+        edges_to_add = []
+        nodes_to_add = {}
+        for i, line in enumerate(f):
+            read = (line.rstrip()).split()
+            # Title line in sg file, begins a new graph
+            if line[0] == 'H':
+                if i != 0 and len(edges_to_add)>0:
+                    graphs.append(new_nx_graph([(x, nodes_to_add[x]) for x in nodes_to_add],
+                                               edges_to_add))
+                edges_to_add = []
+                nodes_to_add = {}
+            # Edge line in sg file
+            if line[0] == 'L':
+                v_from = read[1]
+                v_to = read[3]
+                weight = int((read[5]))
+                edges_to_add.append(
+                    (v_from, v_to, {'weight': weight, 'weight_copy': weight}))
+                if v_from not in nodes_to_add:
+                    nodes_to_add[v_from] = {'flow_in': 0, 'flow_out': 0}
+                if v_to not in nodes_to_add:
+                    nodes_to_add[v_to] = {'flow_in': 0, 'flow_out': 0}
+                nodes_to_add[v_from]['flow_out'] += weight
+                nodes_to_add[v_to]['flow_in'] += weight
+    if edges_to_add:
+        graphs.append(new_nx_graph([(x, nodes_to_add[x]) for x in nodes_to_add],
+                                   edges_to_add))
+    return graphs
 
 def new_nx_graph(nodes, edges):
     '''
@@ -49,7 +83,7 @@ def new_nx_graph(nodes, edges):
     Creates new graph from given node and edge list and returns it.
     Assumes that souce of the graph is 0 and sink of the graph is number of nodes -1.
     '''
-    graph = nx.DiGraph(edges, source=0, sink=len(nodes)-1)
+    graph = nx.DiGraph(edges, source='(0,0)', sink='(-1,-1)')
     graph.update(nodes=nodes)
     return graph
 

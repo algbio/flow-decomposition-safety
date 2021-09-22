@@ -5,6 +5,7 @@ summary/
 summary2/
 *.csv
 *.zip
+human/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -7,7 +7,8 @@ from src.scripts import io_helper
 
 
 def main(input_file, mode):
-    graphs = io_helper.read_gfa_file(input_file)
+    #graphs = io_helper.read_gfa_file(input_file)
+    graphs = io_helper.read_sg_file(input_file)
     i = 0
     for g in graphs:
         print(f'# graph {i}')

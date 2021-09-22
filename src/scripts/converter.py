@@ -6,7 +6,7 @@ Converts sgr/graph file to gfa file.
 import argparse
 
 def main(filename):
-    convert_file(filename)
+    convert_to_sgr(filename)
 
 def convert_file(filename):
     '''
@@ -19,6 +19,16 @@ def convert_file(filename):
             elif len(line.split(' ')) > 1:
                 print(edge_to_gfa(line))
 
+
+def covert_to_sgr(filename):
+    with open(filename, 'r') as f:
+        for line in f:
+            if line[0] == 'H':
+                print(f'# {line.rstrip()}')
+            else:
+                pass
+                # TODO: prosess sg file's edges such that nodes are represented as integers
+                # format of sgr file https://github.com/Kingsford-Group/catfish/blob/master/examples/input.sgr
 
 def edge_to_gfa(line):
     '''
