@@ -4,10 +4,7 @@ collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-        expand( "summary/comparisons/safety/{p}.metrics.json", p = paths),
-        expand( "summary/comparisons/unitigs/{p}.metrics.json", p = paths),
-        expand( "summary/comparisons/modified_unitigs/{p}.metrics.json", p = paths)
-        
+         expand("human/{p}.sgr", p=paths)
 
 rule run_compression_compare2:
     input:
@@ -41,15 +38,14 @@ rule summaries:
         "summary/{c}/{t}summary.csv"
     shell:
         "python -m src.scripts.summary -i {input} >> summary/{wildcards.c}/{wildcards.t}summary.csv"
-# sgr conversion is needed for catfish. 
-# catfish doesn't take .graph files as an input
-rule convert_to_sgr:
+# sg conversion is needed for catfish. 
+rule convert_to_sg:
     input:
-        "human/{p}.graph"
+        "human/{p}.sg"
     output:
         "human/{p}.sgr"
     shell:
-        "mv {input} {output}"
+        "python -m src.scripts.converter -i {input} >> human/{wildcards.p}.sgr"
 
 rule run_catfish:
     input:
@@ -57,7 +53,7 @@ rule run_catfish:
     output:
         "result/catfish/{p}.res"
     shell:
-        "./../catfish/bin/catfish -i {input} -o {output} -a greedy"
+        "./../catfish-0.2.1/src/catfish -i {input} -o {output} -a greedy"
 
 rule run_safety:
     input:

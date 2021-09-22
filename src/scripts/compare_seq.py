@@ -6,7 +6,7 @@ from json import dumps
 
 def main(truth, catfish=None, comp=None, mode=None):
     truth = read_truth(truth)
-    res = read_res(comp)
+    res = read_res(comp) if comp else read_res_catfish(catfish)
 
 
     if len(truth) != len(res):
@@ -68,6 +68,28 @@ def read_truth(filename):
                     'path': path,
                     'cov': cov
                 })
+    graphs.append(graph)
+    return graphs
+
+# Adapted from Milla's code (too)
+def read_res_catfish(filename):
+    
+    graphs = list()
+    graph = list()
+    
+    with open(filename, 'r') as f:
+        node_dic = {}
+        for line in f:
+            # Hashtag(#) begins a graph defenition in file
+            if line[0] == '#':
+                parts = line.split()
+                if len(graph) > 0:
+                    graphs.append(graph)
+                    graph = list()
+            # File line is a path
+            else:
+                graph.append(list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), line.split())))
+                
     graphs.append(graph)
     return graphs
 
