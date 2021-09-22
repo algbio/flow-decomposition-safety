@@ -18,6 +18,8 @@ using namespace std;
 
 #define pld pair<long,double>
 #define pdl pair<double,long>
+#define pll pair<long,long>
+#define p3ld pair<pll,pld>
 
 class Graph{
 
@@ -45,6 +47,7 @@ int existEdge(Graph &G,long x, long y){
 class Funnel{
 	public:
 	 	Graph fg;
+		list<p3ld> res;	
 
 	void addEdge(long a, long b, double c){
 		fg.adj[a].push_back(pld(b,c));
@@ -71,6 +74,12 @@ void revReachTopOrder(Graph &G,long root,vector<int> &vis){
 }
 
 
+void opt_funnel(Graph &G, vector<Funnel> &f, long root){
+
+
+}
+
+
 void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	list<pld> :: iterator it;
  	printf("Build Funnel %ld\n",root);	
@@ -90,7 +99,7 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	}
 
 	//         Make funnel of Max out neighbour and safeF for all
-	vector<long> safeF = vector<long>(G.adj.size(),0);
+	vector<double> safeF = vector<double>(G.adj.size(),0);
 	vector<int> vis = vector<int>(G.adj.size(),0);
 	revReachTopOrder(f[root].fg,root,vis);
 
@@ -104,6 +113,10 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 		for(it=f[root].fg.rAdj[*itx].begin();it!=f[root].fg.rAdj[*itx].end();it++){
 			if(safeF[(*it).first]< safeF[*itx] - G.fIn[*itx] + (*it).second)
 				safeF[(*it).first] = safeF[*itx] - G.fIn[*itx] + (*it).second;
+			//printf("Try maxV Add F%ld (%ld,%ld) %lf-%lf+%lf %d\n", 
+			//		max.first,(*it).first,*itx,safeF[*itx], G.fIn[*itx], (*it).second ,
+			//		existEdge(f[max.first].fg,(*it).first,*itx));	
+
 			if((max.first!=-2) && (safeF[*itx] - G.fIn[*itx] + (*it).second > 0) &&
 					!existEdge(f[max.first].fg,(*it).first,*itx)){ 
 				f[max.first].addEdge((*it).first,*itx,(*it).second);
@@ -271,6 +284,7 @@ int main(int argc, char *argv[]){
 		list<long> :: iterator it;
 		for(it=G.topOrder.begin();it!= G.topOrder.end();it++){
 			build_funnel(G,f,*it);
+			opt_funnel(G,f,*it);
 		}
 	
 	//	printf("Orginal paths %ld, Final paths %ld, diff %ld\n", org,fin, org-fin );
