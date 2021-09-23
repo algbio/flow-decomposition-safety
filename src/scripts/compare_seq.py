@@ -102,6 +102,28 @@ def read_res_catfish(filename):
     return graphs
 
 # Adapted from Milla's code (too)
+def read_res_catfish(filename):
+    
+    graphs = list()
+    graph = list()
+    
+    with open(filename, 'r') as f:
+        node_dic = {}
+        for line in f:
+            # Hashtag(#) begins a graph defenition in file
+            if line[0] == '#':
+                parts = line.split()
+                if len(graph) > 0:
+                    graphs.append(graph)
+                    graph = list()
+            # File line is a path
+            else:
+                graph.append(list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), line.split())))
+                
+    graphs.append(graph)
+    return graphs
+
+# Adapted from Milla's code (too)
 def read_res(filename):
     
     graphs = list()
