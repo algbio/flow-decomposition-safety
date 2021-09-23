@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 import argparse
-import io
 import numpy as np
 from json import dumps
 
 def main(truth, catfish=None, comp=None, mode=None):
+    
+    if comp:
+        res = read_res(comp)
+    if catfish:
+        res = read_res_catfish(catfish)
     truth = read_truth(truth)
-    res = read_res(comp)
 
 
     if len(truth) != len(res):
@@ -68,6 +71,33 @@ def read_truth(filename):
                     'path': path,
                     'cov': cov
                 })
+    graphs.append(graph)
+    return graphs
+
+def read_res_catfish(filename):
+    
+    graphs = list()
+    graph = list()
+    
+    with open(filename, 'r') as f:
+        node_dic = {}
+        for line in f:
+            # Hashtag(#) begins a graph defenition in file
+            if line[0] == '#':
+                node_dic = eval(' '.join(line.split()[3:-3]))
+                if len(graph) > 0:
+                    graphs.append(graph)
+                    graph = list()
+            # File line is a path
+            else:
+                parts = line.split()
+                path = [int(x) for x in parts[7:]]
+                fpath = []
+                for i in range(0,len(path)):
+                    fpath.append(node_dic[path[i]])
+                graph.append([eval(x) for x in fpath])
+                
+                
     graphs.append(graph)
     return graphs
 

@@ -17,6 +17,7 @@ def main(input_folder, mode):
         # = root.split('/')[-1]
         for file in files:
             filename = f'{root}{file}'
+            print(filename)
     #filename = 'summary/comparisons/safety/16.metrics.json'
             f = pd.read_json(filename)
             l.append(f)

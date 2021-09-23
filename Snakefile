@@ -4,9 +4,7 @@ collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-        expand( "summary/comparisons/safety/{p}.metrics.json", p = paths),
-        expand( "summary/comparisons/unitigs/{p}.metrics.json", p = paths),
-        expand( "summary/comparisons/modified_unitigs/{p}.metrics.json", p = paths)
+        expand( "summary/comparisons/catfish/{p}.metrics.json", p = paths)
         
 
 rule run_compression_compare2:
@@ -107,6 +105,16 @@ rule cafish_truth_compare:
         "summary/comparisons/catfish/{p}.csv"
     shell:
         "python -m src.scripts.compare -c {input[0]} -t {input[1]} >> summary/comparisons/catfish/{wildcards.p}.csv"
+
+rule cafish_truth_compare_seq:
+    input:
+        "result/catfish/{p}.res",
+        "human/{p}.truth"
+    output:
+        "summary/comparisons/catfish/{p}.metrics.json"
+    shell:
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/catfish/{wildcards.p}.metrics.json"
+
 
 rule safety_truth_compare:
     input:
