@@ -19,7 +19,112 @@ using namespace std;
 #define pld pair<long,double>
 #define pdl pair<double,long>
 #define pll pair<long,long>
+#define pdd pair<double,double>
 #define p3ld pair<pll,pld>
+#define pddll pair<pdd,pll>
+
+
+class LLHNode{
+	public:
+	double val;
+	double upd;
+	pll edg;
+
+	LLHNode *left;
+	LLHNode *right;
+	int rank; // dist
+
+	LLHNode(double v, double u, pll e){
+	    this.val = val;
+	    this.upd = u;
+	    this.edg=e;
+
+	    this.left=NULL;
+	    this.right=NULL;
+	    this.rank=0;
+	}
+
+}
+
+
+class LazyLeftistHeap{
+	public: 
+		LLHNode *root;
+	
+	LazyLeftistHeap(){
+		root=NULL;
+	}
+
+	void merge(LazyLeftistHeap &heap){
+		if (this == &heap)
+			return;
+		root = merge(root, heap.root);
+		heap.root = NULL;
+	}
+	
+	LLHNode* merge(LLHNode* h1, LLHNode * h2){
+		if (h1 == NULL)	return h2;
+		if (h2 == NULL)	return h1;
+	 	
+		if(h1->upd > 0) {// Lazy update
+			h1->val+=h1->upd;
+			h1->upd=0;
+		}
+		if(h2->upd > 0) {// Lazy update
+			h2->val+=h2->upd;
+			h2->upd=0;
+		}	
+
+		if (h1->val > h2->val){
+			LLHNode* t=h1; 
+			h1=h2;h2=t;  // h1-> val < h2->val
+		}
+		
+		if(h1-> left == NULL){
+			h1->left = h2;
+		}else {
+			h1->right = merge(h1->right, h2)
+			if(h1->left->rank < 
+			   h1->right->rank){
+				LLHNode* t= h1->left;
+				h1->left= h1->right;
+				h1->right=t;
+			}
+			h1->rank = h1->right->rank + 1;
+		}
+		return h1;
+	}
+
+	void insert(double v, double u, pll ed){
+		root = Merge(new LLHNode(v,u,ed),root);
+	}
+
+	pddll findMin(){
+//		if(root==NULL) 
+//			return(pddll(pdd(-1,-1),pll(-1,-1)));
+		return pddll(pdd(root->val,root->upd),root->edg);
+	}
+
+	void deleteMin(){
+		LLHNode* t=root;
+		if(root->upd>0){
+			if(root->left!=NULL)
+				root->left->upd+= 
+					root->upd;
+			if(root->right!=NULL)
+				root->right->upd+= 
+					root->upd;
+		}
+		
+		root = merge(root->left,root->right);
+		delete t;
+	}
+
+	bool isEmpty(){
+		return root==NULL;
+	}
+
+};
 
 class Graph{
 
