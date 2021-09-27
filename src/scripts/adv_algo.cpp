@@ -35,19 +35,30 @@ class LLHNode{
 	int rank; // dist
 
 	LLHNode(double v, double u, pll e){
-	    this.val = val;
-	    this.upd = u;
-	    this.edg=e;
+	    this->val = v;
+	    this->upd = u;
+	    this->edg=e;
 
-	    this.left=NULL;
-	    this.right=NULL;
-	    this.rank=0;
+	    this->left=NULL;
+	    this->right=NULL;
+	    this->rank=0;
 	}
 
-}
+};
 
 
 class LazyLeftistHeap{
+	void propUpd(LLHNode *root){
+		if(root!=NULL && root->upd>0){
+			if(root->left!=NULL)
+				root->left->upd += root->upd;
+			if(root->right!=NULL)
+				root->right->upd+= root->upd;
+			root->val+=root->upd;
+			root->upd=0;
+		}	
+	}
+
 	public: 
 		LLHNode *root;
 	
@@ -66,14 +77,8 @@ class LazyLeftistHeap{
 		if (h1 == NULL)	return h2;
 		if (h2 == NULL)	return h1;
 	 	
-		if(h1->upd > 0) {// Lazy update
-			h1->val+=h1->upd;
-			h1->upd=0;
-		}
-		if(h2->upd > 0) {// Lazy update
-			h2->val+=h2->upd;
-			h2->upd=0;
-		}	
+		propUpd(h1); // Lazy Update
+		propUpd(h2); // Lazy Update
 
 		if (h1->val > h2->val){
 			LLHNode* t=h1; 
@@ -83,7 +88,7 @@ class LazyLeftistHeap{
 		if(h1-> left == NULL){
 			h1->left = h2;
 		}else {
-			h1->right = merge(h1->right, h2)
+			h1->right = merge(h1->right, h2);
 			if(h1->left->rank < 
 			   h1->right->rank){
 				LLHNode* t= h1->left;
@@ -96,7 +101,8 @@ class LazyLeftistHeap{
 	}
 
 	void insert(double v, double u, pll ed){
-		root = Merge(new LLHNode(v,u,ed),root);
+		root = merge(new LLHNode(v,u,ed),root);
+	//	printf("Inserted %lf %lf %ld %ld\n",root->val,root->upd,root->edg.first,root->edg.second);
 	}
 
 	pddll findMin(){
@@ -106,16 +112,8 @@ class LazyLeftistHeap{
 	}
 
 	void deleteMin(){
+		propUpd(root);
 		LLHNode* t=root;
-		if(root->upd>0){
-			if(root->left!=NULL)
-				root->left->upd+= 
-					root->upd;
-			if(root->right!=NULL)
-				root->right->upd+= 
-					root->upd;
-		}
-		
 		root = merge(root->left,root->right);
 		delete t;
 	}
@@ -180,6 +178,46 @@ void revReachTopOrder(Graph &G,long root,vector<int> &vis){
 
 
 void opt_funnel(Graph &G, vector<Funnel> &f, long root){
+	vector<LazyLeftistHeap> H= vector<LazyLeftistHeap>(G.adj.size());
+	list<pld> :: iterator it;
+ 	printf("Build Funnel %ld\n",root);	
+
+	for(it=f[root].fg.adj[root].begin();it!=f[root].fg.rAdj[root].end();it++){
+		H[(*it).first].insert((*it).second,-1,pll((*it).first,root));
+	}
+
+	double updM=0,maxUp=-1;   // maxUpdate val
+	for(it=G.adj[root].begin();it!=G.adj[root].end();it++){
+		updM+= (*it).second;
+		if(maxUp< (*it).second) maxUp=(*it).second;
+	}
+	updM-= maxUp; // TODO:: CONDITION FOR SINK?
+
+	vector<int> vis = vector<int>(G.adj.size(),0);
+	revReachTopOrder(f[root].fg,root,vis);
+
+	list<long> :: iterator itx;
+	itx=f[root].fg.topOrder.end(); itx--; itx--;
+	while(itx!=f[root].fg.topOrder.begin()){
+		for(it=f[root].fg.rAdj[*itx].begin();it!=f[root].fg.rAdj[*itx].end();it++){
+			double upd = f[root].fg.fIn[*itx]- (*it).second;
+
+			if(!H[*itx].isEmpty()){
+				if(H[*itx].root->upd==-1){
+					if(f[root].fg.adj[(*it).first].size()==1){ // TODO:: Resolve for extFunnel
+						H[(*it).first].insert(H[*itx].root->upd - upd,-1,pll((*it).first,*itx));
+					}else{
+						H[(*it).first].insert(H[*itx].root->upd,-1,pll((*it).first,*itx));
+					
+					}
+				}else{
+				
+
+				}			
+			}
+
+	      itx--;
+	}	
 
 
 }
@@ -211,7 +249,6 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	safeF[root] = max.second; // Use max weight even if duplicate
 	list<long> :: iterator itx;
 	itx=f[root].fg.topOrder.end(); itx--;
-	//do{
 	while(itx!=f[root].fg.topOrder.begin()){
 
 	//for(itx=f[root].fg.topOrder.egin();itx!=f[root].fg.topOrder.end();itx++){
@@ -352,8 +389,6 @@ int main(int argc, char *argv[]){
 	char line[100];
 	long n,m,graphC=0;
 	//int t=10;
-
-	
 
 	int flag=0;
 	if(argc==2){
