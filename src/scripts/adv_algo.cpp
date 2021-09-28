@@ -177,41 +177,73 @@ void revReachTopOrder(Graph &G,long root,vector<int> &vis){
 }
 
 
-void opt_funnel(Graph &G, vector<Funnel> &f, long root){
+void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	vector<LazyLeftistHeap> H= vector<LazyLeftistHeap>(G.adj.size());
-	list<pld> :: iterator it;
- 	printf("Build Funnel %ld\n",root);	
+	list<pld> :: iterator it,itt;
+	long x,y;
+	double fxy,fxu;
+	printf("Build Funnel %ld\n",u);	
 
-	for(it=f[root].fg.adj[root].begin();it!=f[root].fg.rAdj[root].end();it++){
-		H[(*it).first].insert((*it).second,-1,pll((*it).first,root));
+	for(it=f[u].fg.rAdj[u].begin();it!=f[u].fg.rAdj[u].end();it++){
+		x=(*it).first;
+		fxu=(*it).second;
+		H[(x].insert(fxu,-1,pll(x,u));
 	}
 
 	double updM=0,maxUp=-1;   // maxUpdate val
-	for(it=G.adj[root].begin();it!=G.adj[root].end();it++){
+	for(it=G.adj[u].begin();it!=G.adj[u].end();it++){
 		updM+= (*it).second;
 		if(maxUp< (*it).second) maxUp=(*it).second;
 	}
-	updM-= maxUp; // TODO:: CONDITION FOR SINK?
+	if(maxUp!= -1)  updM-= maxUp;
+	else            updM = LLONG_MAX;  // u is sink
 
+	vector<double> maxIn = vector<double>(G.adj.size(),0);
 	vector<int> vis = vector<int>(G.adj.size(),0);
-	revReachTopOrder(f[root].fg,root,vis);
+	revReachTopOrder(f[u].fg,u,vis);
+	vector<int> maxIn = vector<int>(G.adj.size(),0);
 
 	list<long> :: iterator itx;
-	itx=f[root].fg.topOrder.end(); itx--; itx--;
-	while(itx!=f[root].fg.topOrder.begin()){
-		for(it=f[root].fg.rAdj[*itx].begin();it!=f[root].fg.rAdj[*itx].end();it++){
-			double upd = f[root].fg.fIn[*itx]- (*it).second;
+	itx=f[u].fg.topOrder.end(); itx--; itx--; // Not u
+	while(itx!=f[u].fg.topOrder.begin()){
+		y=*itx;
+		for(it=f[u].fg.rAdj[y].begin();it!=f[u].fg.rAdj[y].end();it++){
+			x=(*it).first; fxy=(*it).second;
+			
+			double upd = f[u].fg.fIn[y]- fxy;
 
-			if(!H[*itx].isEmpty()){
-				if(H[*itx].root->upd==-1){
-					if(f[root].fg.adj[(*it).first].size()==1){ // TODO:: Resolve for extFunnel
-						H[(*it).first].insert(H[*itx].root->upd - upd,-1,pll((*it).first,*itx));
+			if(!H[y].isEmpty()){
+				if(H[y].root->upd==-1){ // y in converging
+					if(maxIn[x]==0) // Compute maxIn
+						for(itt=f[u].fg.rAdj[x].begin();itt!= f[u].fg.rAdj[x].end();itt++)
+							if(maxIn[x]<(*itt).second) maxIn[x]=(*itt).second;
+
+					if(H[y].root->val-upd-f[u].fg.fIn[x]+maxIn[x]>0){ // x not source of the safe path
+						if(H[x].isEmpty())
+							H[x].insert(H[y].root->val-upd,-1,pll(x,y));
+						else{
+							if(H[x].root->upd==-1) H[x].root->upd = 0;
+							H[x].insert(H[y].root->val,upd,pll(x,y));
+						}
 					}else{
-						H[(*it).first].insert(H[*itx].root->upd,-1,pll((*it).first,*itx));
-					
+						if(H[y].root->val-upd-updM>0){
+							// TODO REMOVE (x,y) with extensions
+
+						}else	f[u].res.push_back(p3ld(H[y].root->edg,pld(x,H[y].root->val-H[y].root->upd)));				
+						
 					}
+					
 				}else{
-				
+					while(H[y].root->val-H[y].root->upd-upd<=0){
+					       pddll top = H[y].findMin(); // ((val,upd)(edg))
+					       H[y].deleteMin();
+					       if(top.first.first-top.first.second-updM>0){
+					       		// TODO REMOVE top.second with extensions
+					       }else	f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
+					       
+					       H[y].root->upd += upd;
+					       H[x].merge(H[y]);
+					}	
 
 				}			
 			}
