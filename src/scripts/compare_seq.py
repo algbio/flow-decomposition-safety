@@ -91,7 +91,7 @@ def read_res_catfish(filename):
             # File line is a path
             else:
                 parts = line.split()
-                path = [int(x) for x in parts[7:]]
+                path = [int(x) for x in parts[1:]]
                 fpath = []
                 for i in range(0,len(path)):
                     fpath.append(node_dic[path[i]])
@@ -100,7 +100,7 @@ def read_res_catfish(filename):
                 
     graphs.append(graph)
     return graphs
-
+'''
 # Adapted from Milla's code (too)
 def read_res_catfish(filename):
     
@@ -142,7 +142,7 @@ def read_res(filename):
                 
     graphs.append(graph)
     return graphs
-
+'''
 def interval_length(interval):
     return interval[1]-interval[0]+1
 

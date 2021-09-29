@@ -13,7 +13,7 @@ def main(filename):
     index_dic = {}
     for graph in graphs:
         i = 1
-        for n in graph.nodes:
+        for n in list(nx.topological_sort(graph)):
             if n != '(0,0)' and n!='(-1,-1)':
                 graph.nodes[n]['index'] = i
                 index_dic[i] = n
@@ -24,12 +24,12 @@ def main(filename):
         index_dic[len(graph.nodes)-1] = '(-1,-1)'
         print(f'# graph {j} {index_dic}')
         print(len(graph.nodes))
-        for n1,n2,w in graph.edges(data=True):
-            
-            print(f'{graph.nodes[n1]["index"]} {graph.nodes[n2]["index"]} {w["weight"]}')
-        j+=1
+        for n in list(nx.topological_sort(graph)):
+            for n1, n2, w in graph.out_edges(n, data=True):
+                print(f'{graph.nodes[n1]["index"]} {graph.nodes[n2]["index"]} {w["weight"]}')
         index_dic = {}
-                  
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--file", help="path to file")

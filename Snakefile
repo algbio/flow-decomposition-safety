@@ -4,12 +4,8 @@ collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-<<<<<<< HEAD
-        expand( "summary/comparisons/catfish/{p}.metrics.json", p = paths)
+        expand("summary/comparisons/catfish/{p}.metrics.json", p = paths)
         
-=======
-         expand("human/{p}.sgr", p=paths)
->>>>>>> 1729211f1d669d4390a6f519e419ab46f3b973bb
 
 rule run_compression_compare2:
     input:
@@ -58,7 +54,7 @@ rule run_catfish:
     output:
         "result/catfish/{p}.res"
     shell:
-        "./../catfish-0.2.1/src/catfish -i {input} -o {output} -a greedy"
+        "./../catfish/src/catfish -i {input} -o {output} -a greedy"
 
 rule run_safety:
     input:
