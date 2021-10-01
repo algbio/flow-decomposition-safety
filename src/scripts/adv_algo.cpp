@@ -4,11 +4,12 @@
  * 2- Space Efficient Funnels using Maps?
  * 3- Complete flow code for non max
  * 4- Complete flow code for reporting maximal
- *
+ * 5- Remove non-right maximal paths from funnels
  */
 
 
 #include<cstdio>
+#include<climits>
 #include<list>
 #include<vector>
 #include<queue>
@@ -151,7 +152,7 @@ class Funnel{
 	public:
 	 	Graph fg;
 		list<p3ld> res;	
-
+		vector<long> fNext;
 	void addEdge(long a, long b, double c){
 		fg.adj[a].push_back(pld(b,c));
 		fg.rAdj[b].push_back(pld(a,c));
@@ -160,6 +161,7 @@ class Funnel{
 	
 	Funnel(int n){
 		fg=Graph(n);
+		fNext=vector<long>(n,0);
 		}
 
 };
@@ -177,6 +179,34 @@ void revReachTopOrder(Graph &G,long root,vector<int> &vis){
 }
 
 
+void print_paths(Graph &G, vector<Funnel> &f, long u){
+	list<p3ld>:: iterator it;
+	list<long> path;
+	list<long> :: iterator itp;
+
+	for(it=f[u].res.begin();it!=f[u].res.end();it++){
+		long x=(*it).first.first;
+		long y=(*it).first.second;
+		long s=(*it).second.first;
+
+		path.clear();
+		path.push_front(x);
+		path.push_back(y);
+		while(x!=s){
+			x = (*(f[u].fg.rAdj[x].begin())).first;
+			path.push_front(x);
+		}
+		while(y!=u){
+			y = f[u].fNext[y];
+			path.push_back(y);
+		}
+		
+		for(itp=path.begin();itp!=path.end();itp++)
+			printf("%ld ",*itp);
+		printf("\n");
+	}
+}
+
 void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	vector<LazyLeftistHeap> H= vector<LazyLeftistHeap>(G.adj.size());
 	list<pld> :: iterator it,itt;
@@ -187,7 +217,7 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	for(it=f[u].fg.rAdj[u].begin();it!=f[u].fg.rAdj[u].end();it++){
 		x=(*it).first;
 		fxu=(*it).second;
-		H[(x].insert(fxu,-1,pll(x,u));
+		H[x].insert(fxu,-1,pll(x,u));
 	}
 
 	double updM=0,maxUp=-1;   // maxUpdate val
@@ -201,7 +231,6 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	vector<double> maxIn = vector<double>(G.adj.size(),0);
 	vector<int> vis = vector<int>(G.adj.size(),0);
 	revReachTopOrder(f[u].fg,u,vis);
-	vector<int> maxIn = vector<int>(G.adj.size(),0);
 
 	list<long> :: iterator itx;
 	itx=f[u].fg.topOrder.end(); itx--; itx--; // Not u
@@ -218,10 +247,11 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 						for(itt=f[u].fg.rAdj[x].begin();itt!= f[u].fg.rAdj[x].end();itt++)
 							if(maxIn[x]<(*itt).second) maxIn[x]=(*itt).second;
 
-					if(H[y].root->val-upd-f[u].fg.fIn[x]+maxIn[x]>0){ // x not source of the safe path
-						if(H[x].isEmpty())
+					if(H[y].root->val-upd-f[u].fg.fIn[x]+maxIn[x]>0 && f[u].fg.rAdj[x].size()!=0){ // x not source of the safe path, or Fu
+						if(H[x].isEmpty()){
 							H[x].insert(H[y].root->val-upd,-1,pll(x,y));
-						else{
+							f[u].fNext[x]=y;
+						}else{
 							if(H[x].root->upd==-1) H[x].root->upd = 0;
 							H[x].insert(H[y].root->val,upd,pll(x,y));
 						}
@@ -230,6 +260,7 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 							// TODO REMOVE (x,y) with extensions
 
 						}else	f[u].res.push_back(p3ld(H[y].root->edg,pld(x,H[y].root->val-H[y].root->upd)));				
+						//}else	f[u].res.push_back(p3ld(pll(x,y),pld(x,H[y].root->val-upd)));				
 						
 					}
 					
@@ -247,8 +278,22 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 
 				}			
 			}
+		}
+	
+		if(f[u].fg.rAdj[y].size()==0){  // y is a source of F_u
+			while(!H[y].isEmpty()){
+				pddll top = H[y].findMin(); // ((val,upd)(edg))
+				H[y].deleteMin();
+				
+				if(top.first.first-top.first.second-updM>0){
+					// TODO REMOVE top.second with extensions
+				}else	f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
+			}	
 
-	      itx--;
+			
+		
+		}
+		itx--;	
 	}	
 
 
@@ -457,6 +502,7 @@ int main(int argc, char *argv[]){
 		for(it=G.topOrder.begin();it!= G.topOrder.end();it++){
 			build_funnel(G,f,*it);
 			opt_funnel(G,f,*it);
+			print_paths(G,f,*it);
 		}
 	
 	//	printf("Orginal paths %ld, Final paths %ld, diff %ld\n", org,fin, org-fin );
