@@ -26,7 +26,6 @@ def main(truth, catfish=None, comp=None, mode=None):
         e_sizes_rel_vertex, e_size_rel_bases = compute_e_size_rel(truth_paths, res_paths)
         max_cov_rel_vertex, max_cov_rel_bases = max_covered_rel_by_a_contig(truth_paths, res_paths)
         precision, vertex_precision, base_precision = compute_precision(truth_paths, res_paths)
-
         metrics.append({
             'e_sizes_rel_vertex': to_float(e_sizes_rel_vertex),
             'e_size_rel_bases': to_float(e_size_rel_bases),
@@ -37,9 +36,24 @@ def main(truth, catfish=None, comp=None, mode=None):
             'base_precision': base_precision,
             'k': len(truth_paths),
             'seq_length_sum': seq_length_sum(res_paths),
-            'number_of_paths':len(res_paths)
+            'number_of_paths':len(res_paths),
+            'fscore_vertex': f_scores(precision,to_float(max_cov_rel_vertex)),
+            'fscore_bases':f_scores(precision,to_float(max_cov_rel_bases))
         })
     print(dumps(metrics, indent=4))
+
+def f_scores(p, r):
+    try:
+        r_mean = sum(r)/len(r)
+    except ZeroDivisionError:
+        r_mean = 0
+    
+    try:
+        f = 2*(p*r_mean)/(p+r_mean)
+    except ZeroDivisionError:
+        f = 0
+    return f
+
 
 def seq_length_sum(paths):
     sum = 0
@@ -122,7 +136,7 @@ def read_res_catfish(filename):
                 
     graphs.append(graph)
     return graphs
-
+'''
 # Adapted from Milla's code (too)
 def read_res(filename):
     
@@ -142,7 +156,7 @@ def read_res(filename):
                 
     graphs.append(graph)
     return graphs
-'''
+
 def interval_length(interval):
     return interval[1]-interval[0]+1
 

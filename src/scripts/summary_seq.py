@@ -38,6 +38,8 @@ def main(input_folder, mode):
     for c in column_strings:
         sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
     sdf['avg_path_length'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
+    sdf ['avg_fscores_vertex'] = groups.mean()['fscore_vertex']
+    sdf['avg_fscores_bases'] = groups.mean()['fscore_bases']
     if sdf.index[0] == 0:
         print(sdf[1:].to_csv())
     else:

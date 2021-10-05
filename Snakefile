@@ -4,9 +4,11 @@ collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-        expand("summary/comparisons/catfish/{p}.metrics.json", p = paths)
+        expand("summary/comparisons/catfish/{p}.metrics.json", p = paths),
+        expand("summary/comparisons/safety/{p}.metrics.json", p = paths),
+        expand("summary/comparisons/modified_unitigs/{p}.metrics.json", p = paths),
+        expand("summary/comparisons/unitigs/{p}.metrics.json", p = paths)
         
-
 rule run_compression_compare2:
     input:
         "result/cfiltered_safety/{p}.res",
