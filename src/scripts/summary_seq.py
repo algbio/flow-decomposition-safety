@@ -11,12 +11,11 @@ def main(input_folder, mode):
     Gets input folder as a parameter.
     Outputs a json-file containing summary of the data.
     '''
-    
     l=[]
     for root, dirs, files in os.walk(input_folder):
         # = root.split('/')[-1]
         for file in files:
-            filename = f'{root}{file}'
+            filename = f'{root}/{file}'
     #filename = 'summary/comparisons/safety/16.metrics.json'
             try:
                 f = pd.read_json(filename)
