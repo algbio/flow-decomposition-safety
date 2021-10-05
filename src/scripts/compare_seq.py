@@ -38,7 +38,9 @@ def main(truth, catfish=None, comp=None, mode=None):
             'seq_length_sum': seq_length_sum(res_paths),
             'number_of_paths':len(res_paths),
             'fscore_vertex': f_scores(precision,to_float(max_cov_rel_vertex)),
-            'fscore_bases':f_scores(precision,to_float(max_cov_rel_bases))
+            'fscore_vertex_weighted': f_scores(vertex_precision,to_float(max_cov_rel_vertex)),
+            'fscore_bases':f_scores(precision,to_float(max_cov_rel_bases)),
+            'fscore_bases_weighted': f_scores(base_precision,to_float(max_cov_rel_vertex)),
         })
     print(dumps(metrics, indent=4))
 
