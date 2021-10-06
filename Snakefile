@@ -4,7 +4,7 @@ collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-        expand("plots/seq_length.png", c=collections)
+        'plots/seq_length.png'
 
 # change data to correct form
 rule convert_to_sg:
@@ -125,11 +125,11 @@ rule summaries:
 # draw summary with sequences
 rule summaries_seq:
     input: 
-        "summary/comparisons/{c}/"
+        results = expand("summary/comparisons/{c}/{p}.metrics.json", c=collections, p=paths)
     output:
         "summary/{c}/summary_seq.csv"
     shell:
-        "python -m src.scripts.summary_seq -i {input} >> summary/{wildcards.c}/summary_seq.csv"
+        "python -m src.scripts.summary_seq -i summary/comparisons/{wildcards.c}/ >> {output}"
 
 # plot stuff
 rule plot:

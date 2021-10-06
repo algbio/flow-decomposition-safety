@@ -37,7 +37,7 @@ def main():
     plt.ylabel('max_cov_rel_bases')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('max_cov_rel_bases_mean.png')
+    plt.savefig('plots/max_cov_rel_bases_mean.png')
 
     # max cov rel vertex
     plt.figure(figsize=(10,10))
@@ -49,7 +49,7 @@ def main():
     plt.ylabel('max_cov_rel_vertex')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('max_cov_rel_vertex_mean.png')
+    plt.savefig('plots/max_cov_rel_vertex_mean.png')
 
     # e size relative bases mean
     plt.figure(figsize=(10,10))
@@ -61,7 +61,7 @@ def main():
     plt.ylabel('e_size_rel_bases')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('e_sizes_re_bases_mean.png')
+    plt.savefig('plots/e_sizes_re_bases_mean.png')
 
     # e sizes relative vertecies
     plt.figure(figsize=(10,10))
@@ -73,7 +73,7 @@ def main():
     plt.ylabel('e_sizes_rel_vertex')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('max_cov_rel_vertex_mean.png')
+    plt.savefig('plots/max_cov_rel_vertex_mean.png')
 
     # vertex precision
     plt.figure(figsize=(10,10))
@@ -86,7 +86,7 @@ def main():
     plt.ylabel('vertex precision')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('vertex_precision.png')
+    plt.savefig('plots/vertex_precision.png')
 
     # precision
     plt.figure(figsize=(10,10))
@@ -99,7 +99,7 @@ def main():
     plt.ylabel('precision')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('precision.png')
+    plt.savefig('plots/precision.png')
 
     #base precision
     plt.figure(figsize=(10,10))
@@ -112,7 +112,7 @@ def main():
     plt.ylabel('precision')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('base_precision.png')
+    plt.savefig('plots/base_precision.png')
 
     plt.figure(figsize=(10,10))
     plt.scatter(catfish_df['k'], catfish_df['fscore_bases'], label='catfish')
@@ -123,7 +123,7 @@ def main():
     plt.ylabel('F-score bases')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('fscore_unweight_bases.png')
+    plt.savefig('plots/fscore_unweight_bases.png')
 
     plt.figure(figsize=(10,10))
     plt.scatter(catfish_df['k'], catfish_df['fscore_vertex'], label='catfish')
@@ -134,7 +134,7 @@ def main():
     plt.ylabel('F-score vertex')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('fscore_unweight_vertex.png')
+    plt.savefig('plots/fscore_unweight_vertex.png')
 
     plt.figure(figsize=(10,10))
     plt.scatter(catfish_df['k'], catfish_df['fscore_vertex_weighted'], label='catfish')
@@ -145,7 +145,7 @@ def main():
     plt.ylabel('F-score vertex')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('fscore_weight_vertex.png')
+    plt.savefig('plots/fscore_weight_vertex.png')
 
     plt.figure(figsize=(10,10))
     plt.scatter(catfish_df['k'], catfish_df['fscore_bases_weighted'], label='catfish')
@@ -156,7 +156,7 @@ def main():
     plt.ylabel('F-score bases')
     plt.xlabel('k')
     plt.legend()
-    plt.savefig('fscore_weight_bases.png')
+    plt.savefig('plots/fscore_weight_bases.png')
 
 if __name__ == '__main__':
     main()
