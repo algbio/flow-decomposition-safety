@@ -35,6 +35,7 @@ def main(truth, catfish=None, comp=None, mode=None):
             'vertex_precision': vertex_precision,
             'base_precision': base_precision,
             'k': len(truth_paths),
+            'node_sum': sum([len(x) for x in res_paths]),
             'seq_length_sum': seq_length_sum(res_paths),
             'number_of_paths':len(res_paths),
             'fscore_vertex': f_scores(precision,to_float(max_cov_rel_vertex)),

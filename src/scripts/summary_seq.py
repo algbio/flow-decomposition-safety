@@ -23,13 +23,7 @@ def main(input_folder, mode):
                 continue
             l.append(f)
     df = pd.concat(l)
-    '''
-    e_sizes_rel_vertex    object
-    e_size_rel_bases      object
-    max_cov_rel_vertex    object
-    max_cov_rel_bases     object
-
-    '''
+    
     # reduce lists to single floats
     column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
     for c in column_strings:
@@ -39,7 +33,8 @@ def main(input_folder, mode):
     sdf = groups.mean()
     for c in column_strings:
         sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
-    sdf['avg_path_length'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
+    sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
+    sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
     sdf ['avg_fscores_vertex'] = groups.mean()['fscore_vertex']
     sdf ['avg_fscores_vertex_weighted'] = groups.mean()['fscore_vertex_weighted']
     sdf['avg_fscores_bases'] = groups.mean()['fscore_bases']

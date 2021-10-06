@@ -1,11 +1,20 @@
-filename = "human/{path}.truth"
+import os
+
+if os.path.isdir('human'):
+    data_path = 'human/'
+    filename = "human/{path}.truth"
+if os.path.isdir('data/rnaseq'):
+    data_path = 'data/rnaseq/'
+    filename = "data/rnaseq/{path}.truth"
 paths = glob_wildcards(filename).path
 collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
 
 rule all:
     input:
-        'plots/seq_length.png'
-
+        'plots/seq/precision.png'
+'''
+This is the pipeline for sequences
+'''
 # change data to correct form
 rule convert_to_sg:
     input:
@@ -18,7 +27,7 @@ rule convert_to_sg:
 # run the algorithms
 rule run_catfish:
     input:
-        "human/{p}.sgr"
+        expand("{data_path}{p}.sgr", data_path=data_path, p = paths)
     output:
         "result/catfish/{p}.res"
     shell:
@@ -26,7 +35,7 @@ rule run_catfish:
 
 rule run_safety:
     input:
-        "human/{p}.sg"
+        expand("{data_path}{p}.sg", data_path = data_path, p = paths)
     output:
         "result/safety/{p}.res"
     shell:
@@ -136,9 +145,19 @@ rule plot:
     input: 
         sums = expand("summary/{c}/summary_seq.csv", c =collections)
     output:
-        "plots/seq_length.png"
+        "plots/seq/precision.png"
     shell:
-        "python -m src.scripts.draw_plots"
+        "python -m src.scripts.draw_plots -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv -p plots/seq/"
+
+'''
+end of sequence pipeline
+'''
+'''
+This is the pipeline for catfish dataset
+'''
+'''
+end of catfish data pipeline
+'''
 
 # other stuff
 rule run_compression_compare2:
