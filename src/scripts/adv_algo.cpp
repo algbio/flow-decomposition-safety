@@ -55,7 +55,7 @@ class LazyLeftistHeap{
 				root->left->upd += root->upd;
 			if(root->right!=NULL)
 				root->right->upd+= root->upd;
-			root->val+=root->upd;
+			root->val-=root->upd;
 			root->upd=0;
 		}	
 	}
@@ -183,6 +183,8 @@ void print_paths(Graph &G, vector<Funnel> &f, long u){
 	list<p3ld>:: iterator it;
 	list<long> path;
 	list<long> :: iterator itp;
+	int prnt = 0;
+	if(prnt) printf("Print %lu Safe paths in Funnel %ld\n",f[u].res.size(),u);
 
 	for(it=f[u].res.begin();it!=f[u].res.end();it++){
 		long x=(*it).first.first;
@@ -193,10 +195,13 @@ void print_paths(Graph &G, vector<Funnel> &f, long u){
 		path.push_front(x);
 		path.push_back(y);
 		while(x!=s){
+//			printf("x %ld(%lu)-> \n",x,f[u].fg.rAdj[x].size());
 			x = (*(f[u].fg.rAdj[x].begin())).first;
+//			printf("%ld\n",x);
 			path.push_front(x);
 		}
 		while(y!=u){
+//			printf("y %ld-> %ld\n",y,f[u].fNext[y]);
 			y = f[u].fNext[y];
 			path.push_back(y);
 		}
@@ -212,12 +217,14 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	list<pld> :: iterator it,itt;
 	long x,y;
 	double fxy,fxu;
-	printf("Build Funnel %ld\n",u);	
+	int prnt=0;
+	if(prnt) printf("Opt Funnel %ld\n",u);	
 
 	for(it=f[u].fg.rAdj[u].begin();it!=f[u].fg.rAdj[u].end();it++){
 		x=(*it).first;
 		fxu=(*it).second;
 		H[x].insert(fxu,-1,pll(x,u));
+		f[u].fNext[x]=u;
 	}
 
 	double updM=0,maxUp=-1;   // maxUpdate val
@@ -229,17 +236,21 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 	else            updM = LLONG_MAX;  // u is sink
 
 	vector<double> maxIn = vector<double>(G.adj.size(),0);
-	vector<int> vis = vector<int>(G.adj.size(),0);
-	revReachTopOrder(f[u].fg,u,vis);
+	//vector<int> vis = vector<int>(G.adj.size(),0);
+	//f[u].fg.topOrder.clear();
+	//revReachTopOrder(f[u].fg,u,vis);
 
 	list<long> :: iterator itx;
-	itx=f[u].fg.topOrder.end(); itx--; itx--; // Not u
+	itx=f[u].fg.topOrder.end(); itx--;  // u
 	while(itx!=f[u].fg.topOrder.begin()){
+		itx--;              // Not u
 		y=*itx;
+		if(prnt) printf("Process Node, %ld\n",y);
 		for(it=f[u].fg.rAdj[y].begin();it!=f[u].fg.rAdj[y].end();it++){
 			x=(*it).first; fxy=(*it).second;
 			
-			double upd = f[u].fg.fIn[y]- fxy;
+			if(prnt) printf("Process edge, (%ld,%ld),f%lf\n",x,y,fxy);
+			double upd = G.fIn[y]- fxy;
 
 			if(!H[y].isEmpty()){
 				if(H[y].root->upd==-1){ // y in converging
@@ -247,34 +258,56 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 						for(itt=f[u].fg.rAdj[x].begin();itt!= f[u].fg.rAdj[x].end();itt++)
 							if(maxIn[x]<(*itt).second) maxIn[x]=(*itt).second;
 
-					if(H[y].root->val-upd-f[u].fg.fIn[x]+maxIn[x]>0 && f[u].fg.rAdj[x].size()!=0){ // x not source of the safe path, or Fu
+					if(H[y].root->val-upd-G.fIn[x]+maxIn[x]>0 && f[u].fg.rAdj[x].size()!=0){ 
+						// x not source of the safe path, or Fu
 						if(H[x].isEmpty()){
 							H[x].insert(H[y].root->val-upd,-1,pll(x,y));
 							f[u].fNext[x]=y;
+							if(prnt) printf("H[x] empty, (%ld,%ld),%lf\n",x,y,H[y].root->val-upd);
 						}else{
 							if(H[x].root->upd==-1) H[x].root->upd = 0;
 							H[x].insert(H[y].root->val,upd,pll(x,y));
+							if(prnt) printf("H[x] non-empty, (%ld,%ld),%lf\n",x,y,H[y].root->val-upd);
 						}
 					}else{
-						if(H[y].root->val-upd-updM>0){
+						if(H[y].root->val-upd-updM>0){    // Not right maximal
+							if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",x,y,H[y].root->val-upd,updM);
 							// TODO REMOVE (x,y) with extensions
 
-						}else	f[u].res.push_back(p3ld(H[y].root->edg,pld(x,H[y].root->val-H[y].root->upd)));				
-						//}else	f[u].res.push_back(p3ld(pll(x,y),pld(x,H[y].root->val-upd)));				
+					//	}else	f[u].res.push_back(p3ld(H[y].root->edg,pld(x,H[y].root->val-H[y].root->upd)));				
+						}else	{f[u].res.push_back(p3ld(pll(x,y),pld(x,H[y].root->val-upd)));				
+							if(prnt) printf("Process conv y, (%ld,%ld),s%ld\n",x,y,x);
+						
+						}
 						
 					}
 					
 				}else{
-					while(H[y].root->val-H[y].root->upd-upd<=0){
+					while(!H[y].isEmpty() && H[y].root->val-H[y].root->upd-upd<=0){
 					       pddll top = H[y].findMin(); // ((val,upd)(edg))
 					       H[y].deleteMin();
-					       if(top.first.first-top.first.second-updM>0){
+						if(prnt)	printf("H[y] after delMin, top (%ld,%ld) %lf %lf\n",  
+							H[y].root->edg.first, H[y].root->edg.second,H[y].root->val, H[y].root->upd );
+
+					       if(top.first.first-top.first.second-updM>0){ // Not right maximal
+							if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",top.second.first,top.second.second,top.first.first-top.first.second,updM);
 					       		// TODO REMOVE top.second with extensions
-					       }else	f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
-					       
-					       H[y].root->upd += upd;
-					       H[x].merge(H[y]);
-					}	
+					       }else	{
+						       f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
+							if(prnt) printf("Process div y, (%ld,%ld),s%ld\n",top.second.first,top.second.second,y);
+					       	
+					       }
+					}       
+				
+					if(!H[y].isEmpty()){	
+						H[y].root->upd += upd;
+						
+						if(prnt) printf("H[x] div y, merge from H[y] top (%ld,%ld) %lf\n",  
+							H[y].root->edg.first, H[y].root->edg.second,H[y].root->val - H[y].root->upd );
+						
+						if(!H[x].isEmpty() && H[x].root->upd==-1) H[x].root->upd = 0;
+						H[x].merge(H[y]);
+					}
 
 				}			
 			}
@@ -286,14 +319,17 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 				H[y].deleteMin();
 				
 				if(top.first.first-top.first.second-updM>0){
+					if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",top.second.first,top.second.second,top.first.first-top.first.second,updM);
 					// TODO REMOVE top.second with extensions
-				}else	f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
+				}else{
+					f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
+					if(prnt) printf("Process source y, (%ld,%ld),s%ld\n",top.second.first,top.second.second,y);
+				}
 			}	
 
 			
 		
 		}
-		itx--;	
 	}	
 
 
@@ -302,13 +338,14 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 
 void build_funnel(Graph &G, vector<Funnel> &f, long root){
 	list<pld> :: iterator it;
- 	printf("Build Funnel %ld\n",root);	
+	int prnt=0;
+ 	if(prnt) printf("Build Funnel %ld\n",root);	
 	vector<pdl> outN;
 	pld max = pld(-1,0);
 	for(it=G.adj[root].begin();it!=G.adj[root].end();it++){
 		f[(*it).first].addEdge(root,(*it).first,(*it).second);
 
-		printf("outN Add F%ld (%ld,%ld)\n", 
+		if(prnt) printf("outN Add F%ld (%ld,%ld)\n", 
 				(*it).first,root,(*it).first);	
 		outN.push_back(pdl((*it).second,(*it).first));
 
@@ -340,7 +377,7 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 					!existEdge(f[max.first].fg,(*it).first,*itx)){ 
 				f[max.first].addEdge((*it).first,*itx,(*it).second);
 	
-				printf("maxV Add F%ld (%ld,%ld)\n", 
+				if(prnt) printf("maxV Add F%ld (%ld,%ld)\n", 
 					max.first,(*it).first,*itx);	
 			
 			}
@@ -379,7 +416,7 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 		     if(x!=-1 && safeF[x]-max.second+(*its).second> 0 && 
 				!existEdge(f[(*its).first].fg,x,y)){
 				f[(*its).first].addEdge(x,y,maxY.second);
-		    		printf("suff Add F%ld (%ld,%ld)\n", 
+		    		if(prnt) printf("suff Add F%ld (%ld,%ld)\n", 
 					(*its).first,x,y);			     
 		     }
 		     else its = Ns.erase(its);
@@ -401,7 +438,7 @@ void build_funnel(Graph &G, vector<Funnel> &f, long root){
 				f[top.first].fg.adj[a].push_back(pld(b,c));
 				f[top.first].fg.rAdj[b].push_back(pld(a,c));
                                 f[top.first].fg.fIn[b]+= c; 
-				printf("pref Add F%ld (%ld,%ld)\n", 
+				if(prnt) printf("pref Add F%ld (%ld,%ld)\n", 
 					top.first,a,b);			     
 	
 
@@ -465,6 +502,7 @@ void print_topOrder(Graph &G){
 int main(int argc, char *argv[]){
 	char line[100];
 	long n,m,graphC=0;
+	int prnt =0;
 	//int t=10;
 
 	int flag=0;
@@ -490,10 +528,10 @@ int main(int argc, char *argv[]){
 			m++;
 		}
 
-		printf("N%ld M%ld\n",n,m);
+		if(prnt) printf("N%ld M%ld\n",n,m);
 		
 		comp_topOrder(G);
-		print_topOrder(G);
+		if(prnt) print_topOrder(G);
 		
 		// Funnel Graphs
 		vector<Funnel> f;
