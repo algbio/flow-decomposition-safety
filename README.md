@@ -1,5 +1,8 @@
 # flow decomposition safety
 
+## compile and run C++ files
+
+
 ## run safety algorithm
 
 ```bash

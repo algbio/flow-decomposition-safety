@@ -1,14 +1,13 @@
 import os
 
-if os.path.isdir('human'):
-    data_path = 'human/'
-    filename = "human/{path}.truth"
-if os.path.isdir('data/rnaseq'):
-    data_path = 'data/rnaseq/'
-    filename = "data/rnaseq/{path}.truth"
+#if os.path.isdir('data'):
+#    for root, dirs, files in os.walk('data'):
+#        for d in dirs:
+#            filename = "human/{path}.truth"
+filename = "data/{path}.truth"
 paths = glob_wildcards(filename).path
 collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
-
+print(len(paths))
 rule all:
     input:
         'plots/seq/precision.png'
@@ -18,16 +17,16 @@ This is the pipeline for sequences
 # change data to correct form
 rule convert_to_sg:
     input:
-        "human/{p}.sg"
+        "data/{p}.sg"
     output:
-        "human/{p}.sgr"
+        "data/{p}.sgr"
     shell:
-        "python -m src.scripts.converter -i {input} >> human/{wildcards.p}.sgr"
+        "python -m src.scripts.converter -i {input} >> data/{wildcards.p}.sgr"
 
 # run the algorithms
 rule run_catfish:
     input:
-        expand("{data_path}{p}.sgr", data_path=data_path, p = paths)
+        "data/{p}.sgr"
     output:
         "result/catfish/{p}.res"
     shell:
@@ -35,7 +34,7 @@ rule run_catfish:
 
 rule run_safety:
     input:
-        expand("{data_path}{p}.sg", data_path = data_path, p = paths)
+        "data/{p}.sg"
     output:
         "result/safety/{p}.res"
     shell:
@@ -43,7 +42,7 @@ rule run_safety:
 
 rule run_unitigs:
     input:
-        "human/{p}.sg"
+        "data/{p}.sg"
     output:
         "result/unitigs/{p}.res"
     shell:
@@ -51,7 +50,7 @@ rule run_unitigs:
 
 rule run_modified_unitigs:
     input:
-        "human/{p}.sg"
+        "data/{p}.sg"
     output:
         "result/modified_unitigs/{p}.res"
     shell:
@@ -61,7 +60,7 @@ rule run_modified_unitigs:
 rule cafish_truth_compare:
     input:
         "result/catfish/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/catfish/{p}.csv"
     shell:
@@ -70,7 +69,7 @@ rule cafish_truth_compare:
 rule safety_truth_compare:
     input:
         "result/safety/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/safety/{p}.csv"
     shell:
@@ -79,7 +78,7 @@ rule safety_truth_compare:
 rule unitigs_truth_compare:
     input:
         "result/unitigs/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/unitigs/{p}.csv"
     shell:
@@ -89,7 +88,7 @@ rule unitigs_truth_compare:
 rule cafish_truth_compare_seq:
     input:
         "result/catfish/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/catfish/{p}.metrics.json"
     shell:
@@ -98,7 +97,7 @@ rule cafish_truth_compare_seq:
 rule safety_truth_compare_seq:
     input:
         "result/safety/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/safety/{p}.metrics.json"
     shell:
@@ -107,7 +106,7 @@ rule safety_truth_compare_seq:
 rule unitigs_truth_compare_seq:
     input:
         "result/unitigs/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/unitigs/{p}.metrics.json"
     shell:
@@ -116,7 +115,7 @@ rule unitigs_truth_compare_seq:
 rule modified_unitigs_truth_compare_seq:
     input:
         "result/modified_unitigs/{p}.res",
-        "human/{p}.truth"
+        "data/{p}.truth"
     output:
         "summary/comparisons/modified_unitigs/{p}.metrics.json"
     shell:
@@ -151,12 +150,6 @@ rule plot:
 
 '''
 end of sequence pipeline
-'''
-'''
-This is the pipeline for catfish dataset
-'''
-'''
-end of catfish data pipeline
 '''
 
 # other stuff
@@ -193,9 +186,6 @@ rule run_safety_with_naive_filtering:
         "result/filtered_safety/{p}.res"
     shell:
         "python -m src.scripts.main -i {input} -m 2 >> result/filtered_safety/{wildcards.p}.res"
-
-
-        
 
 
 rule filter_safety_compare:
