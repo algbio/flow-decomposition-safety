@@ -7,7 +7,7 @@ import os
 filename = "data/{path}.truth"
 paths = glob_wildcards(filename).path
 collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs']
-print(len(paths))
+
 rule all:
     input:
         'plots/seq/precision.png'
@@ -15,7 +15,7 @@ rule all:
 This is the pipeline for sequences
 '''
 # change data to correct form
-rule convert_to_sg:
+rule convert_sg_to_sgr:
     input:
         "data/{p}.sg"
     output:
@@ -23,6 +23,14 @@ rule convert_to_sg:
     shell:
         "python -m src.scripts.converter -i {input} >> data/{wildcards.p}.sgr"
 
+rule convert_graph_to_sgr:
+    input:
+        "data/{p}.graph"
+    output:
+        "data/{p}.sgr"
+    shell:
+        "mv {input} {output}"
+        
 # run the algorithms
 rule run_catfish:
     input:
