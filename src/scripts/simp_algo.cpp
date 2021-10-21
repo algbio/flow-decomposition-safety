@@ -1,10 +1,8 @@
 /* 
- * Todo: 
- * 1- Time Efficient exist edge using Maps?
- * 2- Space Efficient Funnels using Maps?
- * 3- Complete flow code for non max
- * 4- Complete flow code for reporting maximal
- * 5- Remove non-right maximal paths from funnels
+ * Use: 
+ * <exec>     => Generates safe and complete
+ * <exec>  u  => Generates unitigs
+ * <exex>  e  => Generates extended unitigs
  */
 
 
@@ -114,36 +112,81 @@ void print_topOrder(Graph &G){
 	printf("\n");
 }
 
-void compute_unitigs(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<list<ipld>,pld> > &unitigs){
+void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<list<ipld>,pld> > &safePaths){
+
+}
+
+void extend_unitigs(Graph &G, list<pair<list<ipld>,pld> > &eUnitigs){
+	
+	list<pld> :: iterator edgit;	
+	list<ipld>:: iterator itp;
+	list<pair<list<ipld>,pld> >:: iterator itu;
+	int prnt = 0;
+
+	if(prnt) printf("Extended unitigs\n");
+
+	for(itu=eUnitigs.begin(); itu!=eUnitigs.end();itu++){
+
+		long x,y;
+		itp = (*itu).first.end();
+		itp--;       
+
+		x = (**itp).first;
+		while(G.adj[x].size()==1 ){  // Right extension
+			(*itu).first.push_back(G.adj[x].begin());
+			x = G.adj[x].front().first;
+		}
+
+		x = (*itu).second.first;
+		while(G.rAdj[x].size()==1){ // Left extension
+			y = G.rAdj[x].front().first;	
+			edgit=G.adj[y].begin();
+			while((*edgit).first!= x) edgit++;
+
+			(*itu).first.push_front(edgit);
+			(*itu).second.first = y;
+			x = y;
+		}
+	}
+
+
+
+
+}
+
+void compute_unitigs(Graph &G, list<pair<list<ipld>,pld> > &unitigs){
 	vector<long> secV = vector<long>(G.adj.size(),0);
 	list<long>:: iterator it;
 	list<pld> :: iterator edgit;	
 	int prnt = 0;
+	if(prnt) printf("Unitigs\n");
 
 	for(it=G.topOrder.begin(); it!=G.topOrder.end();it++){
 		long x = *it;
+		if(prnt) printf("Node %ld\n",x);
 		for(edgit=G.adj[x].begin(); edgit!= G.adj[x].end(); edgit++){
 			long y= (*edgit).first;
-			if(G.adj[y].size()==1 && G.rAdj[y].size()==1 && secV[y]==0){ // Begining of a unitig
+			if(prnt) printf("Edge %ld %ld\n",x,y);
+			if(G.adj[y].size()!=1 || G.rAdj[y].size()!=1 || secV[y]!=0)
+				continue;
+			// Begining of a unitig
+			if(prnt) printf("Begin Unitig\n");
 			secV[y]=1;
 			
 			pld pth = pld(x,(*edgit).second);
 			list<ipld> path;
 			
-			ipld curr = *it;
+			ipld curr = edgit;
 			while(true){
-				if(pth.second > (*curr).second) 
-					pth.second = (*curr).second;
 				path.push_back(curr);
 
-						if(G.adj[(*curr).first].size()==0) break;
-						
-						edgit2=G.adj[(*curr).first].begin(); 
-						while((*edgit2).second== 0) edgit2++;
-						curr = edgit2;
-					}
-					paths.push_back(pair<list<ipld>,pld>(path,pth));
-					
+				if(G.adj[(*curr).first].size()!=1 || G.rAdj[(*curr).first].size()!= 1) 
+					break;
+				secV[(*curr).first]=1;
+				curr = G.adj[(*curr).first].begin(); 
+			}
+			
+			unitigs.push_back(pair<list<ipld>,pld>(path,pth));		
 			
 		}
 	}
@@ -154,8 +197,8 @@ void compute_unitigs(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<lis
 }
 
 	
-void print_path_decomp(Graph &G, list<pair<list<ipld>,pld> > &paths){
-	printf("Path decomposition %lu paths:\n", paths.size());
+void print_paths(Graph &G, list<pair<list<ipld>,pld> > &paths){
+	printf("%lu paths:\n", paths.size());
 	
 	list<pair<list<ipld>,pld> > :: iterator it;
 	list<ipld> :: iterator it2;
@@ -223,10 +266,9 @@ int main(int argc, char *argv[]){
 	int prnt =0;
 	//int t=10;
 
-	int flag=0;
+	int flag=0; // safe paths
 	if(argc==2){
-		if(argv[1][0]=='a') flag=1;// all paths + stats
-		if(argv[1][0]=='s') flag=2;// stats only	
+		if(argv[1][0]=='u') flag=1;// unitigs	
 		if(argv[1][0]=='e') flag=2;// extended unitigs	
 	}
 
@@ -238,7 +280,7 @@ int main(int argc, char *argv[]){
 
 		Graph G= Graph(n);
 		list<pair<list<ipld>,pld > > paths;
-		list<pair<list<ipld>,pld > > unitigs;
+		list<pair<list<ipld>,pld > > results;
 		long a,b;
 		double c;
 
@@ -252,13 +294,19 @@ int main(int argc, char *argv[]){
 		if(prnt) printf("N%ld M%ld\n",n,m);
 		
 		path_decomp(G,paths);
-		if(prnt) print_path_decomp(G,paths);
+		if(prnt) print_paths(G,paths);
 
-		compute_unitigs(G,paths,unitigs);
-			  
-		//comp_topOrder(G);
-		//if(prnt) print_topOrder(G);
+		comp_topOrder(G);
+		if(prnt) print_topOrder(G);
 		
+		if(flag){
+			compute_unitigs(G,results);
+			if(flag==2)
+				extend_unitigs(G,results);
+		}else{
+			compute_safePaths(G,paths,results);
+		}	 
+	        print_paths(G,results);	
 	
 	//	printf("Orginal paths %ld, Final paths %ld, diff %ld\n", org,fin, org-fin );
 	//	printf("Weight of Orginal paths %ld, Weight of Final paths %ld, diff %ld\n\n", wOrg,wFin, wOrg-wFin );
