@@ -83,7 +83,9 @@ def new_nx_graph(nodes, edges):
     Creates new graph from given node and edge list and returns it.
     Assumes that souce of the graph is 0 and sink of the graph is number of nodes -1.
     '''
-    graph = nx.DiGraph(edges, source='(0,0)', sink='(-1,-1)')
+    #TODO: fix this such you don't have to always change this according to datatype
+    #TODO: either change data to be in correcto form or make some kind of guard for different type of extensions
+    graph = nx.DiGraph(edges, source='0', sink=f'{len(nodes)-1}')
     graph.update(nodes=nodes)
     return graph
 

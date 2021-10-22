@@ -26,6 +26,10 @@ def main(truth, catfish=None, comp=None, mode=None):
         e_sizes_rel_vertex, e_size_rel_bases = compute_e_size_rel(truth_paths, res_paths)
         max_cov_rel_vertex, max_cov_rel_bases = max_covered_rel_by_a_contig(truth_paths, res_paths)
         precision, vertex_precision, base_precision = compute_precision(truth_paths, res_paths)
+        try:
+            seq_length = seq_length_sum(res_paths)
+        except:
+            seq_length = 0
         metrics.append({
             'e_sizes_rel_vertex': to_float(e_sizes_rel_vertex),
             'e_size_rel_bases': to_float(e_size_rel_bases),
@@ -36,7 +40,7 @@ def main(truth, catfish=None, comp=None, mode=None):
             'base_precision': base_precision,
             'k': len(truth_paths),
             'node_sum': sum([len(x) for x in res_paths]),
-            'seq_length_sum': seq_length_sum(res_paths),
+            'seq_length_sum': seq_length,
             'number_of_paths':len(res_paths),
             'fscore_vertex': f_scores(precision,to_float(max_cov_rel_vertex)),
             'fscore_vertex_weighted': f_scores(vertex_precision,to_float(max_cov_rel_vertex)),
@@ -83,7 +87,10 @@ def read_truth(filename):
             else:
                 items = line.split()
                 cov = float(items[0])
-                path = list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), items[1:]))
+                try:
+                    path = list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), items[1:]))
+                except:
+                    path = [int(x) for x in line.split()]
                 graph.append({
                     'path': path,
                     'cov': cov
@@ -101,18 +108,24 @@ def read_res_catfish(filename):
         for line in f:
             # Hashtag(#) begins a graph defenition in file
             if line[0] == '#':
-                node_dic = eval(' '.join(line.split()[3:-3]))
+                try:
+                    node_dic = eval(' '.join(line.split()[3:-3]))
+                except:
+                    node_dic = {}
                 if len(graph) > 0:
                     graphs.append(graph)
                     graph = list()
             # File line is a path
             else:
-                parts = line.split()
-                path = [int(x) for x in parts[1:]]
-                fpath = []
-                for i in range(0,len(path)):
-                    fpath.append(node_dic[path[i]])
-                graph.append([eval(x) for x in fpath])
+                try:
+                    parts = line.split()
+                    path = [int(x) for x in parts[1:]]
+                    fpath = []
+                    for i in range(0,len(path)):
+                        fpath.append(node_dic[path[i]])
+                    graph.append([eval(x) for x in fpath])
+                except:
+                    graph.append([int(x) for x in line.split()[1:]])
                 
                 
     graphs.append(graph)
@@ -155,8 +168,10 @@ def read_res(filename):
                     graph = list()
             # File line is a path
             else:
-                graph.append(list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), line.split())))
-                
+                try:
+                    graph.append(list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), line.split())))
+                except:
+                    graph.append([int(x) for x in line.split()])
     graphs.append(graph)
     return graphs
 
@@ -189,8 +204,12 @@ def compute_e_size_rel(transcript_paths, contigs):
         e_sum = 0
         e_sum_vertex = 0
         for j, v in enumerate(transcript_path):
-            exon_length = interval_length(v)
-            length += exon_length
+            try:
+                exon_length = interval_length(v)
+                length += exon_length
+            except:
+                exon_length = 0
+                length = 0
             
             if contigs_through.get(v, None) is not None:
                 total_length_intersections = 0
@@ -211,15 +230,20 @@ def compute_e_size_rel(transcript_paths, contigs):
                     r_p -= 1
                     
                     intersection = contig[l_p:r_p+1]
-                    total_length_intersections += base_length(intersection)
+                    try:
+                        total_length_intersections += base_length(intersection)
+                    except:
+                        total_length_intersections += 0
                     total_length_intersections_vertex += len(intersection)
                     
                     
                 e_sum += exon_length*(total_length_intersections/len(contigs_through[v]))
                 e_sum_vertex += total_length_intersections_vertex/len(contigs_through[v])
                     
-                
-        e_size_per_transcript_path.append(e_sum/(length*length))
+        try:      
+            e_size_per_transcript_path.append(e_sum/(length*length))
+        except ZeroDivisionError:
+            e_size_per_transcript_path.append(0)
         e_size_per_transcript_path_vertex.append(e_sum_vertex/(len(transcript_path)*len(transcript_path)))
     
     return e_size_per_transcript_path_vertex, e_size_per_transcript_path
@@ -283,7 +307,10 @@ def compute_precision(transcript_paths, contigs):
     
     for i, is_tp in enumerate(tps):
         contig = contigs[i]
-        contig_base_length = base_length(contig)
+        try:
+            contig_base_length = base_length(contig)
+        except:
+            contig_base_length = 0
         
         p += 1
         p_vertex += len(contig)
@@ -353,7 +380,10 @@ def max_covered_rel_by_a_contig(transcript_paths, contigs):
                     
                     intersection = contig[l_p:r_p+1]
                     length_intersection_vertex = len(intersection)
-                    length_intersection_bases = base_length(intersection)
+                    try:
+                        length_intersection_bases = base_length(intersection)
+                    except:
+                        length_intersection_bases = 0
                     
                     
                     
@@ -361,8 +391,10 @@ def max_covered_rel_by_a_contig(transcript_paths, contigs):
                     max_vertex = max(max_vertex, length_intersection_vertex)
                     
                     
-                    
-        max_cov_bases.append(max_bases/base_length(transcript_path))
+        try:          
+            max_cov_bases.append(max_bases/base_length(transcript_path))
+        except:
+            max_cov_bases.append(0)
         max_cov_vertex.append(max_vertex/len(transcript_path))
     
     return max_cov_vertex, max_cov_bases
