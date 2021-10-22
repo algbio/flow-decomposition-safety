@@ -127,12 +127,13 @@ void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<l
 
 	for(itps=paths.begin(); itps!=paths.end();itps++){
 
-
-		printf("N %ld %ld", (long) (*itps).second.second, (*itps).second.first);
-		for(itp=(*itps).first.begin();itp!=(*itps).first.end();itp++)
-			printf(" %ld", (**itp).first);
-		printf("\n");
-
+		if(prnt){ 
+			printf("N %ld %ld", (long) (*itps).second.second, 
+					(*itps).second.first);
+			for(itp=(*itps).first.begin();itp!=(*itps).first.end();itp++)
+				printf(" %ld", (**itp).first);
+			printf("\n");
+		}
 
 		itp = itp2 = (*itps).first.begin();
 		x = (*itps).second.first;
@@ -142,19 +143,19 @@ void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<l
 		path.push_back(*itp);	
 		itp2++;
 
-		while(itp2!=(*itps).first.end() ){  
+		while(true ){  
 			
 			while(itp2!=(*itps).first.end() && f+(**itp2).second-G.fOut[y] > 0){ // Right extendable
 				f-= G.fOut[y]-(**itp2).second;
 				y = (**itp2).first;
 				path.push_back(*itp2);
-				printf("Move Right\n");
+				if(prnt) printf("Move Right l %ld r %ld df %lf\n", x,y, f+(**itp2).second-G.fOut[y]);
 				itp2++;	
 			} 
 			
 			if(itp!=itp2){  // Safe path > 1 edge
                                	safePaths.push_back(pair<list<ipld>,pld>(path,pld(x,f)));
-				printf("S %ld %ld f%ld\n",x,y,(long) f);
+				if(prnt) printf("S %ld %ld f%ld\n",x,y,(long) f);
 			}
 
 				
@@ -162,12 +163,12 @@ void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<l
 				f-= G.fOut[y]-(**itp2).second;
 				y = (**itp2).first;
 				path.push_back(*itp2);
-				printf("Move Right\n");
+				if(prnt) printf("Move Right l %ld r %ld df %lf\n", x,y, f);
 				itp2++;
 				
 				while(f-(**itp).second+G.fIn[(**itp).first] <= 0){ // UnSafe flow
 					f+= G.fIn[(**itp).first]-(**itp).second; 
-					printf("Move Left\n");
+					if(prnt) printf("Move Left l %ld r %ld df %lf\n", (**itp).first,y, f);
 					path.pop_front();		
 					itp++;
 				}
@@ -175,9 +176,10 @@ void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<l
 				x = (**itp).first;
 				f+= G.fIn[(**itp).first]-(**itp).second; 
 				path.pop_front();		
-					printf("Move Left\n");
+				if(prnt) printf("Move Left l %ld r %ld df %lf\n", x,y, f);
 				itp++;
-			}
+			} else break;
+
 		}
 	}
 	

@@ -53,10 +53,14 @@ void printAll(acTrie root, list<long> *string,int flag){
 		wFin+= (*string).size();
 		if(flag<2){
 			if(flag==-1) printf("%ld ",root.wt);
-
-			for(itn=(*string).begin();itn!=(*string).end();itn++)
-				printf("%ld ",*itn);
-			printf("\b\n");
+			
+			itn=(*string).begin();
+			printf("%ld",*itn); itn++;
+			while(itn!=(*string).end()){
+				printf(" %ld",*itn);
+				itn++;
+			}
+			printf("\n");
 		
 			if(flag!=-1){
 				for(itp=root.indices.begin();itp!=root.indices.end();itp++)
