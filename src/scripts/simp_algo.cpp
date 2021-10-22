@@ -30,11 +30,13 @@ class Graph{
 	       	vector<list<pld>> adj,rAdj;
 		list<long> topOrder;
 		vector<double> fIn;
+		vector<double> fOut;
 
 	Graph(int n=1){
 		adj.resize(n);
 		rAdj.resize(n);
 		fIn.resize(n,0);
+		fOut.resize(n,0);
 	}
 };
 
@@ -113,7 +115,72 @@ void print_topOrder(Graph &G){
 }
 
 void compute_safePaths(Graph &G, list<pair<list<ipld>,pld> > &paths, list<pair<list<ipld>,pld> > &safePaths){
+	list<pld> :: iterator edgit;	
+	list<ipld>:: iterator itp,itp2;
+	list<pair<list<ipld>,pld> >:: iterator itps;
+	long x,y;
+	double f;
+	int prnt = 0;
+	list<ipld> path;
 
+	if(prnt) printf("Safe and Complete paths\n");
+
+	for(itps=paths.begin(); itps!=paths.end();itps++){
+
+
+		printf("N %ld %ld", (long) (*itps).second.second, (*itps).second.first);
+		for(itp=(*itps).first.begin();itp!=(*itps).first.end();itp++)
+			printf(" %ld", (**itp).first);
+		printf("\n");
+
+
+		itp = itp2 = (*itps).first.begin();
+		x = (*itps).second.first;
+		y = (**itp).first; 
+		f = (**itp).second;
+	        path.clear();
+		path.push_back(*itp);	
+		itp2++;
+
+		while(itp2!=(*itps).first.end() ){  
+			
+			while(itp2!=(*itps).first.end() && f+(**itp2).second-G.fOut[y] > 0){ // Right extendable
+				f-= G.fOut[y]-(**itp2).second;
+				y = (**itp2).first;
+				path.push_back(*itp2);
+				printf("Move Right\n");
+				itp2++;	
+			} 
+			
+			if(itp!=itp2){  // Safe path > 1 edge
+                               	safePaths.push_back(pair<list<ipld>,pld>(path,pld(x,f)));
+				printf("S %ld %ld f%ld\n",x,y,(long) f);
+			}
+
+				
+			if(itp2!=(*itps).first.end()){
+				f-= G.fOut[y]-(**itp2).second;
+				y = (**itp2).first;
+				path.push_back(*itp2);
+				printf("Move Right\n");
+				itp2++;
+				
+				while(f-(**itp).second+G.fIn[(**itp).first] <= 0){ // UnSafe flow
+					f+= G.fIn[(**itp).first]-(**itp).second; 
+					printf("Move Left\n");
+					path.pop_front();		
+					itp++;
+				}
+		
+				x = (**itp).first;
+				f+= G.fIn[(**itp).first]-(**itp).second; 
+				path.pop_front();		
+					printf("Move Left\n");
+				itp++;
+			}
+		}
+	}
+	
 }
 
 void extend_unitigs(Graph &G, list<pair<list<ipld>,pld> > &eUnitigs){
@@ -167,27 +234,34 @@ void compute_unitigs(Graph &G, list<pair<list<ipld>,pld> > &unitigs){
 		for(edgit=G.adj[x].begin(); edgit!= G.adj[x].end(); edgit++){
 			long y= (*edgit).first;
 			if(prnt) printf("Edge %ld %ld\n",x,y);
-			if(G.adj[y].size()!=1 || G.rAdj[y].size()!=1 || secV[y]!=0)
-				continue;
-			// Begining of a unitig
-			if(prnt) printf("Begin Unitig\n");
-			secV[y]=1;
-			
-			pld pth = pld(x,(*edgit).second);
-			list<ipld> path;
-			
-			ipld curr = edgit;
-			while(true){
-				path.push_back(curr);
+			if(G.adj[y].size()!=1 || G.rAdj[y].size()!=1 || secV[y]!=0){
+				if(secV[x]==0){
+					pld pth = pld(x,(*edgit).second);
+					list<ipld> path;
+					path.push_back(edgit);
+					unitigs.push_back(pair<list<ipld>,pld>(path,pth));		
+				}
 
-				if(G.adj[(*curr).first].size()!=1 || G.rAdj[(*curr).first].size()!= 1) 
-					break;
-				secV[(*curr).first]=1;
-				curr = G.adj[(*curr).first].begin(); 
-			}
+			} else {
+				// Begining of a unitig
+				if(prnt) printf("Begin Unitig\n");
+				secV[y]=1;
 			
-			unitigs.push_back(pair<list<ipld>,pld>(path,pth));		
+				pld pth = pld(x,(*edgit).second);
+				list<ipld> path;
 			
+				ipld curr = edgit;
+				while(true){
+					path.push_back(curr);
+
+					if(G.adj[(*curr).first].size()!=1 || G.rAdj[(*curr).first].size()!= 1) 
+						break;
+					secV[(*curr).first]=1;
+					curr = G.adj[(*curr).first].begin(); 
+				}
+			
+				unitigs.push_back(pair<list<ipld>,pld>(path,pth));		
+			}			
 		}
 	}
 
@@ -198,16 +272,18 @@ void compute_unitigs(Graph &G, list<pair<list<ipld>,pld> > &unitigs){
 
 	
 void print_paths(Graph &G, list<pair<list<ipld>,pld> > &paths){
-	printf("%lu paths:\n", paths.size());
+//	printf("%lu paths:\n", paths.size());
 	
 	list<pair<list<ipld>,pld> > :: iterator it;
 	list<ipld> :: iterator it2;
 
 	for(it=paths.begin();it!=paths.end();it++){
-		printf("%lf %ld", (*it).second.second, (*it).second.first);
+		if((*it).first.size()!=1){
+		printf("%ld %ld", (long) (*it).second.second, (*it).second.first);
 		for(it2=(*it).first.begin();it2!=(*it).first.end();it2++)
 			printf(" %ld", (**it2).first);
 		printf("\n");
+		}
 	}
 }
 
@@ -288,6 +364,7 @@ int main(int argc, char *argv[]){
 			G.adj[a].push_back(pld(b,c));
 			G.rAdj[b].push_back(pld(a,c));	
 			G.fIn[b]+= c;
+			G.fOut[a]+= c;
 			m++;
 		}
 

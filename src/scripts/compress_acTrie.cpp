@@ -2,11 +2,17 @@
  *     AC Trie based compression to remove duplicates, prefixes and suffixes.
  *
  *     Usage Graph input format, where (a-z) are long integers 
- *        # graph p
+ *        # graph p  (less than 300 chars)
  *        a b c d e f
  *        (x, y)(v, w)
  *        # graph q
  *        ....
+ *
+ * 	Use arg 'f' for the following graph format, 
+ * 	where abcefg are long int and d1.d2 are double
+ *	# graph p   (less than 300 chars)
+ *	d1.00 a b c 
+ *      d2.00 e f g 
  *
  * 	./a.out  arg < input
  * 	arg: a => All details, stats for each graph and commulative
@@ -28,6 +34,7 @@ long fin,wFin,flag;
 
 struct acTrie {
 	long val;
+	long wt;
 	list<pll> indices;
 	list<plA> children;
 	acTrie *fail;
@@ -35,7 +42,7 @@ struct acTrie {
 }; 
 
 
-void printAll(acTrie root, list<long> *string){
+void printAll(acTrie root, list<long> *string,int flag){
 	
 //printf("printAll v%ld ind%lu ch%lu\n",root.val,root.indices.size(),root.children.size());	
 	if(root.children.empty()){
@@ -45,27 +52,31 @@ void printAll(acTrie root, list<long> *string){
 		fin++;
 		wFin+= (*string).size();
 		if(flag<2){
+			if(flag==-1) printf("%ld ",root.wt);
+
 			for(itn=(*string).begin();itn!=(*string).end();itn++)
 				printf("%ld ",*itn);
 			printf("\b\n");
 		
-			for(itp=root.indices.begin();itp!=root.indices.end();itp++)
-				printf("(%ld,%ld)",(*itp).first,(*itp).second);
-			printf("\n");
+			if(flag!=-1){
+				for(itp=root.indices.begin();itp!=root.indices.end();itp++)
+					printf("(%ld,%ld)",(*itp).first,(*itp).second);
+				printf("\n");
+			}
 		}
 	}else{
 		list<plA> :: iterator itc;
 
 		for(itc=root.children.begin();itc!=root.children.end();itc++){
 			(*string).push_back((*itc).first);
-			printAll((*itc).second,string);
+			printAll((*itc).second,string,flag);
 			(*string).pop_back();
 		}
 	}
 
 }
 
-int add_Fail(acTrie *root){
+void add_Fail(acTrie *root){
 	(*root).fail = root;
 	
 	acTrie *src,*tar;
@@ -109,18 +120,20 @@ int add_Fail(acTrie *root){
 
 
 int main(int argc, char *argv[]){
-	char line[30];
+	char line[300];
 	//int t=10;
 	list<long> nodes;
 	list<pll> indices;
 	long graphC=0;
 	long org, tOrg=0, tFin=0, maxd=0;
 	long wOrg, wtOrg=0, wtFin=0, wMaxd=0;
+	
 
 	flag=0;
 	if(argc==2){
 		if(argv[1][0]=='a') flag=1;// all paths + stats
 		if(argv[1][0]=='s') flag=2;// stats only	
+		if(argv[1][0]=='f') flag=-1;// stats only	
 	}
 
 	while(scanf("%[^\n]",line) > 0){
@@ -136,7 +149,14 @@ int main(int argc, char *argv[]){
 			nodes.clear();
 			indices.clear();
 			long tmp,tmp2;
-			
+			long tmpf;
+			char test;
+
+			if(flag==-1){
+				if(scanf("%ld",&tmpf)<=0) break;
+			}
+
+
 			while(scanf("%ld",&tmp)> 0){	
 			//	printf("TEST C\n");
 				nodes.push_back(tmp);
@@ -154,13 +174,19 @@ int main(int argc, char *argv[]){
 					(*curr).children.push_back(plA(tmp,acn));
 					curr= &((*curr).children.back().second);
 				}
-				
+				scanf("%c",&test);			
+				if(test=='\n' || test=='\r') break;
 			}
 			
 			if(nodes.size()==0) break;
 			
-			while(scanf("(%ld, %ld)", &tmp,&tmp2)!=0) {
-				(*curr).indices.push_back(pll(tmp,tmp2));
+			if(flag==-1){
+				(*curr).wt=tmpf;				
+			}
+			else{
+				while(scanf("(%ld, %ld)", &tmp,&tmp2)!=0) {
+					(*curr).indices.push_back(pll(tmp,tmp2));
+				}
 			}
 			org++;
 			wOrg+= nodes.size();
@@ -171,7 +197,7 @@ int main(int argc, char *argv[]){
 		
 		add_Fail(&root);
 		list<long> str;
-		printAll(root,&str);	
+		printAll(root,&str,flag);	
 		if(maxd<org-fin) maxd=org-fin;
 		if(wMaxd<wOrg-wFin) wMaxd=wOrg-wFin;
 		tOrg+=org;
@@ -187,7 +213,7 @@ int main(int argc, char *argv[]){
 		
 	}
 
-	if(flag){
+	if(flag>0){
 		printf("\n\nNumber of Graphs processed: %ld\n", graphC);
 		printf("Total Original Paths %ld, Total final Paths %ld, max diff %ld\n", tOrg, tFin, maxd);
 		printf("Total Weight of Original Paths %ld, Total weight of final paths %ld, max diff %ld\n", wtOrg, wtFin, wMaxd);

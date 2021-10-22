@@ -206,8 +206,9 @@ void print_paths(Graph &G, vector<Funnel> &f, long u){
 			path.push_back(y);
 		}
 		
+		printf("%ld", (long) (*it).second.second);
 		for(itp=path.begin();itp!=path.end();itp++)
-			printf("%ld ",*itp);
+			printf(" %ld",*itp);
 		printf("\n");
 	}
 }
@@ -275,7 +276,8 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 							// TODO REMOVE (x,y) with extensions
 
 					//	}else	f[u].res.push_back(p3ld(H[y].root->edg,pld(x,H[y].root->val-H[y].root->upd)));				
-						}else	{f[u].res.push_back(p3ld(pll(x,y),pld(x,H[y].root->val-upd)));				
+						}else	{
+							f[u].res.push_back(p3ld(pll(x,y),pld(x,H[y].root->val-upd)));				
 							if(prnt) printf("Process conv y, (%ld,%ld),s%ld\n",x,y,x);
 						
 						}
@@ -290,9 +292,11 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 							H[y].root->edg.first, H[y].root->edg.second,H[y].root->val, H[y].root->upd );
 
 					       if(top.first.first-top.first.second-updM>0){ // Not right maximal
-							if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",top.second.first,top.second.second,top.first.first-top.first.second,updM);
+							if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",
+							         top.second.first,top.second.second,top.first.first-top.first.second,updM);
 					       		// TODO REMOVE top.second with extensions
 					       }else	{
+							if(top.second.first!=y || top.second.second!= u) // Avoid single edges
 						       f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
 							if(prnt) printf("Process div y, (%ld,%ld),s%ld\n",top.second.first,top.second.second,y);
 					       	
@@ -322,6 +326,7 @@ void opt_funnel(Graph &G, vector<Funnel> &f, long u){
 					if(prnt) printf("Not right Max , (%ld,%ld),%lf %lf\n",top.second.first,top.second.second,top.first.first-top.first.second,updM);
 					// TODO REMOVE top.second with extensions
 				}else{
+					if(y!= top.second.first || u!= top.second.second) // Avoid single edges
 					f[u].res.push_back(p3ld(top.second,pld(y,top.first.first-top.first.second)));				
 					if(prnt) printf("Process source y, (%ld,%ld),s%ld\n",top.second.first,top.second.second,y);
 				}
