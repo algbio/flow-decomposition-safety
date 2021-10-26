@@ -8,6 +8,11 @@ from math import log2, log10
 sns.set()
 
 def main(paths, save, path):
+    font = {'family' : 'normal',
+        'weight' : 'normal',
+        'size'   : 24}
+
+    plt.rc('font', **font)
     dframes = []
     for p in paths:
         df = pd.read_csv(p)
@@ -34,7 +39,7 @@ def main(paths, save, path):
         plt.figure(figsize=(10,10))
         for df in dframes:
             plt.scatter(df['k'], df[col], label=df.name)
-        plt.title(titles[i])
+        #plt.title(titles[i])
         # plt.ylabel()
         plt.xlabel('k')
         plt.legend()
@@ -51,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--unitigs", default=None)
     parser.add_argument("-mu", "--modified_unitigs", default=None)
     parser.add_argument("-save", "--save", default=True)
-    parser.add_argument("-p", "--path", default='plots/')
+    parser.add_argument("-p", "--path", default='plots')
     args = parser.parse_args()
     paths = []
     if args.catfish:

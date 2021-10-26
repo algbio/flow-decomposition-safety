@@ -84,8 +84,11 @@ def new_nx_graph(nodes, edges):
     Assumes that souce of the graph is 0 and sink of the graph is number of nodes -1.
     '''
     #TODO: fix this such you don't have to always change this according to datatype
-    #TODO: either change data to be in correcto form or make some kind of guard for different type of extensions
+    #TODO: either change data to be in correct form or make some kind of guard for different type of extensions
+    # use this for vertex based data
     graph = nx.DiGraph(edges, source='0', sink=f'{len(nodes)-1}')
+    #this for sequence based data
+    #graph = nx.DiGraph(edges, source='(0,0)', sink=f'(-1,-1)')
     graph.update(nodes=nodes)
     return graph
 

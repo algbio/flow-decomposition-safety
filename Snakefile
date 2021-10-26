@@ -24,6 +24,7 @@ rule convert_graph_to_sgr:
         "data/{p}.sgr"
     shell:
         "mv {input} {output}"
+
 rule convert_sgr_to_sg:
     input:
         "data/{p}.sgr"

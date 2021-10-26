@@ -7,7 +7,7 @@ import pandas as pd
 from math import log2, log10
 sns.set()
 
-def main(paths, save, path):
+def main(paths, save):
     dframes = []
     for p in paths:
         df = pd.read_csv(p)
@@ -34,7 +34,7 @@ def main(paths, save, path):
     bound2 = 15
     for df in dframes:
         print('vertex')
-        lower = df[df.k <= bound1]
+        lower = df[df.k >= bound1]
         print(f'& {df.name} & {"{:.2f}".format(lower.mean()["max_cov_rel_vertex_mean"])} '+
         f'& {"{:.2f}".format(lower.mean()["e_sizes_rel_vertex_mean"])} ' +
          f'& {"{:.2f}".format(lower.mean()["vertex_precision"])} ' +
@@ -57,6 +57,7 @@ def main(paths, save, path):
          f'& {"{:.2f}".format(upper.mean()["fscore_vertex"])} '+
          f'& {"{:.2f}".format(upper.mean()["fscore_vertex_weighted"])} ' + 
          f'\\\\')
+        
         print('bases')
         print(f'& {df.name} & {"{:.2f}".format(lower.mean()["max_cov_rel_bases_mean"])} '+
         f'& {"{:.2f}".format(lower.mean()["e_size_rel_bases_mean"])} ' +
@@ -78,7 +79,10 @@ def main(paths, save, path):
          f'& {"{:.2f}".format(upper.mean()["fscore_bases"])} '+
          f'& {"{:.2f}".format(upper.mean()["fscore_bases_weighted"])} ' + 
          f'\\\\')
-
+        print(f'{bound1} < k < {bound2}')
+        print(middle.count()['k']/df.count()['k'])
+        print(f'k >= {bound2}')
+        print(upper.count()['k']/df.count()['k'])
 
 
 
@@ -89,7 +93,6 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--unitigs", default=None)
     parser.add_argument("-mu", "--modified_unitigs", default=None)
     parser.add_argument("-save", "--save", default=True)
-    parser.add_argument("-p", "--path", default='plots/')
     args = parser.parse_args()
     paths = []
     if args.catfish:
@@ -100,4 +103,4 @@ if __name__ == '__main__':
         paths.append(args.modified_unitigs)
     if args.safety:
         paths.append(args.safety)
-    main(paths, args.save, args.path)
+    main(paths, args.save)
