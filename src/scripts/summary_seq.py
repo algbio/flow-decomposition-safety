@@ -14,6 +14,9 @@ def main(input_folder, mode):
     l=[]
     l2 = []
     for root, dirs, files in os.walk(input_folder):
+        #print(root)
+        #print(dirs)
+        #print(files)
         # = root.split('/')[-1]
         for d in dirs:
             for r, d2, f in os.walk(f'{root}{d}'):

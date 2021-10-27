@@ -8,7 +8,10 @@ def main(truth, catfish=None, comp=None, mode=None):
     if comp:
         res = read_res(comp)
     if catfish:
-        res = read_res_catfish(catfish)
+        try:
+            res = read_res_catfish(catfish)
+        except:
+            res = read_res_catfish_other(catfish)
     truth = read_truth(truth)
 
 
@@ -130,9 +133,9 @@ def read_res_catfish(filename):
                 
     graphs.append(graph)
     return graphs
-'''
+
 # Adapted from Milla's code (too)
-def read_res_catfish(filename):
+def read_res_catfish_other(filename):
     
     graphs = list()
     graph = list()
@@ -148,11 +151,11 @@ def read_res_catfish(filename):
                     graph = list()
             # File line is a path
             else:
-                graph.append(list(map(lambda p_exon: (int(p_exon.split(',')[0][1:]), int(p_exon.split(',')[1][:-1])), line.split())))
+                graph.append([int(x) for x in line.split()[7:]])
                 
     graphs.append(graph)
     return graphs
-'''
+
 # Adapted from Milla's code (too)
 def read_res(filename):
     

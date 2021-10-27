@@ -86,9 +86,15 @@ def new_nx_graph(nodes, edges):
     #TODO: fix this such you don't have to always change this according to datatype
     #TODO: either change data to be in correct form or make some kind of guard for different type of extensions
     # use this for vertex based data
-    graph = nx.DiGraph(edges, source='0', sink=f'{len(nodes)-1}')
+    #graph = nx.DiGraph(edges, source='0', sink=f'{len(nodes)-1}')
     #this for sequence based data
-    #graph = nx.DiGraph(edges, source='(0,0)', sink=f'(-1,-1)')
+    graph = nx.DiGraph(edges)
+    if graph.has_node('(0,0)'):
+        graph.graph['source'] = '(0,0)'
+        graph.graph['sink'] = '(-1,-1)'
+    else:
+        graph.graph['source'] = '0'
+        graph.graph['sink'] = f'{len(nodes)-1}'
     graph.update(nodes=nodes)
     return graph
 
