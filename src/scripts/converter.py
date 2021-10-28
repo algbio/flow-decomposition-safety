@@ -23,7 +23,7 @@ def main(filename, mode):
                     i += 1
             graph.nodes['(0,0)']['index'] = 0
             graph.nodes['(-1,-1)']['index'] = len(graph.nodes)-1
-            index_dic[0] = '0,0'
+            index_dic[0] = '(0,0)'
             index_dic[len(graph.nodes)-1] = '(-1,-1)'
             print(f'# graph {j} {index_dic}')
             print(len(graph.nodes))

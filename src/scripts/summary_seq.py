@@ -14,41 +14,49 @@ def main(input_folder, mode):
     l=[]
     l2 = []
     for root, dirs, files in os.walk(input_folder):
-        #print(root)
-        #print(dirs)
-        #print(files)
         # = root.split('/')[-1]
-        for d in dirs:
-            for r, d2, f in os.walk(f'{root}{d}'):
-                for fi in f:
-                    filename= f'{r}/{fi}'
-                    try:
-                        df3 = pd.read_json(filename)
-                    except ValueError:
-                        continue
-                    
-                    l.append(df3)
-                    del df3
-            df = pd.concat(l)
-            l = []
-            # reduce lists to single floats
-            column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
-            for c in column_strings:
-                df[f'{c}_sum'] = [sum(x) for x in df[c]]
-
-            groups = df.groupby('k')
-            sdf = groups.mean()
-            for c in column_strings:
-                sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
-            sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
-            sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
-            sdf ['avg_fscores_vertex'] = groups.mean()['fscore_vertex']
-            sdf ['avg_fscores_vertex_weighted'] = groups.mean()['fscore_vertex_weighted']
-            sdf['avg_fscores_bases'] = groups.mean()['fscore_bases']
-            sdf['avg_fscores_bases_weighted'] = groups.mean()['fscore_bases_weighted']
+        if not dirs:
+            for fi in files:
+                filename= f'{root}/{fi}'
+                try:
+                    df3 = pd.read_json(filename)
+                except ValueError:
+                    continue
+                
+                l.append(df3)
+                del df3
+        else:
+            for d in dirs:
+                for r, d2, f in os.walk(f'{root}{d}'):
+                    for fi in f:
+                        filename= f'{r}/{fi}'
+                        try:
+                            df3 = pd.read_json(filename)
+                        except ValueError:
+                            continue
+                        
+                        l.append(df3)
+                        del df3
             
-            l2.append(sdf)
-            del sdf
+    df = pd.concat(l)
+    l = []
+    # reduce lists to single floats
+    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
+    for c in column_strings:
+        df[f'{c}_sum'] = [sum(x) for x in df[c]]
+    groups = df.groupby('k')
+    sdf = groups.mean()
+    for c in column_strings:
+        sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
+    sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
+    sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
+    sdf ['avg_fscores_vertex'] = groups.mean()['fscore_vertex']
+    sdf ['avg_fscores_vertex_weighted'] = groups.mean()['fscore_vertex_weighted']
+    sdf['avg_fscores_bases'] = groups.mean()['fscore_bases']
+    sdf['avg_fscores_bases_weighted'] = groups.mean()['fscore_bases_weighted']
+    
+    l2.append(sdf)
+    del sdf
     df2 = pd.concat(l2)
     grouped = df2.groupby('k').mean()
     if grouped.index[0] == 0:

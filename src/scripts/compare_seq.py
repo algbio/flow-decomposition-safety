@@ -136,7 +136,6 @@ def read_res_catfish(filename):
 
 # Adapted from Milla's code (too)
 def read_res_catfish_other(filename):
-    
     graphs = list()
     graph = list()
     
@@ -145,13 +144,25 @@ def read_res_catfish_other(filename):
         for line in f:
             # Hashtag(#) begins a graph defenition in file
             if line[0] == '#':
+                try:
+                    node_dic = eval(' '.join(line.split()[3:-3]))
+                except:
+                    node_dic = {}
                 parts = line.split()
                 if len(graph) > 0:
                     graphs.append(graph)
                     graph = list()
             # File line is a path
             else:
-                graph.append([int(x) for x in line.split()[7:]])
+                try:
+                    parts = line.split()
+                    path = [int(x) for x in line.split()[7:]]
+                    fpath = []
+                    for i in range(0,len(path)):
+                        fpath.append(node_dic[path[i]])
+                    graph.append([eval(x) for x in fpath])
+                except:
+                    graph.append([int(x) for x in line.split()[7:]])
                 
     graphs.append(graph)
     return graphs
@@ -343,6 +354,10 @@ def compute_precision(transcript_paths, contigs):
 ## such that max_cov[i] is the maximum of (vertices, bases)
 ## covered by any contig in contigs INTERSECTING to transcript_path[i]
 def max_covered_rel_by_a_contig(transcript_paths, contigs):
+    #print('trurt')
+    #print(transcript_paths)
+    #print('cat')
+    #print(contigs)
     max_cov_vertex = list()
     max_cov_bases = list()
     
