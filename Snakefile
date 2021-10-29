@@ -11,7 +11,7 @@ collections = ['safety', 'catfish', 'unitigs']
 rule all:
     input:
         'plots/seq/precision.png',
-        'plots/nonseq/precision.png'
+        #'plots/nonseq/precision.png'
 
 rule convert_sg_to_sgr:
     input:
@@ -44,7 +44,7 @@ rule run_catfish:
     output:
         "result/catfish/{p}.res"
     shell:
-        "./../catfish/bin/catfish -i {input} -o {output} -a greedy"
+        "./../catfish/src/catfish -i {input} -o {output} -a greedy"
 
 rule run_safety:
     input:

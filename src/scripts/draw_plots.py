@@ -24,16 +24,20 @@ def main(paths, save, path):
                 'max_cov_rel_bases_mean', 'max_cov_rel_vertex_mean', 
                 'e_size_rel_bases_mean', 'e_sizes_rel_vertex_mean',
                 'vertex_precision', 'precision','base_precision', 
-                'fscore_bases', 'fscore_vertex',
-                'fscore_vertex_weighted','fscore_bases_weighted'
+                'fscore_bases_mcv', 'fscore_vertex_mcv',
+                'fscore_vertex_weighted_mcv','fscore_bases_weighted_mcv',
+                'fscore_bases_esr', 'fscore_vertex_esr',
+                'fscore_vertex_weighted_esr','fscore_bases_weighted_esr'
                 ]
     titles = [
                 'Average sequence length', 'Average path length (vertices)',
                 'Maximum relative coverage bases', 'Maximum relative coverage vertices',
                 'E-size relative bases', 'E-size_relative vertices',
                 'Weighted vertex precision', 'Precision', 'Weighted bases precision',
-                'F-score (unweighted precision) bases', 'F-score (unweighted precision) vertices',
-                'F-score (weighted precision) bases', 'F-score (weighted precision) vertices',
+                'F-score (unweighted precision, max-rel-cov) bases', 'F-score (unweighted precision, max-rel-cov) vertices',
+                'F-score (weighted precision, max-rel-cov) bases', 'F-score (weighted precision, max-rel-cov) vertices',
+                'F-score (unweighted precision, e-size-rel) bases', 'F-score (unweighted precision, e-size-rel) vertices',
+                'F-score (weighted precision, e-size-rel) bases', 'F-score (weighted precision, e-size-rel) vertices',
                 ]
     for i,col in enumerate(columns):
         plt.figure(figsize=(10,10))

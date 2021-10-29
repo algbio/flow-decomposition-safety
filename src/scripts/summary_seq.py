@@ -46,6 +46,8 @@ def main(input_folder, mode):
         df[f'{c}_sum'] = [sum(x) for x in df[c]]
     groups = df.groupby('k')
     sdf = groups.mean()
+    sdf['number_of_graphs_per_k'] = groups.count().precision
+
     for c in column_strings:
         sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
     sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
@@ -54,10 +56,10 @@ def main(input_folder, mode):
     sdf ['avg_fscores_vertex_weighted_mcv'] = groups.mean()['fscore_vertex_weighted_mcv']
     sdf['avg_fscores_bases_mcv'] = groups.mean()['fscore_bases_mcv']
     sdf['avg_fscores_bases_weighted_mcv'] = groups.mean()['fscore_bases_weighted_mcv']
-    sdf ['avg_fscores_vertex_mcv'] = groups.mean()['fscore_vertex_mcv']
-    sdf ['avg_fscores_vertex_weighted_mcv'] = groups.mean()['fscore_vertex_weighted_mcv']
-    sdf['avg_fscores_bases_mcv'] = groups.mean()['fscore_bases_mcv']
-    sdf['avg_fscores_bases_weighted_mcv'] = groups.mean()['fscore_bases_weighted_mcv']
+    sdf ['avg_fscores_vertex_esr'] = groups.mean()['fscore_vertex_esr']
+    sdf ['avg_fscores_vertex_weighted_esr'] = groups.mean()['fscore_vertex_weighted_esr']
+    sdf['avg_fscores_bases_esr'] = groups.mean()['fscore_bases_esr']
+    sdf['avg_fscores_bases_weighted_esr'] = groups.mean()['fscore_bases_weighted_esr']
     
     l2.append(sdf)
     del sdf

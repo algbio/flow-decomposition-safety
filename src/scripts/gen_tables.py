@@ -7,87 +7,65 @@ import pandas as pd
 from math import log2, log10
 sns.set()
 
-def main(paths, save):
-    dframes = []
-    for p in paths:
-        df = pd.read_csv(p)
-        df.name = p.split('/')[1].replace('_',' ')
-        dframes.append(df)
-    # figure parameters
-    columns = [
-                'avg_path_length_seq', 'avg_path_length_nodes', 
-                'max_cov_rel_bases_mean', 'max_cov_rel_vertex_mean', 
-                'e_size_rel_bases_mean', 'e_sizes_rel_vertex_mean',
-                'vertex_precision', 'precision','base_precision', 
-                'fscore_bases', 'fscore_vertex',
-                'fscore_vertex_weighted','fscore_bases_weighted'
-                ]
-    titles = [
-                'Average sequence length', 'Average path length (vertices)',
-                'Maximum relative coverage bases', 'Maximum relative coverage vertices',
-                'E-size relative bases', 'E-size_relative vertices',
-                'Weighted vertex precision', 'Precision', 'Weighted bases precision',
-                'F-score (unweighted precision) bases', 'F-score (unweighted precision) vertices',
-                'F-score (weighted precision) bases', 'F-score (weighted precision) vertices',
-                ]
+def main(cat_path, safety_path, unitigs_path, save):
     bound1 = 2
     bound2 = 15
-    for df in dframes:
-        print('vertex')
-        lower = df[df.k >= bound1]
-        print(f'& {df.name} & {"{:.2f}".format(lower.mean()["max_cov_rel_vertex_mean"])} '+
-        f'& {"{:.2f}".format(lower.mean()["e_sizes_rel_vertex_mean"])} ' +
-         f'& {"{:.2f}".format(lower.mean()["vertex_precision"])} ' +
-         f'& {"{:.2f}".format(lower.mean()["fscore_vertex"])} '+
-         f'& {"{:.2f}".format(lower.mean()["fscore_vertex_weighted"])} ' + 
-         f'\\\\')
+    
+    if safety_path:
+        safety_df = pd.read_csv(safety_path)
+    else:
+        safety_df = None
+    if cat_path:
+        cat_df = pd.read_csv(cat_path)
+    else:
+        cat_df = None
+    if unitigs_path:
+        unitigs_df = pd.read_csv(unitigs_path)
+    else:
+        unitigs_df = None
+    saf_pre = precentage(safety_df, bound1, bound2)
+    cat_pre = precentage(cat_df, bound1, bound2)
+    uni_pre = precentage(unitigs_df, bound1, bound2)
+    print(f'k>={bound1}')
+    print('bases')
+    print(table_string_bases(safety_df[safety_df.k>= bound1], cat_df[cat_df.k>= bound1], unitigs_df[unitigs_df.k>= bound1]))
+    print('vertex')
+    print(table_string_vertex(safety_df[safety_df.k>= bound1], cat_df[cat_df.k>= bound1], unitigs_df[unitigs_df.k>= bound1]))
+    print(f'{"{:.2f}".format(saf_pre[0])}')
+    print(f'{"{:.2f}".format(cat_pre[0])}')
+    print(f'{"{:.2f}".format(uni_pre[0])}')
 
-        middle = df[(df.k > bound1) & (df.k < bound2)]
-        print(f'& {df.name} & {"{:.2f}".format(middle.mean()["max_cov_rel_vertex_mean"])} '+
-        f'& {"{:.2f}".format(middle.mean()["e_sizes_rel_vertex_mean"])} ' +
-         f'& {"{:.2f}".format(middle.mean()["vertex_precision"])} ' +
-         f'& {"{:.2f}".format(middle.mean()["fscore_vertex"])} '+
-         f'& {"{:.2f}".format(middle.mean()["fscore_vertex_weighted"])} ' + 
-         f'\\\\')
+    print(f'{bound1}<= k =< {bound2}')
+    print('bases')
+    print(table_string_bases(safety_df[(safety_df.k>= bound1) & (safety_df.k <= bound2)], cat_df[(cat_df.k>= bound1) & (cat_df.k <= bound2)], unitigs_df[(unitigs_df.k>= bound1) & (unitigs_df.k <= bound2)]))
+    print('vertex')
+    print(table_string_vertex(safety_df[(safety_df.k>= bound1) & (safety_df.k <= bound2)], cat_df[(cat_df.k>= bound1) & (cat_df.k <= bound2)], unitigs_df[(unitigs_df.k>= bound1) & (unitigs_df.k <= bound2)]))
+    print(f'{"{:.2f}".format(saf_pre[1])}')
+    print(f'{"{:.2f}".format(cat_pre[1])}')
+    print(f'{"{:.2f}".format(uni_pre[1])}')
 
-        upper = df[df.k >= bound2]
-        print(f'& {df.name} & {"{:.2f}".format(upper.mean()["max_cov_rel_vertex_mean"])} '+
-        f'& {"{:.2f}".format(upper.mean()["e_sizes_rel_vertex_mean"])} ' +
-         f'& {"{:.2f}".format(upper.mean()["vertex_precision"])} ' +
-         f'& {"{:.2f}".format(upper.mean()["fscore_vertex"])} '+
-         f'& {"{:.2f}".format(upper.mean()["fscore_vertex_weighted"])} ' + 
-         f'\\\\')
-        
-        print('bases')
-        print(f'& {df.name} & {"{:.2f}".format(lower.mean()["max_cov_rel_bases_mean"])} '+
-        f'& {"{:.2f}".format(lower.mean()["e_size_rel_bases_mean"])} ' +
-         f'& {"{:.2f}".format(lower.mean()["base_precision"])} ' +
-         f'& {"{:.2f}".format(lower.mean()["fscore_bases"])} '+
-         f'& {"{:.2f}".format(lower.mean()["fscore_bases_weighted"])} ' + 
-         f'\\\\')
+    print(f'k > {bound2}')
+    print('bases')
+    print(table_string_bases(safety_df[safety_df.k > bound2], cat_df[cat_df.k > bound2], unitigs_df[unitigs_df.k > bound2]))
+    print('vertex')
+    print(table_string_vertex(safety_df[safety_df.k > bound2], cat_df[cat_df.k > bound2], unitigs_df[unitigs_df.k > bound2]))
+    print(f'{"{:.2f}".format(saf_pre[2])}')
+    print(f'{"{:.2f}".format(cat_pre[2])}')
+    print(f'{"{:.2f}".format(uni_pre[2])}')
 
-        print(f'& {df.name} & {"{:.2f}".format(middle.mean()["max_cov_rel_bases_mean"])} '+
-        f'& {"{:.2f}".format(middle.mean()["e_size_rel_bases_mean"])} ' +
-         f'& {"{:.2f}".format(middle.mean()["base_precision"])} ' +
-         f'& {"{:.2f}".format(middle.mean()["fscore_bases"])} '+
-         f'& {"{:.2f}".format(middle.mean()["fscore_bases_weighted"])} ' + 
-         f'\\\\')
+def table_string_bases(safety_df, cat_df, unitigs_df):
+    return f'''& Safe and Complete &  {"{:.2f}".format(safety_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(safety_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(safety_df.mean()["base_precision"])} & {"{:.2f}".format(safety_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(safety_df.mean()["fscore_bases_weighted_mcv"])} \\\\
+& Catfish & {"{:.2f}".format(cat_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(cat_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(cat_df.mean()["base_precision"])} & {"{:.2f}".format(cat_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(cat_df.mean()["fscore_bases_weighted_mcv"])} \\\\
+& Unitigs& {"{:.2f}".format(unitigs_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(unitigs_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(unitigs_df.mean()["base_precision"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_bases_weighted_mcv"])} \\\\'''
+def table_string_vertex(safety_df, cat_df, unitigs_df):
+    return f'''& Safe and Complete &  {"{:.2f}".format(safety_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(safety_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(safety_df.mean()["vertex_precision"])} & {"{:.2f}".format(safety_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(safety_df.mean()["fscore_vertex_weighted_mcv"])} \\\\
+& Catfish & {"{:.2f}".format(cat_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(cat_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(cat_df.mean()["vertex_precision"])} & {"{:.2f}".format(cat_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(cat_df.mean()["fscore_vertex_weighted_mcv"])} \\\\
+& Unitigs& {"{:.2f}".format(unitigs_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(unitigs_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(unitigs_df.mean()["vertex_precision"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_vertex_weighted_mcv"])} \\\\'''
 
-        print(f'& {df.name} & {"{:.2f}".format(upper.mean()["max_cov_rel_bases_mean"])} '+
-        f'& {"{:.2f}".format(upper.mean()["e_size_rel_bases_mean"])} ' +
-         f'& {"{:.2f}".format(upper.mean()["base_precision"])} ' +
-         f'& {"{:.2f}".format(upper.mean()["fscore_bases"])} '+
-         f'& {"{:.2f}".format(upper.mean()["fscore_bases_weighted"])} ' + 
-         f'\\\\')
-        print(f'{bound1} < k < {bound2}')
-        print(middle.count()['k']/df.count()['k'])
-        print(f'k >= {bound2}')
-        print(upper.count()['k']/df.count()['k'])
-
-def table_string(safety_df, cat_df, uni_df):
-    return f'''& Safe and Complete & 0.71 & 0.45 & 1.00 & 0.82 & 0.76 \\
-    & Catfish & 0.88 & 0.53 & 0.34 & 0.48 & 0.42 \\
-    & Unitigs& 0.36 & 0.22 & 1.00 & 0.52 & 0.33 \\'''
+def precentage(df,b1,b2):
+    return(sum(df[df.k>= b1].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k),
+     sum(df[(df.k>= b1) & (df.k <= b2)].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k), 
+     sum(df[df.k >= b2].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -97,13 +75,4 @@ if __name__ == '__main__':
     parser.add_argument("-mu", "--modified_unitigs", default=None)
     parser.add_argument("-save", "--save", default=True)
     args = parser.parse_args()
-    paths = []
-    if args.catfish:
-        paths.append(args.catfish)
-    if args.unitigs:
-        paths.append(args.unitigs)
-    if args.modified_unitigs:
-        paths.append(args.modified_unitigs)
-    if args.safety:
-        paths.append(args.safety)
-    main(paths, args.save)
+    main(args.catfish, args.safety, args.unitigs, args.save)
