@@ -84,7 +84,10 @@ def main(paths, save):
         print(f'k >= {bound2}')
         print(upper.count()['k']/df.count()['k'])
 
-
+def table_string(safety_df, cat_df, uni_df):
+    return f'''& Safe and Complete & 0.71 & 0.45 & 1.00 & 0.82 & 0.76 \\
+    & Catfish & 0.88 & 0.53 & 0.34 & 0.48 & 0.42 \\
+    & Unitigs& 0.36 & 0.22 & 1.00 & 0.52 & 0.33 \\'''
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -45,10 +45,14 @@ def main(truth, catfish=None, comp=None, mode=None):
             'node_sum': sum([len(x) for x in res_paths]),
             'seq_length_sum': seq_length,
             'number_of_paths':len(res_paths),
-            'fscore_vertex': f_scores(precision,to_float(max_cov_rel_vertex)),
-            'fscore_vertex_weighted': f_scores(vertex_precision,to_float(max_cov_rel_vertex)),
-            'fscore_bases':f_scores(precision,to_float(max_cov_rel_bases)),
-            'fscore_bases_weighted': f_scores(base_precision,to_float(max_cov_rel_vertex)),
+            'fscore_vertex_mcv': f_scores(precision,to_float(max_cov_rel_vertex)),
+            'fscore_vertex_weighted_mcv': f_scores(vertex_precision,to_float(max_cov_rel_vertex)),
+            'fscore_bases_mcv':f_scores(precision,to_float(max_cov_rel_bases)),
+            'fscore_bases_weighted_mcv': f_scores(base_precision,to_float(max_cov_rel_bases)),
+            'fscore_vertex_esr': f_scores(precision,to_float(e_sizes_rel_vertex)),
+            'fscore_vertex_weighted_esr': f_scores(vertex_precision,to_float(e_sizes_rel_vertex)),
+            'fscore_bases_esr':f_scores(precision,to_float(e_size_rel_bases)),
+            'fscore_bases_weighted_esr': f_scores(base_precision,to_float(e_size_rel_bases)),
         })
     print(dumps(metrics, indent=4))
 

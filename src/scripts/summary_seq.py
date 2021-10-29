@@ -50,10 +50,14 @@ def main(input_folder, mode):
         sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
     sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
     sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
-    sdf ['avg_fscores_vertex'] = groups.mean()['fscore_vertex']
-    sdf ['avg_fscores_vertex_weighted'] = groups.mean()['fscore_vertex_weighted']
-    sdf['avg_fscores_bases'] = groups.mean()['fscore_bases']
-    sdf['avg_fscores_bases_weighted'] = groups.mean()['fscore_bases_weighted']
+    sdf ['avg_fscores_vertex_mcv'] = groups.mean()['fscore_vertex_mcv']
+    sdf ['avg_fscores_vertex_weighted_mcv'] = groups.mean()['fscore_vertex_weighted_mcv']
+    sdf['avg_fscores_bases_mcv'] = groups.mean()['fscore_bases_mcv']
+    sdf['avg_fscores_bases_weighted_mcv'] = groups.mean()['fscore_bases_weighted_mcv']
+    sdf ['avg_fscores_vertex_mcv'] = groups.mean()['fscore_vertex_mcv']
+    sdf ['avg_fscores_vertex_weighted_mcv'] = groups.mean()['fscore_vertex_weighted_mcv']
+    sdf['avg_fscores_bases_mcv'] = groups.mean()['fscore_bases_mcv']
+    sdf['avg_fscores_bases_weighted_mcv'] = groups.mean()['fscore_bases_weighted_mcv']
     
     l2.append(sdf)
     del sdf
