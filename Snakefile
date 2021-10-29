@@ -11,7 +11,7 @@ collections = ['safety', 'catfish', 'unitigs']
 rule all:
     input:
         'plots/seq/precision.png',
-        'tables/seq/summary.txt'
+        'tables/seq/summary.txt',
         'plots/nonseq/precision.png',
         'tables/nonseq/summary.txt'
 
