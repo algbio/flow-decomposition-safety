@@ -11,6 +11,7 @@ collections = ['safety', 'catfish', 'unitigs']
 rule all:
     input:
         'plots/seq/precision.png',
+        "tables/seq/summary.txt"
         #'plots/nonseq/precision.png'
 
 rule convert_sg_to_sgr:
@@ -142,3 +143,18 @@ rule plot_nonseq:
     shell:
         "python -m src.scripts.draw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
 
+rule write_tables_seq:
+    input:
+        sums = expand("summary/{c}/summary_seq.csv", c =collections)
+    output:
+        "tables/seq/summary.txt"
+    shell:
+        "python -m src.scripts.gen_tables -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv >> {output}"
+
+rule write_tables_nonseq:
+    input:
+        sums = expand("summary/{c}/summary_seq.csv", c =collections)
+    output:
+        "tables/nonseq/summary.txt"
+    shell:
+        "python -m src.scripts.gen_tables -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv >> {output}"

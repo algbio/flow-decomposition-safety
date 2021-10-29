@@ -10,19 +10,15 @@ sns.set()
 def main(cat_path, safety_path, unitigs_path, save):
     bound1 = 2
     bound2 = 15
-    
-    if safety_path:
-        safety_df = pd.read_csv(safety_path)
-    else:
-        safety_df = None
-    if cat_path:
-        cat_df = pd.read_csv(cat_path)
-    else:
-        cat_df = None
-    if unitigs_path:
-        unitigs_df = pd.read_csv(unitigs_path)
-    else:
-        unitigs_df = None
+    safety_df = pd.read_csv(safety_path)
+    cat_df = pd.read_csv(cat_path)
+    unitigs_df = pd.read_csv(unitigs_path)
+    print('safety')
+    print(safety_df)
+    print('cat')
+    print(cat_df)
+    print('unitigs')
+    print(unitigs_df)
     saf_pre = precentage(safety_df, bound1, bound2)
     cat_pre = precentage(cat_df, bound1, bound2)
     uni_pre = precentage(unitigs_df, bound1, bound2)

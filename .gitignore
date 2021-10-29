@@ -9,6 +9,7 @@ human/
 plots/
 temp/
 temp*
+tables/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
