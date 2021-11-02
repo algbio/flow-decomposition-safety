@@ -43,7 +43,7 @@ def main(input_folder, mode):
     # reduce lists to single floats
     column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
     for c in column_strings:
-        df[f'{c}_sum'] = [sum(x) for x in df[c]]
+        df[f'{c}_sum'] = [sum(x) for x in df[c]] / df['number_of_paths']
     groups = df.groupby('k')
     sdf = groups.mean()
     sdf['number_of_graphs_per_k'] = groups.count().precision

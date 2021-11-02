@@ -10,6 +10,8 @@ plots/
 temp/
 temp*
 tables/
+cpp-scripts/compress
+cpp-scripts/simp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

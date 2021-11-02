@@ -6,12 +6,14 @@ filename_all = "data/{path}.truth"
 seq_paths = glob_wildcards(filename_seq).path
 nonseq_paths = glob_wildcards(filename_nonseq).path
 all_paths = glob_wildcards(filename_all).path
-collections = ['safety', 'catfish', 'unitigs']
+collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs', 'safety2', 'unitigs2', 'extUnitigs2']
+
+#collections = ['safety', 'catfish', 'unitigs']
 
 rule all:
     input:
-       "plots/seq/precision.png",
-       "tables/seq/summary.txt"
+       "plots/seq/precision.png"
+       #"tables/seq/summary.txt"
 
 rule convert_sg_to_sgr:
     input:
@@ -37,6 +39,31 @@ rule convert_sgr_to_sg:
         "data/nonseq/{p}.sg"
     shell:
         "python -m src.scripts.converter -i {input} -m True >> data/nonseq/{wildcards.p}.sg"
+
+rule run_extUnitigs2:
+    input:
+        "data/{p}.sgr"
+    output:
+        "result/extUnitigs2/{p}.res"
+    shell:
+       	"./src/cpp-scripts/simp e < {input} | ./src/cpp-scripts/compress f > {output}"
+
+rule run_unitigs2:
+    input:
+        "data/{p}.sgr"
+    output:
+        "result/unitigs2/{p}.res"
+    shell:
+       	"./src/cpp-scripts/simp u < {input} | ./src/cpp-scripts/compress f > {output}"
+
+rule run_safety2:
+    input:
+        "data/{p}.sgr"
+    output:
+        "result/safety2/{p}.res"
+    shell:
+       	"./src/cpp-scripts/simp < {input} | ./src/cpp-scripts/compress f > {output}"
+
 
 rule run_catfish:
     input:
@@ -72,6 +99,35 @@ rule run_modified_unitigs:
         "python -m src.scripts.unitigs -i {input} -m True >> result/modified_unitigs/{wildcards.p}.res"
 
 # compare results from algorithm with sequences
+
+rule extUnitigs2_truth_compare_seq:
+    input:
+        "result/extUnitigs2/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/comparisons/extUnitigs2/{p}.metrics.json"
+    shell:
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/extUnitigs2/{wildcards.p}.metrics.json"
+
+rule unitigs2_truth_compare_seq:
+    input:
+        "result/unitigs2/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/comparisons/unitigs2/{p}.metrics.json"
+    shell:
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/unitigs2/{wildcards.p}.metrics.json"
+
+rule safety2_truth_compare_seq:
+    input:
+        "result/safety2/{p}.res",
+        "data/{p}.truth"
+    output:
+        "summary/comparisons/safety2/{p}.metrics.json"
+    shell:
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/safety2/{wildcards.p}.metrics.json"
+
+
 rule cafish_truth_compare:
     input:
         "result/catfish/{p}.res",
@@ -132,7 +188,7 @@ rule plot_seq:
     output:
         "plots/seq/precision.png"
     shell:
-        "python -m src.scripts.draw_plots -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv -p plots/seq/"
+        "python -m src.scripts.draw_plots -c summary/catfish/summary_seq.csv -s summary/safety2/summary_seq.csv -u summary/unitigs2/summary_seq.csv -mu summary/extUnitigs2/summary_seq.csv -p plots/seq/"
 
 rule plot_nonseq:
     input: 
@@ -140,8 +196,8 @@ rule plot_nonseq:
     output:
         "plots/nonseq/precision.png"
     shell:
-        "python -m src.scripts.dr#./../catfish/src/catfish -i data/seq/human/1.sgr -o result/catfish/seq/human/1.res -a core  
-aw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
+        "python -m src.scripts.draw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety2/summary_nonseq.csv -u summary/unitigs2/summary_nonseq.csv -mu summary/extUnitigs2/summary_nonseq.csv -p plots/nonseq/"
+#aw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
 
 rule write_tables_seq:
     input:

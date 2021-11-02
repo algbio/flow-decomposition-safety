@@ -2,66 +2,92 @@
 import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as npf
+import numpy as np
 import pandas as pd
+import os
 from math import log2, log10
 sns.set()
 
-def main(cat_path, safety_path, unitigs_path, save):
+def main(paths, order):
     bound1 = 2
     bound2 = 15
-    safety_df = pd.read_csv(safety_path)
-    cat_df = pd.read_csv(cat_path)
-    unitigs_df = pd.read_csv(unitigs_path)
-    print('safety')
-    print(safety_df)
-    print('cat')
-    print(cat_df)
-    print('unitigs')
-    print(unitigs_df)
-    saf_pre = precentage(safety_df, bound1, bound2)
-    cat_pre = precentage(cat_df, bound1, bound2)
-    uni_pre = precentage(unitigs_df, bound1, bound2)
-    print(f'k>={bound1}')
-    print('bases')
-    print(table_string_bases(safety_df[safety_df.k>= bound1], cat_df[cat_df.k>= bound1], unitigs_df[unitigs_df.k>= bound1]))
-    print('vertex')
-    print(table_string_vertex(safety_df[safety_df.k>= bound1], cat_df[cat_df.k>= bound1], unitigs_df[unitigs_df.k>= bound1]))
-    print(f'{"{:.2f}".format(saf_pre[0])}')
-    print(f'{"{:.2f}".format(cat_pre[0])}')
-    print(f'{"{:.2f}".format(uni_pre[0])}')
+    base_cols = ["max_cov_rel_bases", "e_size_rel_bases", 
+    "base_precision", "fscore_bases_weighted_esr", 
+    "fscore_bases_weighted_mcv"]
+    vertex_cols = ["max_cov_rel_vertex", "e_sizes_rel_vertex", 
+    "vertex_precision", "fscore_vertex_weighted_esr", 
+    "fscore_vertex_weighted_mcv"]
+    all_dataframes = []
+    for p in paths:
+        all_dataframes.append(read_file(p))
+    
+    print('bases:')
+    compute_values(all_dataframes, bound1, bound2, base_cols, order)
+    print()
+    print('vertex:')
+    compute_values(all_dataframes, bound1, bound2, vertex_cols, order)
 
-    print(f'{bound1}<= k =< {bound2}')
-    print('bases')
-    print(table_string_bases(safety_df[(safety_df.k>= bound1) & (safety_df.k <= bound2)], cat_df[(cat_df.k>= bound1) & (cat_df.k <= bound2)], unitigs_df[(unitigs_df.k>= bound1) & (unitigs_df.k <= bound2)]))
-    print('vertex')
-    print(table_string_vertex(safety_df[(safety_df.k>= bound1) & (safety_df.k <= bound2)], cat_df[(cat_df.k>= bound1) & (cat_df.k <= bound2)], unitigs_df[(unitigs_df.k>= bound1) & (unitigs_df.k <= bound2)]))
-    print(f'{"{:.2f}".format(saf_pre[1])}')
-    print(f'{"{:.2f}".format(cat_pre[1])}')
-    print(f'{"{:.2f}".format(uni_pre[1])}')
+def compute_values(dfs, b1, b2, cols, order):
+    print(f'k >= 2')
+    stuff_a = []
+    for df in dfs:
+        a = df[(df.k >= b1)]
+        print(f'{"{:.2f}".format(a.count()[0] / df.count()[0])}')
+        l_a = [f'{"{:.2f}".format(a[c].mean())}' for c in cols]
+        stuff_a.append(l_a)
+    print_np_array_as_latex_table(stuff_a, order)
+    stuff_a = []
+    print(f'{b1} <= k <= {b2}')
+    for df in dfs:
+        a = df[(df.k>= b1) & (df.k <= b2)]
+        print(f'{"{:.2f}".format(a.count()[0] / df.count()[0])}')
+        l_a = [f'{"{:.2f}".format(a[c].mean())}' for c in cols]
+        stuff_a.append(l_a)
+    print_np_array_as_latex_table(stuff_a, order)
+    stuff_a = []
+    print(f'k>{b2}')
+    for df in dfs:
+        a = df[(df.k > b2)]
+        print(f'{"{:.2f}".format(a.count()[0] / df.count()[0])}')
+        l_a = [f'{"{:.2f}".format(a[c].mean())}' for c in cols]
+        stuff_a.append(l_a)
+    print_np_array_as_latex_table(stuff_a, order)
 
-    print(f'k > {bound2}')
-    print('bases')
-    print(table_string_bases(safety_df[safety_df.k > bound2], cat_df[cat_df.k > bound2], unitigs_df[unitigs_df.k > bound2]))
-    print('vertex')
-    print(table_string_vertex(safety_df[safety_df.k > bound2], cat_df[cat_df.k > bound2], unitigs_df[unitigs_df.k > bound2]))
-    print(f'{"{:.2f}".format(saf_pre[2])}')
-    print(f'{"{:.2f}".format(cat_pre[2])}')
-    print(f'{"{:.2f}".format(uni_pre[2])}')
 
-def table_string_bases(safety_df, cat_df, unitigs_df):
-    return f'''& Safe and Complete &  {"{:.2f}".format(safety_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(safety_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(safety_df.mean()["base_precision"])} & {"{:.2f}".format(safety_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(safety_df.mean()["fscore_bases_weighted_mcv"])} \\\\
-& Catfish & {"{:.2f}".format(cat_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(cat_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(cat_df.mean()["base_precision"])} & {"{:.2f}".format(cat_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(cat_df.mean()["fscore_bases_weighted_mcv"])} \\\\
-& Unitigs& {"{:.2f}".format(unitigs_df.mean()["max_cov_rel_bases_mean"])} & {"{:.2f}".format(unitigs_df.mean()["e_size_rel_bases_mean"])} & {"{:.2f}".format(unitigs_df.mean()["base_precision"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_bases_weighted_esr"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_bases_weighted_mcv"])} \\\\'''
-def table_string_vertex(safety_df, cat_df, unitigs_df):
-    return f'''& Safe and Complete &  {"{:.2f}".format(safety_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(safety_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(safety_df.mean()["vertex_precision"])} & {"{:.2f}".format(safety_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(safety_df.mean()["fscore_vertex_weighted_mcv"])} \\\\
-& Catfish & {"{:.2f}".format(cat_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(cat_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(cat_df.mean()["vertex_precision"])} & {"{:.2f}".format(cat_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(cat_df.mean()["fscore_vertex_weighted_mcv"])} \\\\
-& Unitigs& {"{:.2f}".format(unitigs_df.mean()["max_cov_rel_vertex_mean"])} & {"{:.2f}".format(unitigs_df.mean()["e_sizes_rel_vertex_mean"])} & {"{:.2f}".format(unitigs_df.mean()["vertex_precision"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_vertex_weighted_esr"])} & {"{:.2f}".format(unitigs_df.mean()["fscore_vertex_weighted_mcv"])} \\\\'''
+def print_np_array_as_latex_table(a, order):
+    for i,o in enumerate(order):
+        print("& " + o + " & " + "\\\\\n".join([" & ".join(a[i])]))
+    #print("\\\\\n".join([" & ".join(map(str, line)) for line in a]))
+#
 
-def precentage(df,b1,b2):
-    return(sum(df[df.k>= b1].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k),
-     sum(df[(df.k>= b1) & (df.k <= b2)].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k), 
-     sum(df[df.k >= b2].number_of_graphs_per_k) / sum(df.number_of_graphs_per_k))
+def read_file(input_folder):
+    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
+    l = []
+    for root, dirs, files in os.walk(input_folder):
+        # = root.split('/')[-1]
+        if not dirs:
+            for fi in files:
+                filename= f'{root}/{fi}'
+                try:
+                    df = pd.read_json(filename)
+                except ValueError:
+                    continue
+                for c in column_strings:
+                    df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
+                l.append(df)
+        else:
+            for d in dirs:
+                for r, d2, f in os.walk(f'{root}{d}'):
+                    for fi in f:
+                        filename= f'{r}/{fi}'
+                        try:
+                            df = pd.read_json(filename)
+                        except ValueError:
+                            continue
+                        for c in column_strings:
+                            df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
+                        l.append(df)
+    return pd.concat(l)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -71,4 +97,18 @@ if __name__ == '__main__':
     parser.add_argument("-mu", "--modified_unitigs", default=None)
     parser.add_argument("-save", "--save", default=True)
     args = parser.parse_args()
-    main(args.catfish, args.safety, args.unitigs, args.save)
+    paths = []
+    order = []
+    if args.safety:
+        paths.append(args.safety)
+        order.append('Safe and Complete')
+    if args.catfish:
+        paths.append(args.catfish)
+        order.append('Catfish')
+    if args.unitigs:
+        paths.append(args.unitigs)
+        order.append('Unitigs')
+    if args.modified_unitigs:
+        paths.append(args.modified_unitigs)
+        order.append('Extended Unitigs')
+    main(paths, order)
