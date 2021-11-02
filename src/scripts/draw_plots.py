@@ -16,7 +16,8 @@ def main(paths, save, path):
     dframes = []
     for p in paths:
         df = pd.read_csv(p)
-        df.name = p.split('/')[1].replace('_',' ')
+        #df.name = p.split('/')[1].replace('_',' ')
+        df.name = p.replace('_',' ')
         dframes.append(df)
     # figure parameters
     columns = [
@@ -43,7 +44,8 @@ def main(paths, save, path):
         plt.figure(figsize=(10,10))
         for df in dframes:
             plt.scatter(df['k'], df[col], label=df.name)
-        #plt.title(titles[i])
+            #plt.scatter(df['k'], df[col])
+        plt.title(titles[i])
         # plt.ylabel()
         plt.xlabel('k')
         plt.legend()

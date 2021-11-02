@@ -52,23 +52,9 @@ def main(input_folder, mode):
         sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
     sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
     sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
-    sdf ['avg_fscores_vertex_mcv'] = groups.mean()['fscore_vertex_mcv']
-    sdf ['avg_fscores_vertex_weighted_mcv'] = groups.mean()['fscore_vertex_weighted_mcv']
-    sdf['avg_fscores_bases_mcv'] = groups.mean()['fscore_bases_mcv']
-    sdf['avg_fscores_bases_weighted_mcv'] = groups.mean()['fscore_bases_weighted_mcv']
-    sdf ['avg_fscores_vertex_esr'] = groups.mean()['fscore_vertex_esr']
-    sdf ['avg_fscores_vertex_weighted_esr'] = groups.mean()['fscore_vertex_weighted_esr']
-    sdf['avg_fscores_bases_esr'] = groups.mean()['fscore_bases_esr']
-    sdf['avg_fscores_bases_weighted_esr'] = groups.mean()['fscore_bases_weighted_esr']
     
-    l2.append(sdf)
-    del sdf
-    df2 = pd.concat(l2)
-    grouped = df2.groupby('k').mean()
-    if grouped.index[0] == 0:
-        print(grouped[1:].to_csv())
-    else:
-        print(grouped.to_csv())
+    
+    print(sdf.to_csv())
 
         
 

@@ -10,9 +10,8 @@ collections = ['safety', 'catfish', 'unitigs']
 
 rule all:
     input:
-        expand("summary/comparisons/unitigs/{p}.metrics.json", p = all_paths),
-        expand("summary/comparisons/catfish/{p}.metrics.json", p = all_paths),
-        expand("summary/comparisons/safety/{p}.metrics.json", p = all_paths)
+       "plots/seq/precision.png",
+       "tables/seq/summary.txt"
 
 rule convert_sg_to_sgr:
     input:
@@ -38,7 +37,7 @@ rule convert_sgr_to_sg:
         "data/nonseq/{p}.sg"
     shell:
         "python -m src.scripts.converter -i {input} -m True >> data/nonseq/{wildcards.p}.sg"
-  
+
 rule run_catfish:
     input:
         "data/{p}.sgr"
@@ -141,7 +140,8 @@ rule plot_nonseq:
     output:
         "plots/nonseq/precision.png"
     shell:
-        "python -m src.scripts.draw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
+        "python -m src.scripts.dr#./../catfish/src/catfish -i data/seq/human/1.sgr -o result/catfish/seq/human/1.res -a core  
+aw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
 
 rule write_tables_seq:
     input:
