@@ -207,7 +207,7 @@ rule plot_nonseq:
 
 rule write_tables_seq:
     input:
-        results = expand("summary/comparisons/{c}/seq/{p}.metrics.json", c=collections, p=nonseq_paths)
+        results = expand("summary/comparisons/{c}/seq/{p}.metrics.json", c=collections, p=seq_paths)
     output:
         "tables/seq/summary.txt"
     shell:
