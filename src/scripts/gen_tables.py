@@ -56,7 +56,7 @@ def compute_values(dfs, b1, b2, cols, order):
 
 def print_np_array_as_latex_table(a, order):
     for i,o in enumerate(order):
-        print("& " + o + " & " + "\\\\\n".join([" & ".join(a[i])]))
+        print("& " + o + " & " + "\\\\\n".join([" & ".join(a[i])]) + "\\\\")
     #print("\\\\\n".join([" & ".join(map(str, line)) for line in a]))
 #
 
