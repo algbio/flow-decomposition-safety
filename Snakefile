@@ -6,14 +6,15 @@ filename_all = "data/{path}.truth"
 seq_paths = glob_wildcards(filename_seq).path
 nonseq_paths = glob_wildcards(filename_nonseq).path
 all_paths = glob_wildcards(filename_all).path
-collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs', 'safety2', 'unitigs2', 'extUnitigs2']
+collections = ['safety', 'catfish', 'unitigs', 'extended_unitigs']
+# collections = ['safety', 'catfish', 'unitigs', 'modified_unitigs', 'safety2', 'unitigs2', 'extUnitigs2']
 
 #collections = ['safety', 'catfish', 'unitigs']
 
 rule all:
     input:
-       "plots/seq/precision.png"
-       #"tables/seq/summary.txt"
+       "plots/seq/precision.png",
+       "tables/seq/summary.txt"
 
 rule convert_sg_to_sgr:
     input:
@@ -44,7 +45,7 @@ rule run_extUnitigs2:
     input:
         "data/{p}.sgr"
     output:
-        "result/extUnitigs2/{p}.res"
+        "result/extended_unitigs/{p}.res"
     shell:
        	"./src/cpp-scripts/simp e < {input} | ./src/cpp-scripts/compress f > {output}"
 
@@ -52,7 +53,7 @@ rule run_unitigs2:
     input:
         "data/{p}.sgr"
     output:
-        "result/unitigs2/{p}.res"
+        "result/unitigs/{p}.res"
     shell:
        	"./src/cpp-scripts/simp u < {input} | ./src/cpp-scripts/compress f > {output}"
 
@@ -60,7 +61,7 @@ rule run_safety2:
     input:
         "data/{p}.sgr"
     output:
-        "result/safety2/{p}.res"
+        "result/safety/{p}.res"
     shell:
        	"./src/cpp-scripts/simp < {input} | ./src/cpp-scripts/compress f > {output}"
 
@@ -73,6 +74,7 @@ rule run_catfish:
     shell:
         "./../catfish/src/catfish -i {input} -o {output} -a greedy"
 
+'''
 rule run_safety:
     input:
         "data/{p}.sg"
@@ -97,35 +99,35 @@ rule run_modified_unitigs:
         "result/modified_unitigs/{p}.res"
     shell:
         "python -m src.scripts.unitigs -i {input} -m True >> result/modified_unitigs/{wildcards.p}.res"
-
+'''
 # compare results from algorithm with sequences
 
-rule extUnitigs2_truth_compare_seq:
+rule extUnitigs_truth_compare_seq:
     input:
-        "result/extUnitigs2/{p}.res",
+        "result/extended_unitigs/{p}.res",
         "data/{p}.truth"
     output:
-        "summary/comparisons/extUnitigs2/{p}.metrics.json"
+        "summary/comparisons/extended_unitigs/{p}.metrics.json"
     shell:
-        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/extUnitigs2/{wildcards.p}.metrics.json"
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/extended_unitigs/{wildcards.p}.metrics.json"
 
-rule unitigs2_truth_compare_seq:
+rule unitigs_truth_compare_seq:
     input:
-        "result/unitigs2/{p}.res",
+        "result/unitigs/{p}.res",
         "data/{p}.truth"
     output:
-        "summary/comparisons/unitigs2/{p}.metrics.json"
+        "summary/comparisons/unitigs/{p}.metrics.json"
     shell:
-        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/unitigs2/{wildcards.p}.metrics.json"
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/unitigs/{wildcards.p}.metrics.json"
 
-rule safety2_truth_compare_seq:
+rule safety_truth_compare_seq:
     input:
-        "result/safety2/{p}.res",
+        "result/safety/{p}.res",
         "data/{p}.truth"
     output:
-        "summary/comparisons/safety2/{p}.metrics.json"
+        "summary/comparisons/safety/{p}.metrics.json"
     shell:
-        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/safety2/{wildcards.p}.metrics.json"
+        "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/safety/{wildcards.p}.metrics.json"
 
 
 rule cafish_truth_compare:
@@ -136,6 +138,8 @@ rule cafish_truth_compare:
         "summary/comparisons/catfish/{p}.metrics.json"
     shell:
         "python -m src.scripts.compare_seq -c {input[0]} -t {input[1]} >> summary/comparisons/catfish/{wildcards.p}.metrics.json"
+
+'''
 rule safety_truth_compare_seq:
     input:
         "result/safety/{p}.res",
@@ -162,7 +166,7 @@ rule modified_unitigs_truth_compare_seq:
         "summary/comparisons/modified_unitigs/{p}.metrics.json"
     shell:
         "python -m src.scripts.compare_seq -i {input[0]} -t {input[1]} >> summary/comparisons/modified_unitigs/{wildcards.p}.metrics.json"
-
+'''
 # draw summary with sequences
 rule summary_seq:
     input: 
@@ -188,7 +192,7 @@ rule plot_seq:
     output:
         "plots/seq/precision.png"
     shell:
-        "python -m src.scripts.draw_plots -c summary/catfish/summary_seq.csv -s summary/safety2/summary_seq.csv -u summary/unitigs2/summary_seq.csv -mu summary/extUnitigs2/summary_seq.csv -p plots/seq/"
+        "python -m src.scripts.draw_plots -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv -mu summary/extended_unitigs/summary_seq.csv -p plots/seq/"
 
 rule plot_nonseq:
     input: 
@@ -196,21 +200,21 @@ rule plot_nonseq:
     output:
         "plots/nonseq/precision.png"
     shell:
-        "python -m src.scripts.draw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety2/summary_nonseq.csv -u summary/unitigs2/summary_nonseq.csv -mu summary/extUnitigs2/summary_nonseq.csv -p plots/nonseq/"
+        "python -m src.scripts.draw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -mu summary/extended_unitigs/summary_nonseq.csv -p plots/nonseq/"
 #aw_plots -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv -p plots/nonseq/"
 
 rule write_tables_seq:
     input:
-        sums = expand("summary/{c}/summary_seq.csv", c =collections)
+        results = expand("summary/comparisons/{c}/seq/{p}.metrics.json", c=collections, p=nonseq_paths)
     output:
         "tables/seq/summary.txt"
     shell:
-        "python -m src.scripts.gen_tables -c summary/catfish/summary_seq.csv -s summary/safety/summary_seq.csv -u summary/unitigs/summary_seq.csv >> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/seq -c summary/comparisons/catfish/seq -u summary/comparisons/unitigs/seq -mu summary/comparisons/extended_unitigs/seq >> {output}"
 
 rule write_tables_nonseq:
     input:
-        sums = expand("summary/{c}/summary_nonseq.csv", c =collections)
+        results = expand("summary/comparisons/{c}/nonseq/{p}.metrics.json", c=collections, p=nonseq_paths)
     output:
         "tables/nonseq/summary.txt"
     shell:
-        "python -m src.scripts.gen_tables -c summary/catfish/summary_nonseq.csv -s summary/safety/summary_nonseq.csv -u summary/unitigs/summary_nonseq.csv >> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq >> {output}"
