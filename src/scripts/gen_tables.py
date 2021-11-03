@@ -8,15 +8,12 @@ import os
 from math import log2, log10
 sns.set()
 
-def main(paths, order):
-    bound1 = 2
-    bound2 = 15
+def main(paths, order, bound1, bound2):
     base_cols = ["max_cov_rel_bases", "e_size_rel_bases", 
-    "base_precision", "fscore_bases_weighted_esr", 
-    "fscore_bases_weighted_mcv"]
+    "base_precision", "fscore_bases_weighted_mcv", "fscore_bases_weighted_esr" ]
     vertex_cols = ["max_cov_rel_vertex", "e_sizes_rel_vertex", 
-    "vertex_precision", "fscore_vertex_weighted_esr", 
-    "fscore_vertex_weighted_mcv"]
+    "vertex_precision","fscore_vertex_weighted_mcv",
+     "fscore_vertex_weighted_esr"]
     all_dataframes = []
     for p in paths:
         all_dataframes.append(read_file(p))
@@ -88,7 +85,7 @@ def read_file(input_folder):
                             df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                         l.append(df)
     df = pd.concat(l)
-    return df[(df.k>=2)]
+    return df
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -97,6 +94,8 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--unitigs", default=None)
     parser.add_argument("-mu", "--modified_unitigs", default=None)
     parser.add_argument("-save", "--save", default=True)
+    parser.add_argument("-b1", "--bound1", default=2)
+    parser.add_argument("-b2", "--bound2", default=15)
     args = parser.parse_args()
     paths = []
     order = []
@@ -112,4 +111,4 @@ if __name__ == '__main__':
     if args.modified_unitigs:
         paths.append(args.modified_unitigs)
         order.append('Extended Unitigs')
-    main(paths, order)
+    main(paths, order, args.bound1, args.bound2)

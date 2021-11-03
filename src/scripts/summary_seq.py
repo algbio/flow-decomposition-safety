@@ -86,8 +86,8 @@ def read_file(input_folder):
                             df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                         l.append(df)
     df = pd.concat(l)
-    return df[(df.k>=2)]
-    
+    return df
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_folder")

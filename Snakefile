@@ -219,4 +219,20 @@ rule write_tables_nonseq:
     output:
         "tables/nonseq/summary.txt"
     shell:
-        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq >> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 15>> {output}"
+
+rule write_tables_seq2:
+    input:
+        results = expand("summary/comparisons/{c}/seq/{p}.metrics.json", c=collections, p=seq_paths)
+    output:
+        "tables/seq/summary210.txt"
+    shell:
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/seq -c summary/comparisons/catfish/seq -u summary/comparisons/unitigs/seq -mu summary/comparisons/extended_unitigs/seq -b1 2 -b2 10>> {output}"
+
+rule write_tables_nonseq2:
+    input:
+        results = expand("summary/comparisons/{c}/nonseq/{p}.metrics.json", c=collections, p=nonseq_paths)
+    output:
+        "tables/nonseq/summary110.txt"
+    shell:
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 10>> {output}"
