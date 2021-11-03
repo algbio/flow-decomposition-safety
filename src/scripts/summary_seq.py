@@ -11,45 +11,13 @@ def main(input_folder, mode):
     Gets input folder as a parameter.
     Outputs a json-file containing summary of the data.
     '''
-    l=[]
-    l2 = []
-    for root, dirs, files in os.walk(input_folder):
-        # = root.split('/')[-1]
-        if not dirs:
-            for fi in files:
-                filename= f'{root}/{fi}'
-                try:
-                    df3 = pd.read_json(filename)
-                except ValueError:
-                    continue
-                
-                l.append(df3)
-                del df3
-        else:
-            for d in dirs:
-                for r, d2, f in os.walk(f'{root}{d}'):
-                    for fi in f:
-                        filename= f'{r}/{fi}'
-                        try:
-                            df3 = pd.read_json(filename)
-                        except ValueError:
-                            continue
-                        
-                        l.append(df3)
-                        del df3
-            
-    df = pd.concat(l)
-    l = []
+    
+    df = read_file(input_folder)
     # reduce lists to single floats
-    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
-    for c in column_strings:
-        df[f'{c}_sum'] = [sum(x) for x in df[c]] / df['number_of_paths']
     groups = df.groupby('k')
     sdf = groups.mean()
     sdf['number_of_graphs_per_k'] = groups.count().precision
 
-    for c in column_strings:
-        sdf[f'{c}_mean'] = sdf[f'{c}_sum']/sdf.index
     sdf['avg_path_length_seq'] = groups.sum()['seq_length_sum'] / groups.sum()['number_of_paths']
     sdf['avg_path_length_nodes'] = groups.sum()['node_sum'] / groups.sum()['number_of_paths']
     
@@ -90,7 +58,34 @@ def main(input_folder, mode):
     else:
         print(sdf.to_csv())
     '''
-    
+def read_file(input_folder):
+    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
+    l = []
+    for root, dirs, files in os.walk(input_folder):
+        # = root.split('/')[-1]
+        if not dirs:
+            for fi in files:
+                filename= f'{root}/{fi}'
+                try:
+                    df = pd.read_json(filename)
+                except ValueError:
+                    continue
+                for c in column_strings:
+                    df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
+                l.append(df)
+        else:
+            for d in dirs:
+                for r, d2, f in os.walk(f'{root}{d}'):
+                    for fi in f:
+                        filename= f'{r}/{fi}'
+                        try:
+                            df = pd.read_json(filename)
+                        except ValueError:
+                            continue
+                        for c in column_strings:
+                            df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
+                        l.append(df)
+    return pd.concat(l)    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input_folder")

@@ -22,8 +22,8 @@ def main(paths, save, path):
     # figure parameters
     columns = [
                 'avg_path_length_seq', 'avg_path_length_nodes', 
-                'max_cov_rel_bases_mean', 'max_cov_rel_vertex_mean', 
-                'e_size_rel_bases_mean', 'e_sizes_rel_vertex_mean',
+                'max_cov_rel_bases', 'max_cov_rel_vertex', 
+                'e_size_rel_bases', 'e_sizes_rel_vertex',
                 'vertex_precision', 'precision','base_precision', 
                 'fscore_bases_mcv', 'fscore_vertex_mcv',
                 'fscore_vertex_weighted_mcv','fscore_bases_weighted_mcv',

@@ -56,6 +56,14 @@ def main(truth, catfish=None, comp=None, mode=None):
         })
     print(dumps(metrics, indent=4))
 
+def avg_score(a, b):
+    try:
+        mean = sum(a)/len(b)
+    except ZeroDivisionError:
+        mean = 0
+    return mean
+
+
 def f_scores(p, r):
     try:
         r_mean = sum(r)/len(r)
