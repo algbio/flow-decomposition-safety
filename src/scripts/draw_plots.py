@@ -8,22 +8,20 @@ from math import log2, log10
 sns.set()
 
 def main(paths, save, path):
-    font = {'family' : 'normal',
-        'weight' : 'normal',
-        'size'   : 24}
-
-    plt.rc('font', **font)
+    #plt.rcParams.update({'font.size': 53})
+    fontsize = 22
+    plt.rc('xtick', labelsize=fontsize) 
+    plt.rc('ytick', labelsize=fontsize) 
     dframes = []
     for p in paths:
         df = pd.read_csv(p)
-        df.name = p.split('/')[1].replace('_',' ')
+        df.name = p.split('/')[1].replace('_',' ').replace('And','&')
         #df.name = p.replace('_',' ')
         dframes.append(df)
     # figure parameters
     columns = [
-                'avg_path_length_seq', 'avg_path_length_nodes', 
-                'max_cov_rel_bases', 'max_cov_rel_vertex', 
-                'e_size_rel_bases', 'e_sizes_rel_vertex',
+                'max_cov_rel_bases_avg', 'max_cov_rel_vertex_avg', 
+                'e_size_rel_bases_avg', 'e_sizes_rel_vertex_avg',
                 'vertex_precision', 'precision','base_precision', 
                 'fscore_bases_mcv', 'fscore_vertex_mcv',
                 'fscore_vertex_weighted_mcv','fscore_bases_weighted_mcv',
@@ -47,8 +45,8 @@ def main(paths, save, path):
             #plt.scatter(df['k'], df[col])
         #plt.title(titles[i])
         # plt.ylabel()
-        plt.xlabel('k')
-        plt.legend(fontsize=15)
+        plt.xlabel('k', fontsize=fontsize)
+        plt.legend(fontsize=fontsize)
         if save:
             plt.savefig(f'{path}/{col}.png')
         else:
@@ -65,12 +63,16 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--path", default='plots')
     args = parser.parse_args()
     paths = []
-    if args.catfish:
-        paths.append(args.catfish)
+
     if args.unitigs:
         paths.append(args.unitigs)
     if args.modified_unitigs:
         paths.append(args.modified_unitigs)
     if args.safety:
         paths.append(args.safety)
+    if args.catfish:
+        paths.append(args.catfish)
+    
+    
+    
     main(paths, args.save, args.path)

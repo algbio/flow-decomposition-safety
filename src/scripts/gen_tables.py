@@ -9,11 +9,10 @@ from math import log2, log10
 sns.set()
 
 def main(paths, order, bound1, bound2):
-    base_cols = ["max_cov_rel_bases", "e_size_rel_bases", 
-    "base_precision", "fscore_bases_weighted_mcv", "fscore_bases_weighted_esr" ]
-    vertex_cols = ["max_cov_rel_vertex", "e_sizes_rel_vertex", 
-    "vertex_precision","fscore_vertex_weighted_mcv",
-     "fscore_vertex_weighted_esr"]
+    base_cols = ["max_cov_rel_bases_avg",
+    "base_precision", "fscore_bases_weighted_mcv"]
+    vertex_cols = ["max_cov_rel_vertex_avg",
+    "vertex_precision","fscore_vertex_weighted_mcv"]
     all_dataframes = []
     for p in paths:
         all_dataframes.append(read_file(p))
@@ -58,7 +57,6 @@ def print_np_array_as_latex_table(a, order):
 #
 
 def read_file(input_folder):
-    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
     l = []
     for root, dirs, files in os.walk(input_folder):
         # = root.split('/')[-1]
@@ -69,8 +67,6 @@ def read_file(input_folder):
                     df = pd.read_json(filename)
                 except ValueError:
                     continue
-                for c in column_strings:
-                    df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                 l.append(df)
         else:
             for d in dirs:
@@ -81,8 +77,6 @@ def read_file(input_folder):
                             df = pd.read_json(filename)
                         except ValueError:
                             continue
-                        for c in column_strings:
-                            df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                         l.append(df)
     df = pd.concat(l)
     return df
@@ -99,16 +93,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
     paths = []
     order = []
-    if args.safety:
-        paths.append(args.safety)
-        order.append('Safe and Complete')
-    if args.catfish:
-        paths.append(args.catfish)
-        order.append('Catfish')
+    
     if args.unitigs:
         paths.append(args.unitigs)
         order.append('Unitigs')
     if args.modified_unitigs:
         paths.append(args.modified_unitigs)
-        order.append('Extended Unitigs')
+        order.append('ExtUnitigs')
+    if args.safety:
+        paths.append(args.safety)
+        order.append('Safe&Comp')
+    if args.catfish:
+        paths.append(args.catfish)
+        order.append('Greedy')
     main(paths, order, int(args.bound1), int(args.bound2))

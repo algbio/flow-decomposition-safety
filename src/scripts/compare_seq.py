@@ -38,6 +38,10 @@ def main(truth, catfish=None, comp=None, mode=None):
             'e_size_rel_bases': to_float(e_size_rel_bases),
             'max_cov_rel_vertex': to_float(max_cov_rel_vertex),
             'max_cov_rel_bases': to_float(max_cov_rel_bases),
+            'e_sizes_rel_vertex_avg': avg_score(to_float(e_sizes_rel_vertex)),
+            'e_size_rel_bases_avg': avg_score(to_float(e_size_rel_bases)),
+            'max_cov_rel_vertex_avg': avg_score(to_float(max_cov_rel_vertex)),
+            'max_cov_rel_bases_avg': avg_score(to_float(max_cov_rel_bases)),
             'precision': precision,
             'vertex_precision': vertex_precision,
             'base_precision': base_precision,
@@ -56,9 +60,9 @@ def main(truth, catfish=None, comp=None, mode=None):
         })
     print(dumps(metrics, indent=4))
 
-def avg_score(a, b):
+def avg_score(a):
     try:
-        mean = sum(a)/len(b)
+        mean = sum(a)/len(a)
     except ZeroDivisionError:
         mean = 0
     return mean

@@ -59,7 +59,6 @@ def main(input_folder, mode):
         print(sdf.to_csv())
     '''
 def read_file(input_folder):
-    column_strings = ['e_sizes_rel_vertex', 'e_size_rel_bases', 'max_cov_rel_vertex', 'max_cov_rel_bases']
     l = []
     for root, dirs, files in os.walk(input_folder):
         # = root.split('/')[-1]
@@ -70,8 +69,6 @@ def read_file(input_folder):
                     df = pd.read_json(filename)
                 except ValueError:
                     continue
-                for c in column_strings:
-                    df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                 l.append(df)
         else:
             for d in dirs:
@@ -82,8 +79,6 @@ def read_file(input_folder):
                             df = pd.read_json(filename)
                         except ValueError:
                             continue
-                        for c in column_strings:
-                            df[c] = [sum(x) for x in df[c]] / df['number_of_paths']
                         l.append(df)
     df = pd.concat(l)
     return df
