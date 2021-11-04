@@ -13,10 +13,12 @@ collections = ['safety', 'catfish', 'unitigs', 'extended_unitigs']
 
 rule all:
     input:
-       "plots/seq/precision.png",
-       "tables/seq/summary.txt",
-       "plots/nonseq/precision.png",
-       "tables/nonseq/summary.txt"
+        #"plots/seq/precision.png",
+        #"tables/seq/summary.txt",
+        "tables/nonseq/summary110.txt",
+        #"tables/seq/summary210.txt"
+        "plots/nonseq/precision.png",
+        "tables/nonseq/summary.txt"
 
 rule convert_sg_to_sgr:
     input:
@@ -219,7 +221,7 @@ rule write_tables_nonseq:
     output:
         "tables/nonseq/summary.txt"
     shell:
-        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 15>> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 15 >> {output}"
 
 rule write_tables_seq2:
     input:
@@ -227,7 +229,7 @@ rule write_tables_seq2:
     output:
         "tables/seq/summary210.txt"
     shell:
-        "python -m src.scripts.gen_tables -s summary/comparisons/safety/seq -c summary/comparisons/catfish/seq -u summary/comparisons/unitigs/seq -mu summary/comparisons/extended_unitigs/seq -b1 2 -b2 10>> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/seq -c summary/comparisons/catfish/seq -u summary/comparisons/unitigs/seq -mu summary/comparisons/extended_unitigs/seq -b2 10 >> {output}"
 
 rule write_tables_nonseq2:
     input:
@@ -235,4 +237,4 @@ rule write_tables_nonseq2:
     output:
         "tables/nonseq/summary110.txt"
     shell:
-        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 10>> {output}"
+        "python -m src.scripts.gen_tables -s summary/comparisons/safety/nonseq -c summary/comparisons/catfish/nonseq -u summary/comparisons/unitigs/nonseq -mu summary/comparisons/extended_unitigs/nonseq -b1 1 -b2 10 >> {output}"

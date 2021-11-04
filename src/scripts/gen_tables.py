@@ -25,7 +25,7 @@ def main(paths, order, bound1, bound2):
     compute_values(all_dataframes, bound1, bound2, vertex_cols, order)
 
 def compute_values(dfs, b1, b2, cols, order):
-    print(f'k >= 2')
+    print(f'k >= {b1}')
     stuff_a = []
     for df in dfs:
         a = df[(df.k >= b1)]
@@ -111,4 +111,4 @@ if __name__ == '__main__':
     if args.modified_unitigs:
         paths.append(args.modified_unitigs)
         order.append('Extended Unitigs')
-    main(paths, order, args.bound1, args.bound2)
+    main(paths, order, int(args.bound1), int(args.bound2))
