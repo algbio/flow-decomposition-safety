@@ -63,6 +63,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+src/cpp-scrips/compress
+src/cpp-scrips/simp
+
 
 # Translations
 *.mo
